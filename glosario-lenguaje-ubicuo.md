@@ -56,6 +56,10 @@ libroRepository.save(libro); } ]
 
 | No usar | Usar |
 |---|---|
-| [genérico 1] | [su término] |
-| [genérico 2] | [su término] |
-| [genérico 3] | [su término] |
+| Nombre | Título |
+| Código | ISBN |
+| Versión | Edición |
+| Fecha | Fecha de publicación |
+| Páginas | Número de páginas |
+| Escritor | Autor |
+| Artículo | Libro |
