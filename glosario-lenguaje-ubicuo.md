@@ -19,7 +19,7 @@
 **Definición:** Es el dia, mes y año en que una edicion del libro sale oficialmente al mercado. 
 
 **Sinónimos aceptados:** Fecha de aparicion
-**No usar:** fecha
+**No usar:** Fecha
 
 **Ejemplo de uso en código:**
 \`\`\`java
@@ -33,22 +33,39 @@ libroRepository.save(libro); } ]
 
 **Definición:** Es el numero de paginas que tiene el libro
 
-**Sinónimos aceptados:** paginas
-**No usar:** cantidad
+**Sinónimos aceptados:** Paginas
+**No usar:** Cantidad
 
 **Ejemplo de uso en código:**
 \`\`\`java
 [ public List filtrarPorPaginas(int min, int max){ return libroRepository.findByPaginasBetween(min, max); } ]
 \`\`\`
----
-
-### [Término 4]
-[repitan la misma estructura]
 
 ---
 
-### [Término 5]
-[repitan la misma estructura]
+### Edición
+**Definición:** Es la versión específica de un libro publicada por una editorial
+
+**Sinónimos aceptados:** Publicación
+**No usar:** Versión, impresión
+
+**Ejemplo de uso en código:**
+\`\`\`java
+[ public List filtrarPorEdicion(String edicion){ return libroRepository.findByEdicion(edicion); } ]
+\`\`\`
+
+---
+
+### ISBN
+**Definición:** Es el número único que identifica una edición específica de un libro publicado
+
+**Sinónimos aceptados:** Número ISBN, código ISBN
+**No usar:** Código libro, número libro
+
+**Ejemplo de uso en código:**
+\`\`\`java
+[ public Libro buscarPorISBN(String isbn){ return libroRepository.findByIsbn(isbn); } ]
+\`\`\`
 
 ---
 
