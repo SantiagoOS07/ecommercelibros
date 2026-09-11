@@ -27,13 +27,14 @@ public class Libro {
     private int paginas;
     private double precio;
     private int stock;
+    private String edicion;
     private String editorial;
     private LocalDate fechaPublicacion;
     private String categoria;
     private String imagen;
     private String estado;
 
-    public Libro(String titulo, String autor, String isbn, String descripcion, int paginas, double precio, int stock, String editorial, LocalDate fechaPublicacion, String categoria, String imagen, String estado) {
+    public Libro(String titulo, String autor, String isbn, String descripcion, int paginas, double precio, int stock,String edicion, String editorial, LocalDate fechaPublicacion, String categoria, String imagen, String estado) {
         this.titulo = titulo;
         this.autor = autor;
         this.isbn = isbn;
@@ -41,6 +42,7 @@ public class Libro {
         this.paginas = paginas;
         this.precio = precio;
         this.stock = stock;
+        this.edicion = edicion;
         this.editorial = editorial;
         this.fechaPublicacion = fechaPublicacion;
         this.categoria = categoria;
