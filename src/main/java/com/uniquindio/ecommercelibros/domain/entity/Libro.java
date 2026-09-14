@@ -1,5 +1,6 @@
 package com.uniquindio.ecommercelibros.domain.entity;
 
+import com.uniquindio.ecommercelibros.domain.valueObject.*;
 import lombok.Getter;
 import lombok.ToString;
 
@@ -13,21 +14,21 @@ public class Libro {
 
     private final UUID idLibro;
 
-    private String titulo;
-    private String autor;
-    private String isbn;
+    private NombreLibro titulo;
+    private Autor autor;
+    private ISBN isbn;
     private String descripcion;
-    private int numeroPaginas;
-    private double precio;
-    private int stock;
+    private NumeroPaginas numeroPaginas;
+    private Precio precio;
+    private Stock stock;
     private String edicion;
-    private String editorial;
-    private LocalDate fechaPublicacion;
-    private String categoria;
+    private Editorial editorial;
+    private FechaPublicacion fechaPublicacion;
+    private CategoriaLibro categoria;
     private String imagen;
-    private String estado;
+    private EstadoLibro estado;
 
-    public Libro(String titulo, String autor, String isbn, String descripcion, int numeroPaginas, double precio, int stock,String edicion, String editorial, LocalDate fechaPublicacion, String categoria, String imagen, String estado) {
+    public Libro(NombreLibro titulo, Autor autor, ISBN isbn, String descripcion, NumeroPaginas numeroPaginas, Precio precio, Stock stock, String edicion, Editorial editorial, FechaPublicacion fechaPublicacion, CategoriaLibro categoria, String imagen, EstadoLibro estado) {
         this.idLibro = UUID.randomUUID();
         this.titulo = titulo;
         this.autor = autor;
