@@ -1,4 +1,5 @@
 package com.uniquindio.ecommercelibros.domain.valueObject;
+import com.uniquindio.ecommercelibros.domain.exception.CasillaVaciaException;
 import com.uniquindio.ecommercelibros.domain.exception.ReglaDominioException;
 
 public record Precio(double monto, String moneda) {
@@ -8,7 +9,7 @@ public record Precio(double monto, String moneda) {
             throw new ReglaDominioException("El precio no puede ser negativo");
         }
         if (moneda == null || moneda.isBlank()) {
-            throw new ReglaDominioException("La moneda es obligatoria");
+            throw new CasillaVaciaException("La moneda es obligatoria");
         }
     }
 

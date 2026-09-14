@@ -3,10 +3,10 @@ package com.uniquindio.ecommercelibros.domain.valueObject;
 import com.uniquindio.ecommercelibros.domain.exception.CasillaVaciaException;
 import com.uniquindio.ecommercelibros.domain.exception.ReglaDominioException;
 
-public record NumeroPaginas(int numeroPaginas) {
-    public NumeroPaginas {
-        if (numeroPaginas <= 0) {
-            throw new CasillaVaciaException("El número de páginas debe ser mayor a cero");
+public record NombreLibro(String nombreLibro) {
+    public NombreLibro {
+        if  (nombreLibro == null) {
+            throw new CasillaVaciaException("El nombre del libro no puede ser vacio");
         }
     }
 }
