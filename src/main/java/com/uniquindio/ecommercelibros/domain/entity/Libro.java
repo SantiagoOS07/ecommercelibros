@@ -1,24 +1,17 @@
 package com.uniquindio.ecommercelibros.domain.entity;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
 import lombok.Getter;
-import lombok.Setter;
 import lombok.ToString;
 
 import java.time.LocalDate;
+import java.util.Objects;
+import java.util.UUID;
 
-@Entity
-@Setter
 @Getter
 @ToString
 public class Libro {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long idLibro;
+    private final UUID idLibro;
 
     private String titulo;
     private String autor;
@@ -35,6 +28,7 @@ public class Libro {
     private String estado;
 
     public Libro(String titulo, String autor, String isbn, String descripcion, int numeroPaginas, double precio, int stock,String edicion, String editorial, LocalDate fechaPublicacion, String categoria, String imagen, String estado) {
+        this.idLibro = UUID.randomUUID();
         this.titulo = titulo;
         this.autor = autor;
         this.isbn = isbn;
@@ -50,7 +44,16 @@ public class Libro {
         this.estado = estado;
     }
 
-    public Libro() {
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Libro libro)) return false;
+        return idLibro.equals(libro.idLibro);
+    }
 
+    @Override
+    public int hashCode() {
+        return Objects.hash(idLibro);
     }
 }
+
