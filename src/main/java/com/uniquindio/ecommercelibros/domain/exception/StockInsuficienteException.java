@@ -1,0 +1,7 @@
+package com.uniquindio.ecommercelibros.domain.exception;
+
+public class StockInsuficienteException extends RuntimeException {
+    public StockInsuficienteException(String message) {
+        super(message);
+    }
+}
