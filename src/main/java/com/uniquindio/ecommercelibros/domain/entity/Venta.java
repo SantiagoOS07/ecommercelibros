@@ -1,22 +1,27 @@
 package com.uniquindio.ecommercelibros.domain.entity;
 
+import com.uniquindio.ecommercelibros.domain.valueObject.EstadoPedido;
 import com.uniquindio.ecommercelibros.domain.valueObject.Precio;
 
+import java.time.LocalDate;
+import java.util.List;
 import java.util.UUID;
 import java.util.Objects;
 
 public class Venta {
 
     private final UUID idVenta;
-    private final Libro libro;
-    private final int cantidad;
-    private final Precio precio;
+    private final List<ItemVenta> items;
+    private LocalDate fecha;
+    private final Precio total;
+    private EstadoPedido estadoPedido;
 
-    public Venta(Libro libro, int cantidad, Precio precio) {
+    public Venta(UUID idVenta, List<ItemVenta> items, Precio total, LocalDate fecha, EstadoPedido estadoPedido) {
         this.idVenta = UUID.randomUUID();
-        this.libro = libro;
-        this.cantidad = cantidad;
-        this.precio = precio;
+        this.items = items;
+        this.total = total;
+        this.fecha = LocalDate.now();
+        this.estadoPedido = EstadoPedido.EN_PROCESO;
     }
 
     @Override
