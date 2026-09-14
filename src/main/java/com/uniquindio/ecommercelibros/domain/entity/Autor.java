@@ -1,5 +1,7 @@
 package com.uniquindio.ecommercelibros.domain.entity;
 
+import com.uniquindio.ecommercelibros.domain.valueObject.Nacionalidad;
+
 import java.util.Objects;
 
 public class Autor {

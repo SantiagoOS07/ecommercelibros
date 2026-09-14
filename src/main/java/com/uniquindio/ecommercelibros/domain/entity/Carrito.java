@@ -1,5 +1,6 @@
 package com.uniquindio.ecommercelibros.domain.entity;
 
+import com.uniquindio.ecommercelibros.domain.valueObject.EstadoCarrito;
 import com.uniquindio.ecommercelibros.domain.valueObject.EstadoPedido;
 
 import java.util.List;
