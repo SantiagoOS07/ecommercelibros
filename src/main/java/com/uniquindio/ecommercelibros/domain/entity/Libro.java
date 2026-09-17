@@ -4,7 +4,6 @@ import com.uniquindio.ecommercelibros.domain.valueObject.*;
 import lombok.Getter;
 import lombok.ToString;
 
-import java.time.LocalDate;
 import java.util.Objects;
 import java.util.UUID;
 
@@ -15,30 +14,30 @@ public class Libro {
     private final UUID idLibro;
 
     private NombreLibro titulo;
-    private Autor autor;
+    private String idAutor;
     private ISBN isbn;
     private String descripcion;
     private NumeroPaginas numeroPaginas;
     private Precio precio;
     private Stock stock;
     private String edicion;
-    private Editorial editorial;
+    private UUID idEditorial;
     private FechaPublicacion fechaPublicacion;
     private CategoriaLibro categoria;
     private String imagen;
     private EstadoLibro estado;
 
-    public Libro(NombreLibro titulo, Autor autor, ISBN isbn, String descripcion, NumeroPaginas numeroPaginas, Precio precio, Stock stock, String edicion, Editorial editorial, FechaPublicacion fechaPublicacion, CategoriaLibro categoria, String imagen, EstadoLibro estado) {
+    public Libro(NombreLibro titulo, String idAutor, ISBN isbn, String descripcion, NumeroPaginas numeroPaginas, Precio precio, Stock stock, String edicion, UUID idEditorial, FechaPublicacion fechaPublicacion, CategoriaLibro categoria, String imagen, EstadoLibro estado) {
         this.idLibro = UUID.randomUUID();
         this.titulo = titulo;
-        this.autor = autor;
+        this.idAutor = idAutor;
         this.isbn = isbn;
         this.descripcion = descripcion;
         this.numeroPaginas = numeroPaginas;
         this.precio = precio;
         this.stock = stock;
         this.edicion = edicion;
-        this.editorial = editorial;
+        this.idEditorial = idEditorial;
         this.fechaPublicacion = fechaPublicacion;
         this.categoria = categoria;
         this.imagen = imagen;
