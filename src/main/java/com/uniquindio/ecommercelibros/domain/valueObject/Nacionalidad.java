@@ -72,5 +72,6 @@ public enum Nacionalidad {
     UCRANIANA,
     URUGUAYA,
     VENEZOLANA,
-    VIETNAMITA
+    VIETNAMITA,
+    OTRA
 }
