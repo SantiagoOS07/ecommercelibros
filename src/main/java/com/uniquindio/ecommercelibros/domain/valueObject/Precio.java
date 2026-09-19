@@ -13,6 +13,7 @@ public record Precio(double monto, String moneda) {
         }
     }
 
+    // Una posible funcionalidad extra
     public Precio aplicarDescuento(double porcentaje) {
         if (porcentaje < 0 || porcentaje > 100) {
             throw new ReglaDominioException("El descuento debe estar entre 0 y 100");
