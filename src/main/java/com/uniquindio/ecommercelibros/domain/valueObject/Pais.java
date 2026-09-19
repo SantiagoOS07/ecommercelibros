@@ -51,5 +51,6 @@ public enum Pais {
     SUDAFRICA,
     MARRUECOS,
     ISRAEL,
-    TURQUIA;
+    TURQUIA,
+    OTRO
 }
