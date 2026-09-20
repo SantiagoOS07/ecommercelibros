@@ -61,7 +61,42 @@ public class Carrito {
     }
 
     public void completarVentaCarrito() {
+        verificarCarritoNoVendido();
+        if (this.estado != EstadoCarrito.PROCESANDO) {
+            throw new ReglaDominioException("El carrito no puede completar la venta, ya que no se esta procesando.");
+        }
+        if (this.items.isEmpty()) {
+            throw new ReglaDominioException("El carrito no puede completar la venta, ya que no tiene items.");
+        }
+        verificarTransaccion(EstadoCarrito.VENDIDO);
+        this.estado = EstadoCarrito.VENDIDO;
+        Precio precioTotal = calcularPrecioTotal();
+        List<ItemVenta> itemsVenta = procesarItemsCarrito();
+        Venta.crear(itemsVenta, precioTotal);
+    }
 
+    private List<ItemVenta> procesarItemsCarrito() {
+        return this.items.stream()
+                .map(item -> ItemVenta.crear(item.getIsbnLibro(),
+                        item.getCantidad(),
+                        item.getPrecioUnitario(),
+                        item.getPrecioTotal()))
+                .toList();
+    }
+
+    private Precio calcularPrecioTotal() {
+        double total = items.stream()
+                .mapToDouble(item -> convertirACOP(item.getPrecioTotal()))
+                .sum();
+
+        return new Precio(total, Moneda.COP);
+    }
+
+    private double convertirACOP(Precio precio) {
+        return switch (precio.moneda()) {
+            case COP -> precio.monto();
+            case USD -> precio.monto() * Constantes.TRM_USD_A_COP;
+        };
     }
 
     private void verificarTransaccion(EstadoCarrito estadoCarritoSiguiente) {
@@ -79,6 +114,31 @@ public class Carrito {
     public void agregarItem(ISBN isbnLibro, int cantidad, Precio precioLibro) {
         ItemCarrito itemCarrito = ItemCarrito.crear(isbnLibro, cantidad, precioLibro);
         this.items.add(itemCarrito);
+    }
+
+    public void eliminarItem(ISBN isbnLibro) {
+        this.items.removeIf(itemCarrito -> itemCarrito.getIsbnLibro().equals(isbnLibro));
+    }
+
+    public void actualizarItemCantidad(ISBN isbnLibro, int nuevaCantidad) {
+        if (nuevaCantidad < 0) {
+            throw new ReglaDominioException("La cantidad debe ser mayor o igual a cero.");
+        }
+        if (nuevaCantidad == 0) {
+            eliminarItem(isbnLibro);
+            return;
+        }
+        this.items.stream()
+                .filter(itemCarrito -> itemCarrito.getIsbnLibro().equals(isbnLibro))
+                .findFirst()
+                .ifPresent(itemCarrito -> itemCarrito.actualizarCantidad(nuevaCantidad));
+    }
+
+    public void actualizarItemPrecio(ISBN isbnLibro, Precio nuevoPrecio) {
+        this.items.stream()
+                .filter(itemCarrito -> itemCarrito.getIsbnLibro().equals(isbnLibro))
+                .findFirst()
+                .ifPresent(itemCarrito -> itemCarrito.actualizarPrecio(nuevoPrecio));
     }
 
     @Override

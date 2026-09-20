@@ -3,21 +3,25 @@ package com.uniquindio.ecommercelibros.domain.entity;
 import com.uniquindio.ecommercelibros.domain.exception.ReglaDominioException;
 import com.uniquindio.ecommercelibros.domain.valueObject.ISBN;
 import com.uniquindio.ecommercelibros.domain.valueObject.Precio;
+import lombok.Getter;
 
 import java.util.Objects;
 import java.util.UUID;
 
+@Getter
 public class ItemCarrito {
 
     private final UUID idItemCarrito;
     private final ISBN isbnLibro;
     private int cantidad;
+    private Precio precioUnitario;
     private Precio precioTotal;
 
     private ItemCarrito(ISBN isbnLibro, int cantidad, Precio precioLibro) {
         this.idItemCarrito = UUID.randomUUID();
         this.isbnLibro = isbnLibro;
         this.cantidad = cantidad;
+        this.precioUnitario = precioLibro;
         this.precioTotal = new Precio(precioLibro.monto() * cantidad, precioLibro.moneda());
     }
 
