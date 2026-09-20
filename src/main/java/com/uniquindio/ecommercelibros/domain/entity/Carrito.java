@@ -1,10 +1,7 @@
 package com.uniquindio.ecommercelibros.domain.entity;
 
 import com.uniquindio.ecommercelibros.domain.exception.ReglaDominioException;
-import com.uniquindio.ecommercelibros.domain.valueObject.EstadoCarrito;
-import com.uniquindio.ecommercelibros.domain.valueObject.EstadoPedido;
-import com.uniquindio.ecommercelibros.domain.valueObject.ISBN;
-import com.uniquindio.ecommercelibros.domain.valueObject.Precio;
+import com.uniquindio.ecommercelibros.domain.valueObject.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -86,16 +83,16 @@ public class Carrito {
 
     private Precio calcularPrecioTotal() {
         double total = items.stream()
-                .mapToDouble(item -> convertirACOP(item.getPrecioTotal()))
+                .mapToDouble(item -> convertirAUSD(item.getPrecioTotal()))
                 .sum();
 
-        return new Precio(total, Moneda.COP);
+        return new Precio(total, Moneda.USD);
     }
 
-    private double convertirACOP(Precio precio) {
+    private double convertirAUSD(Precio precio) {
         return switch (precio.moneda()) {
-            case COP -> precio.monto();
-            case USD -> precio.monto() * Constantes.TRM_USD_A_COP;
+            case COP -> precio.monto() / precio.moneda().equivalencia;
+            case USD -> precio.monto();
         };
     }
 
