@@ -8,7 +8,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
-public class LibrorepositoryEnMemoria implements LibroRepository {
+public class LibroRepositoryEnMemoria implements LibroRepository {
 
     private final Map<String, Libro> libros = new HashMap<>();
 
