@@ -1,6 +1,7 @@
 package com.uniquindio.ecommercelibros.domain.entity;
 
 import com.uniquindio.ecommercelibros.domain.exception.CasillaVaciaException;
+import com.uniquindio.ecommercelibros.domain.exception.ReglaDominioException;
 import com.uniquindio.ecommercelibros.domain.valueObject.Correo;
 import com.uniquindio.ecommercelibros.domain.valueObject.Direccion;
 import com.uniquindio.ecommercelibros.domain.valueObject.RolUsuario;
@@ -31,11 +32,11 @@ public class Usuario {
     }
 
     public static Usuario crear(String idUsuario, String nombre, Correo correo, String contrasenia, Telefono telefono, Direccion direccion, RolUsuario rolUsuario) {
-        validar(idUsuario, nombre, correo, contrasenia, rolUsuario);
+        validar(idUsuario, nombre, correo, contrasenia, telefono, direccion, rolUsuario);
         return new Usuario(idUsuario, nombre, correo, contrasenia, telefono, direccion, rolUsuario);
     }
 
-    private static void validar(String idUsuario, String nombre, Correo correo, String contrasenia, RolUsuario rolUsuario) {
+    private static void validar(String idUsuario, String nombre, Correo correo, String contrasenia, Telefono telefono, Direccion direccion, RolUsuario rolUsuario) {
         if (idUsuario == null || idUsuario.isEmpty()) {
             throw new CasillaVaciaException("El id del usuario no puede ser nulo o vacío.");
         }
@@ -47,6 +48,12 @@ public class Usuario {
         }
         if (contrasenia == null || contrasenia.isEmpty()) {
             throw new CasillaVaciaException("La contraseña del usuario no puede ser nula o vacía.");
+        }
+        if (telefono == null) {
+            throw new CasillaVaciaException("El telefono del usuario no puede ser nulo.");
+        }
+        if (direccion == null) {
+            throw new CasillaVaciaException("La dirección del usuario no puede ser nula.");
         }
         if (rolUsuario == null) {
             throw new CasillaVaciaException("El rol del usuario no puede ser nulo.");
