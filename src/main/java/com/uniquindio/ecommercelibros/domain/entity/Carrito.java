@@ -100,16 +100,25 @@ public class Carrito {
         }
     }
 
+    private void verificarCarritoEditable() {
+        if (this.estado != EstadoCarrito.CREADO) {
+            throw new ReglaDominioException("El carrito no se puede modificar porque no está en estado CREADO.");
+        }
+    }
+
     public void agregarItem(ISBN isbnLibro, int cantidad, Precio precioLibro, Stock stock) {
+        verificarCarritoEditable();
         ItemCarrito itemCarrito = ItemCarrito.crear(isbnLibro, cantidad, precioLibro, stock);
         this.items.add(itemCarrito);
     }
 
     public void eliminarItem(ISBN isbnLibro) {
+        verificarCarritoEditable();
         this.items.removeIf(itemCarrito -> itemCarrito.getIsbnLibro().equals(isbnLibro));
     }
 
     public void actualizarItemCantidad(ISBN isbnLibro, int nuevaCantidad, Stock stockLibro) {
+        verificarCarritoEditable();
         if (nuevaCantidad < 0) {
             throw new ReglaDominioException("La cantidad debe ser mayor o igual a cero.");
         }
@@ -124,6 +133,7 @@ public class Carrito {
     }
 
     public void actualizarItemPrecio(ISBN isbnLibro, Precio nuevoPrecio) {
+        verificarCarritoEditable();
         this.items.stream()
                 .filter(itemCarrito -> itemCarrito.getIsbnLibro().equals(isbnLibro))
                 .findFirst()
