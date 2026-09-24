@@ -109,7 +109,7 @@ public class Carrito {
         this.items.removeIf(itemCarrito -> itemCarrito.getIsbnLibro().equals(isbnLibro));
     }
 
-    public void actualizarItemCantidad(ISBN isbnLibro, int nuevaCantidad) {
+    public void actualizarItemCantidad(ISBN isbnLibro, int nuevaCantidad, Stock stockLibro) {
         if (nuevaCantidad < 0) {
             throw new ReglaDominioException("La cantidad debe ser mayor o igual a cero.");
         }
@@ -120,7 +120,7 @@ public class Carrito {
         this.items.stream()
                 .filter(itemCarrito -> itemCarrito.getIsbnLibro().equals(isbnLibro))
                 .findFirst()
-                .ifPresent(itemCarrito -> itemCarrito.actualizarCantidad(nuevaCantidad));
+                .ifPresent(itemCarrito -> itemCarrito.actualizarCantidad(nuevaCantidad, stockLibro));
     }
 
     public void actualizarItemPrecio(ISBN isbnLibro, Precio nuevoPrecio) {

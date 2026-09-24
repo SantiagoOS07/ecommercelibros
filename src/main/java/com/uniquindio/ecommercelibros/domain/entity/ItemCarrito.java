@@ -33,8 +33,8 @@ public class ItemCarrito {
         return new ItemCarrito(isbnLibro, cantidad, precioLibro, stock);
     }
 
-    private static void verificar(ISBN isbnLibro, int cantidad, Precio precioLibro, Stock stock) {
-        if (isbnLibro.isbn() == null || isbnLibro.isbn().isEmpty()) {
+    private static void verificar(ISBN isbnLibro, int cantidad, Precio precioLibro, Stock stockLibro) {
+        if (isbnLibro == null) {
             throw new ReglaDominioException("El ISBN del libro no puede ser nulo o vacío.");
         }
         if (cantidad <= 0) {
@@ -43,20 +43,26 @@ public class ItemCarrito {
         if (precioLibro == null) {
             throw new ReglaDominioException("El precio del libro no puede ser nulo.");
         }
-        if (stock == null) {
+        if (stockLibro == null) {
             throw new ReglaDominioException("El stock del libro no puede ser nulo.");
         }
-        if (cantidad > stock.stock()) {
+        if (cantidad > stockLibro.stock()) {
             throw new ReglaDominioException("La cantidad del libro no puede ser mayor al stock disponible.");
         }
     }
 
-    public void actualizarCantidad(int cantidad) {
+    public void actualizarCantidad(int cantidad, Stock stockLibro) {
+        if (cantidad > stockLibro.stock()) {
+            throw new ReglaDominioException("La cantidad del libro no puede ser mayor al stock disponible.");
+        }
         this.cantidad = cantidad;
-        this.precioTotal = new Precio(precioTotal.monto() * cantidad, precioTotal.moneda());
+        this.precioTotal = new Precio(precioUnitario.monto() * cantidad, precioUnitario.moneda());
     }
 
     public void actualizarPrecio(Precio nuevoPrecioLibro) {
+        if (nuevoPrecioLibro == null) {
+            throw new ReglaDominioException("El precio del libro no puede ser nulo");
+        }
         this.precioTotal = new Precio(nuevoPrecioLibro.monto() * cantidad, nuevoPrecioLibro.moneda());
     }
 
