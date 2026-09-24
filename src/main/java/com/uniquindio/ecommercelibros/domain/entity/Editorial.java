@@ -23,19 +23,16 @@ public class Editorial {
     }
 
     public static Editorial crear(String nombreEditorial, Pais paisOrigen, String descripcionEditorial) {
-        validar(nombreEditorial, paisOrigen, descripcionEditorial);
+        validar(nombreEditorial, paisOrigen);
         return new Editorial(nombreEditorial, paisOrigen, descripcionEditorial);
     }
 
-    private static void validar(String nombreEditorial, Pais paisOrigen, String descripcionEditorial) {
+    private static void validar(String nombreEditorial, Pais paisOrigen) {
         if (nombreEditorial == null || nombreEditorial.isEmpty()) {
             throw new ReglaDominioException("El nombre de la editorial no puede ser nulo o vacío");
         }
         if (paisOrigen == null) {
             throw new ReglaDominioException("El país de origen de la editorial no puede ser nulo");
-        }
-        if (descripcionEditorial == null || descripcionEditorial.isEmpty()) {
-            throw new ReglaDominioException("La descripción de la editorial no puede ser nula o vacía");
         }
     }
 
