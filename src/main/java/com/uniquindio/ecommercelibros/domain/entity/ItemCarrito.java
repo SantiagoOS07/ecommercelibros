@@ -3,6 +3,7 @@ package com.uniquindio.ecommercelibros.domain.entity;
 import com.uniquindio.ecommercelibros.domain.exception.ReglaDominioException;
 import com.uniquindio.ecommercelibros.domain.valueObject.ISBN;
 import com.uniquindio.ecommercelibros.domain.valueObject.Precio;
+import com.uniquindio.ecommercelibros.domain.valueObject.Stock;
 import lombok.Getter;
 
 import java.util.Objects;
@@ -13,53 +14,41 @@ public class ItemCarrito {
 
     private final UUID idItemCarrito;
     private final ISBN isbnLibro;
+    private final Precio precioUnitario;
+    private final Stock stockLibro;
     private int cantidad;
-    private Precio precioUnitario;
     private Precio precioTotal;
 
-    private ItemCarrito(ISBN isbnLibro, int cantidad, Precio precioLibro) {
+    private ItemCarrito(ISBN isbnLibro, int cantidad, Precio precioLibro, Stock stockLibro) {
         this.idItemCarrito = UUID.randomUUID();
         this.isbnLibro = isbnLibro;
         this.cantidad = cantidad;
+        this.stockLibro = stockLibro;
         this.precioUnitario = precioLibro;
         this.precioTotal = new Precio(precioLibro.monto() * cantidad, precioLibro.moneda());
     }
 
-    public static ItemCarrito crear(ISBN isbnLibro, int cantidad, Precio precioLibro) {
-        verificar(isbnLibro, cantidad, precioLibro);
-        return new ItemCarrito(isbnLibro, cantidad, precioLibro);
+    public static ItemCarrito crear(ISBN isbnLibro, int cantidad, Precio precioLibro, Stock stock) {
+        verificar(isbnLibro, cantidad, precioLibro, stock);
+        return new ItemCarrito(isbnLibro, cantidad, precioLibro, stock);
     }
 
-    private static void verificar(ISBN isbnLibro, int cantidad, Precio precioLibro) {
+    private static void verificar(ISBN isbnLibro, int cantidad, Precio precioLibro, Stock stock) {
         if (isbnLibro.isbn() == null || isbnLibro.isbn().isEmpty()) {
             throw new ReglaDominioException("El ISBN del libro no puede ser nulo o vacío.");
-        }
-        if (!(verificarISBN(isbnLibro))) {
-            throw new ReglaDominioException("El ISBN del libro no corresponde a un libro real.");
         }
         if (cantidad <= 0) {
             throw new ReglaDominioException("La cantidad del libro no puede ser menor o igual a cero.");
         }
-        if (cantidad > obtenerStockLibro(isbnLibro)) {
-            throw new ReglaDominioException("La cantidad del libro no puede ser mayor al stock disponible.");
-        }
         if (precioLibro == null) {
             throw new ReglaDominioException("El precio del libro no puede ser nulo.");
         }
-    }
-
-    private static int obtenerStockLibro(ISBN isbnLibro) {
-
-        // Aqui va la logica para obtener el stock del libro segun el isbnLibro
-
-        return 0;
-    }
-
-    private static boolean verificarISBN(ISBN isbnLibro) {
-
-        // Aqui va la logica para si un isbnLibro si le corresponde a un libro real
-
-        return false;
+        if (stock == null) {
+            throw new ReglaDominioException("El stock del libro no puede ser nulo.");
+        }
+        if (cantidad > stock.stock()) {
+            throw new ReglaDominioException("La cantidad del libro no puede ser mayor al stock disponible.");
+        }
     }
 
     public void actualizarCantidad(int cantidad) {

@@ -2,12 +2,14 @@ package com.uniquindio.ecommercelibros.domain.entity;
 
 import com.uniquindio.ecommercelibros.domain.exception.ReglaDominioException;
 import com.uniquindio.ecommercelibros.domain.valueObject.*;
+import lombok.Getter;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 
+@Getter
 public class Carrito {
 
     private final UUID idCarrito;
@@ -31,16 +33,6 @@ public class Carrito {
         if (idUsuario == null || idUsuario.isEmpty()) {
             throw new ReglaDominioException("El id del usuario no puede ser nulo o vacio.");
         }
-        if (!(verificarUsuario(idUsuario))) {
-            throw new ReglaDominioException("El id del usuario no corresponde a un usuario real.");
-        }
-    }
-
-    private static boolean verificarUsuario(String idUsuario) {
-
-        // Aqui va la logica para si un idUsuario si le corresponde a un usuario real
-
-        return false;
     }
 
     public void confirmarCarrito() {
@@ -108,8 +100,8 @@ public class Carrito {
         }
     }
 
-    public void agregarItem(ISBN isbnLibro, int cantidad, Precio precioLibro) {
-        ItemCarrito itemCarrito = ItemCarrito.crear(isbnLibro, cantidad, precioLibro);
+    public void agregarItem(ISBN isbnLibro, int cantidad, Precio precioLibro, Stock stock) {
+        ItemCarrito itemCarrito = ItemCarrito.crear(isbnLibro, cantidad, precioLibro, stock);
         this.items.add(itemCarrito);
     }
 
