@@ -62,6 +62,7 @@ class CarritoTest {
         assertEquals(EstadoCarrito.VENDIDO, carrito.getEstado());
     }
 
+
     @Test
     void debeCancelarConfirmacionCorrectamente() {
         Carrito carrito = crearCarrito();
@@ -87,6 +88,7 @@ class CarritoTest {
         assertThrows(ReglaDominioException.class, carrito::cancelarConfirmacionCarrito);
         assertEquals(EstadoCarrito.VENDIDO, carrito.getEstado());
     }
+
 
     @Test
     void debeCompletarVentaCorrectamente() {
@@ -125,6 +127,7 @@ class CarritoTest {
         assertEquals(EstadoCarrito.VENDIDO, carrito.getEstado());
     }
 
+
     @Test
     void debeAgregarItemCorrectamente() {
         Carrito carrito = crearCarrito();
@@ -142,6 +145,26 @@ class CarritoTest {
                 carrito.agregarItem(new ISBN("9783161484100"), 20, new Precio(20000, Moneda.COP), new Stock(5)));
         assertTrue(carrito.getItems().isEmpty());
     }
+
+    @Test
+    void noDebePermitirAgregarItemSiElCarritoEstaProcesando() {
+        Carrito carrito = crearCarrito();
+        carrito.confirmarCarrito();
+
+        assertThrows(ReglaDominioException.class, () ->
+                carrito.agregarItem(new ISBN("9783161484100"), 2, new Precio(20000, Moneda.COP), new Stock(10)));
+        assertTrue(carrito.getItems().isEmpty());
+    }
+
+    @Test
+    void noDebePermitirAgregarItemSiElCarritoYaFueVendido() {
+        Carrito carrito = crearCarritoVendido();
+
+        assertThrows(ReglaDominioException.class, () ->
+                carrito.agregarItem(new ISBN("9789587580188"), 1, new Precio(20000, Moneda.COP), new Stock(10)));
+        assertEquals(1, carrito.getItems().size());
+    }
+
 
     @Test
     void debeEliminarItemCorrectamente() {
@@ -164,7 +187,25 @@ class CarritoTest {
         assertEquals(1, carrito.getItems().size());
     }
 
-    // --- actualizarItemCantidad(isbn, cantidad, stock) ---
+    @Test
+    void noDebePermitirEliminarItemSiElCarritoEstaProcesando() {
+        Carrito carrito = crearCarrito();
+        ISBN isbn = new ISBN("9783161484100");
+        carrito.agregarItem(isbn, 2, new Precio(20000, Moneda.COP), new Stock(10));
+        carrito.confirmarCarrito();
+
+        assertThrows(ReglaDominioException.class, () -> carrito.eliminarItem(isbn));
+        assertEquals(1, carrito.getItems().size());
+    }
+
+    @Test
+    void noDebePermitirEliminarItemSiElCarritoYaFueVendido() {
+        Carrito carrito = crearCarritoVendido();
+        ISBN isbn = new ISBN("9783161484100");
+
+        assertThrows(ReglaDominioException.class, () -> carrito.eliminarItem(isbn));
+        assertEquals(1, carrito.getItems().size());
+    }
 
     @Test
     void debeActualizarCantidadDeItemCorrectamente() {
@@ -210,6 +251,26 @@ class CarritoTest {
     }
 
     @Test
+    void noDebePermitirActualizarCantidadSiElCarritoEstaProcesando() {
+        Carrito carrito = crearCarrito();
+        ISBN isbn = new ISBN("9783161484100");
+        carrito.agregarItem(isbn, 2, new Precio(20000, Moneda.COP), new Stock(10));
+        carrito.confirmarCarrito();
+
+        assertThrows(ReglaDominioException.class, () -> carrito.actualizarItemCantidad(isbn, 5, new Stock(10)));
+        assertEquals(2, carrito.getItems().getFirst().getCantidad());
+    }
+
+    @Test
+    void noDebePermitirActualizarCantidadSiElCarritoYaFueVendido() {
+        Carrito carrito = crearCarritoVendido();
+        ISBN isbn = new ISBN("9783161484100");
+
+        assertThrows(ReglaDominioException.class, () -> carrito.actualizarItemCantidad(isbn, 5, new Stock(10)));
+        assertEquals(1, carrito.getItems().getFirst().getCantidad());
+    }
+
+    @Test
     void debeActualizarPrecioDeItemCorrectamente() {
         Carrito carrito = crearCarrito();
         ISBN isbn = new ISBN("9783161484100");
@@ -230,6 +291,29 @@ class CarritoTest {
 
         assertEquals(new Precio(40000, Moneda.COP), carrito.getItems().getFirst().getPrecioTotal());
     }
+
+    @Test
+    void noDebePermitirActualizarPrecioSiElCarritoEstaProcesando() {
+        Carrito carrito = crearCarrito();
+        ISBN isbn = new ISBN("9783161484100");
+        carrito.agregarItem(isbn, 2, new Precio(20000, Moneda.COP), new Stock(10));
+        carrito.confirmarCarrito();
+
+        assertThrows(ReglaDominioException.class, () ->
+                carrito.actualizarItemPrecio(isbn, new Precio(25000, Moneda.COP)));
+        assertEquals(new Precio(40000, Moneda.COP), carrito.getItems().getFirst().getPrecioTotal());
+    }
+
+    @Test
+    void noDebePermitirActualizarPrecioSiElCarritoYaFueVendido() {
+        Carrito carrito = crearCarritoVendido();
+        ISBN isbn = new ISBN("9783161484100");
+
+        assertThrows(ReglaDominioException.class, () ->
+                carrito.actualizarItemPrecio(isbn, new Precio(25000, Moneda.COP)));
+        assertEquals(new Precio(20000, Moneda.COP), carrito.getItems().getFirst().getPrecioTotal());
+    }
+
 
     private Carrito crearCarrito() {
         return Carrito.crear("user-1");
