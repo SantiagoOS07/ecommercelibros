@@ -2,11 +2,13 @@ package com.uniquindio.ecommercelibros.domain.entity;
 
 import com.uniquindio.ecommercelibros.domain.exception.ReglaDominioException;
 import com.uniquindio.ecommercelibros.domain.valueObject.Nacionalidad;
+import lombok.Getter;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
+@Getter
 public class Autor {
 
     private final String idAutor;

@@ -5,8 +5,9 @@ import java.util.UUID;
 
 import com.uniquindio.ecommercelibros.domain.exception.ReglaDominioException;
 import com.uniquindio.ecommercelibros.domain.valueObject.Pais;
+import lombok.Getter;
 
-
+@Getter
 public class Editorial {
 
     private final UUID idEditorial;
