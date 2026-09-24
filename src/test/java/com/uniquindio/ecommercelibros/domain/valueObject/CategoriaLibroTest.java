@@ -18,7 +18,8 @@ class CategoriaLibroTest {
     void novelaDebeTenerFactorUno() {
         assertEquals(
                 1.00,
-                CategoriaLibro.NOVELA.factorPrecio()
+                CategoriaLibro.NOVELA.factorPrecio(),
+                0.000001
         );
     }
 
@@ -26,7 +27,8 @@ class CategoriaLibroTest {
     void programacionDebeTenerFactorUnoPuntoVeinticinco() {
         assertEquals(
                 1.25,
-                CategoriaLibro.PROGRAMACION.factorPrecio()
+                CategoriaLibro.PROGRAMACION.factorPrecio(),
+                0.000001
         );
     }
 
@@ -34,7 +36,8 @@ class CategoriaLibroTest {
     void infantilDebeTenerFactorCeroPuntoNoventaYCinco() {
         assertEquals(
                 0.95,
-                CategoriaLibro.INFANTIL.factorPrecio()
+                CategoriaLibro.INFANTIL.factorPrecio(),
+                0.000001
         );
     }
 
@@ -42,7 +45,8 @@ class CategoriaLibroTest {
     void tecnologiaDebeTenerFactorUnoPuntoVeinte() {
         assertEquals(
                 1.20,
-                CategoriaLibro.TECNOLOGIA.factorPrecio()
+                CategoriaLibro.TECNOLOGIA.factorPrecio(),
+                0.000001
         );
     }
 
@@ -50,7 +54,8 @@ class CategoriaLibroTest {
     void cienciaDebeTenerFactorUnoPuntoDieciocho() {
         assertEquals(
                 1.18,
-                CategoriaLibro.CIENCIA.factorPrecio()
+                CategoriaLibro.CIENCIA.factorPrecio(),
+                0.000001
         );
     }
 
@@ -64,7 +69,8 @@ class CategoriaLibroTest {
 
         assertEquals(
                 100000.0,
-                resultado
+                resultado,
+                0.000001
         );
     }
 
@@ -78,7 +84,8 @@ class CategoriaLibroTest {
 
         assertEquals(
                 125000.0,
-                resultado
+                resultado,
+                0.000001
         );
     }
 
@@ -92,7 +99,8 @@ class CategoriaLibroTest {
 
         assertEquals(
                 95000.0,
-                resultado
+                resultado,
+                0.000001
         );
     }
 
@@ -106,7 +114,8 @@ class CategoriaLibroTest {
 
         assertEquals(
                 120000.0,
-                resultado
+                resultado,
+                0.000001
         );
     }
 
@@ -120,7 +129,8 @@ class CategoriaLibroTest {
 
         assertEquals(
                 56000.0,
-                resultado
+                resultado,
+                0.000001
         );
     }
 
@@ -134,7 +144,8 @@ class CategoriaLibroTest {
 
         assertEquals(
                 57500.0,
-                resultado
+                resultado,
+                0.000001
         );
     }
 
@@ -148,7 +159,8 @@ class CategoriaLibroTest {
 
         assertEquals(
                 59000.0,
-                resultado
+                resultado,
+                0.000001
         );
     }
 
@@ -162,7 +174,8 @@ class CategoriaLibroTest {
 
         assertEquals(
                 60000.0,
-                resultado
+                resultado,
+                0.000001
         );
     }
 
@@ -176,7 +189,8 @@ class CategoriaLibroTest {
 
         assertEquals(
                 49000.0,
-                resultado
+                resultado,
+                0.000001
         );
     }
 
@@ -187,7 +201,8 @@ class CategoriaLibroTest {
 
             assertEquals(
                     0.0,
-                    categoria.calcularPrecio(0.0)
+                    categoria.calcularPrecio(0.0),
+                    0.000001
             );
         }
     }
@@ -215,7 +230,8 @@ class CategoriaLibroTest {
 
             assertEquals(
                     esperado,
-                    categoria.calcularPrecio(precioBase)
+                    categoria.calcularPrecio(precioBase),
+                    0.000001
             );
         }
     }
@@ -226,6 +242,7 @@ class CategoriaLibroTest {
                 CategoriaLibro.values()) {
 
             assertNotNull(categoria);
+
             assertTrue(
                     Double.isFinite(categoria.factorPrecio())
             );
