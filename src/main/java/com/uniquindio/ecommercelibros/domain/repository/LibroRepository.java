@@ -2,6 +2,7 @@ package com.uniquindio.ecommercelibros.domain.repository;
 
 import com.uniquindio.ecommercelibros.domain.entity.Libro;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -12,5 +13,6 @@ public interface LibroRepository {
     Optional<Libro> buscarPorNombre(String nombre);
     Optional<Libro> buscarPorAutor(String autor);
     void guardarLibro(Libro libro);
+    List<Libro> listarTodosLosLibros();
 
 }

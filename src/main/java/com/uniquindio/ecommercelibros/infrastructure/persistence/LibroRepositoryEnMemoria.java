@@ -3,10 +3,7 @@ package com.uniquindio.ecommercelibros.infrastructure.persistence;
 import com.uniquindio.ecommercelibros.domain.entity.Libro;
 import com.uniquindio.ecommercelibros.domain.repository.LibroRepository;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 
 public class LibroRepositoryEnMemoria implements LibroRepository {
 
@@ -36,5 +33,10 @@ public class LibroRepositoryEnMemoria implements LibroRepository {
     @Override
     public void guardarLibro(Libro libro) {
         libros.put(libro.getIdLibro(), libro);
+    }
+
+    @Override
+    public List<Libro> listarTodosLosLibros() {
+        return List.copyOf(libros.values());
     }
 }
