@@ -10,7 +10,7 @@ import java.util.UUID;
 
 public class LibroRepositoryEnMemoria implements LibroRepository {
 
-    private final Map<String, Libro> libros = new HashMap<>();
+    private final Map<UUID, Libro> libros = new HashMap<>();
 
 
     @Override
@@ -35,6 +35,6 @@ public class LibroRepositoryEnMemoria implements LibroRepository {
 
     @Override
     public void guardarLibro(Libro libro) {
-        libros.put(libro.getIdLibro().toString(), libro);
+        libros.put(libro.getIdLibro(), libro);
     }
 }
