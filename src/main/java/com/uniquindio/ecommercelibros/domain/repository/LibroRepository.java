@@ -14,5 +14,6 @@ public interface LibroRepository {
     List<Libro> buscarPorAutor(String autor);
     void guardarLibro(Libro libro);
     List<Libro> listarTodosLosLibros();
+    void eliminarLibro(UUID idLibro);
 
 }

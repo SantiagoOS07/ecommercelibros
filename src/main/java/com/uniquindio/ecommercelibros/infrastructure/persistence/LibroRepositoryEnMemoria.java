@@ -43,4 +43,9 @@ public class LibroRepositoryEnMemoria implements LibroRepository {
     public List<Libro> listarTodosLosLibros() {
         return List.copyOf(libros.values());
     }
+
+    @Override
+    public void eliminarLibro(UUID idLibro) {
+        libros.remove(idLibro);
+    }
 }
