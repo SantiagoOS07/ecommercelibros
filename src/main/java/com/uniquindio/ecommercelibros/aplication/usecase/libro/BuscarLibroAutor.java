@@ -3,6 +3,7 @@ package com.uniquindio.ecommercelibros.aplication.usecase.libro;
 
 import com.uniquindio.ecommercelibros.domain.entity.Autor;
 import com.uniquindio.ecommercelibros.domain.entity.Libro;
+import com.uniquindio.ecommercelibros.domain.repository.AutorRepository;
 import com.uniquindio.ecommercelibros.domain.repository.LibroRepository;
 
 import java.util.List;
