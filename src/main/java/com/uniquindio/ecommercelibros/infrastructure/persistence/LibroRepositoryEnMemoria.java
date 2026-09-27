@@ -4,6 +4,7 @@ import com.uniquindio.ecommercelibros.domain.entity.Libro;
 import com.uniquindio.ecommercelibros.domain.repository.LibroRepository;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class LibroRepositoryEnMemoria implements LibroRepository {
 
@@ -26,8 +27,11 @@ public class LibroRepositoryEnMemoria implements LibroRepository {
     }
 
     @Override
-    public Optional<Libro> buscarPorAutor(String nombreAutor) {
-        return Optional.ofNullable(libros.get(nombreAutor));
+    public List<Libro> buscarPorAutor(String idAutor) {
+        return libros.values()
+                .stream()
+                .filter(libro -> libro.getIdAutor().equals(idAutor))
+                .toList();
     }
 
     @Override
