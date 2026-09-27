@@ -1,6 +1,7 @@
 package com.uniquindio.ecommercelibros.domain.entity;
 
 import com.uniquindio.ecommercelibros.domain.exception.CasillaVaciaException;
+import com.uniquindio.ecommercelibros.domain.exception.ReglaDominioException;
 import com.uniquindio.ecommercelibros.domain.valueObject.*;
 import lombok.Getter;
 
@@ -140,9 +141,15 @@ public class Libro {
     }
 
     public void cambiarEstado(EstadoLibro nuevoEstado) {
+
         if (nuevoEstado == null) {
             throw new CasillaVaciaException("El estado del libro no puede ser nulo.");
         }
+
+        if (!this.estado.puedeTransicionarA(nuevoEstado)) {
+            throw new ReglaDominioException("No se puede cambiar el estado");
+        }
+
         this.estado = nuevoEstado;
     }
 
