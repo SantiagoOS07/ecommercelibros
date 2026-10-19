@@ -1,0 +1,34 @@
+package com.uniquindio.ecommercelibros.aplication.usecase.Carrito;
+
+import com.uniquindio.ecommercelibros.domain.entity.Carrito;
+import com.uniquindio.ecommercelibros.domain.repository.CarritoRepository;
+import com.uniquindio.ecommercelibros.domain.valueObject.ISBN;
+import com.uniquindio.ecommercelibros.domain.valueObject.Precio;
+import com.uniquindio.ecommercelibros.domain.valueObject.Stock;
+
+import java.util.UUID;
+
+public class AgregarItemCarrito {
+
+    private final CarritoRepository carritoRepository;
+
+    public AgregarItemCarrito(CarritoRepository carritoRepository) {
+        this.carritoRepository = carritoRepository;
+    }
+
+    public void ejecutar(
+            UUID idCarrito,
+            ISBN isbnLibro,
+            int cantidad,
+            Precio precioLibro,
+            Stock stockLibro) {
+
+        Carrito carrito = carritoRepository.buscarPorIdCarrito(idCarrito)
+                .orElseThrow(() ->
+                        new IllegalArgumentException("El carrito no existe."));
+
+        carrito.agregarItem(isbnLibro, cantidad, precioLibro, stockLibro);
+
+        carritoRepository.guardarCarrito(carrito);
+    }
+}
