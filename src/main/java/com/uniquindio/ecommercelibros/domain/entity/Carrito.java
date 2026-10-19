@@ -132,13 +132,43 @@ public class Carrito {
                 .ifPresent(itemCarrito -> itemCarrito.actualizarCantidad(nuevaCantidad, stockLibro));
     }
 
+
     public void actualizarItemPrecio(ISBN isbnLibro, Precio nuevoPrecio) {
         verificarCarritoEditable();
-        this.items.stream()
-                .filter(itemCarrito -> itemCarrito.getIsbnLibro().equals(isbnLibro))
-                .findFirst()
-                .ifPresent(itemCarrito -> itemCarrito.actualizarPrecio(nuevoPrecio));
+
+        if (nuevoPrecio == null) {
+            throw new ReglaDominioException(
+                    "El nuevo precio no puede ser nulo."
+            );
+        }
+
+        int indice = -1;
+
+        for (int i = 0; i < items.size(); i++) {
+            if (items.get(i).getIsbnLibro().equals(isbnLibro)) {
+                indice = i;
+                break;
+            }
+        }
+
+        if (indice == -1) {
+            throw new ReglaDominioException(
+                    "El libro no se encuentra en el carrito."
+            );
+        }
+
+        ItemCarrito itemAnterior = items.get(indice);
+
+        ItemCarrito itemActualizado = ItemCarrito.crear(
+                itemAnterior.getIsbnLibro(),
+                itemAnterior.getCantidad(),
+                nuevoPrecio,
+                itemAnterior.getStockLibro()
+        );
+
+        items.set(indice, itemActualizado);
     }
+
 
     @Override
     public boolean equals(Object o) {
