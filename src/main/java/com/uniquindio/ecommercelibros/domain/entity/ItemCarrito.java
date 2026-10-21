@@ -33,6 +33,12 @@ public class ItemCarrito {
         return new ItemCarrito(isbnLibro, cantidad, precioLibro, stock);
     }
 
+    public static ItemCarrito reconstruir(UUID idItemCarrito, ISBN isbnLibro, Precio precioUnitario, Stock stockLibro, int cantidad, Precio precioTotal) {
+
+        return new ItemCarrito(isbnLibro, cantidad, precioUnitario, stockLibro);
+
+    }
+
     private static void verificar(ISBN isbnLibro, int cantidad, Precio precioLibro, Stock stockLibro) {
         if (isbnLibro == null) {
             throw new ReglaDominioException("El ISBN del libro no puede ser nulo o vacío.");

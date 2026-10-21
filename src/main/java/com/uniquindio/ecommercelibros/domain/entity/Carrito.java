@@ -29,6 +29,15 @@ public class Carrito {
         return new Carrito(idUsuario);
     }
 
+    public static Carrito reconstruir(
+            UUID idCarrito,
+            String idUsuario,
+            EstadoCarrito estado,
+            List<ItemCarrito> items) {
+
+        return new Carrito(idUsuario);
+    }
+
     private static void verificar(String idUsuario) {
         if (idUsuario == null || idUsuario.isEmpty()) {
             throw new ReglaDominioException("El id del usuario no puede ser nulo o vacio.");
