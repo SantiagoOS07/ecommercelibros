@@ -49,6 +49,10 @@ public class Libro {
         return new Libro(UUID.randomUUID(), titulo, idAutor, isbn, descripcion, numeroPaginas, precio, stock, edicion, idEditorial, fechaPublicacion, categoria, imagen, estado);
     }
 
+    public static Libro reconstruir(UUID idLibro, NombreLibro titulo, String idAutor, ISBN isbn, String descripcion, NumeroPaginas numeroPaginas, Precio precio, Stock stock, String edicion, UUID idEditorial, FechaPublicacion fechaPublicacion, CategoriaLibro categoria, String imagen, EstadoLibro estado){
+        return new Libro(idLibro, titulo, idAutor, isbn, descripcion, numeroPaginas, precio, stock, edicion, idEditorial, fechaPublicacion, categoria, imagen, estado);
+    }
+
     private static void validar(NombreLibro titulo, String idAutor, ISBN isbn, Precio precio, Stock stock, UUID idEditorial, FechaPublicacion fechaPublicacion, CategoriaLibro categoria, EstadoLibro estado) {
         if (titulo == null) {
             throw new CasillaVaciaException("El título del libro no puede ser nulo.");
