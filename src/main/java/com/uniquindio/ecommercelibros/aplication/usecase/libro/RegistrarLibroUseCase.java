@@ -3,9 +3,11 @@ package com.uniquindio.ecommercelibros.aplication.usecase.libro;
 import com.uniquindio.ecommercelibros.domain.entity.Libro;
 import com.uniquindio.ecommercelibros.domain.repository.LibroRepository;
 import com.uniquindio.ecommercelibros.domain.valueObject.*;
+import org.springframework.stereotype.Service;
 
 import java.util.UUID;
 
+@Service
 public class RegistrarLibroUseCase {
 
     private final LibroRepository libroRepository;

@@ -1,3 +1,4 @@
+
 package com.uniquindio.ecommercelibros.infrastructure.persistence.jpa.entity;
 
 import com.uniquindio.ecommercelibros.domain.valueObject.EstadoCarrito;
@@ -9,6 +10,7 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import lombok.Getter;
@@ -33,6 +35,9 @@ public class CarritoEntity {
     @Column(nullable = false, length = 30)
     private EstadoCarrito estado;
 
+    @Column(name = "precio_total", nullable = false, precision = 12, scale = 2)
+    private BigDecimal precioTotal;
+
     @OneToMany(
             mappedBy = "carrito",
             cascade = CascadeType.ALL,
@@ -40,4 +45,3 @@ public class CarritoEntity {
     )
     private List<ItemCarritoEntity> items = new ArrayList<>();
 }
-
