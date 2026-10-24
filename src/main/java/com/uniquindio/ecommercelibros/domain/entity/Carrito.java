@@ -86,6 +86,7 @@ public class Carrito {
     public void confirmarCarrito() {
         verificarCarritoNoVendido();
         verificarTransaccion(EstadoCarrito.PROCESANDO);
+        verificarStockDisponible();
         this.estado = EstadoCarrito.PROCESANDO;
     }
 
@@ -120,7 +121,6 @@ public class Carrito {
         }
 
         verificarTransaccion(EstadoCarrito.VENDIDO);
-
         Precio totalVenta = calcularPrecioTotal();
         List<ItemVenta> itemsVenta = procesarItemsCarrito();
 
@@ -128,6 +128,16 @@ public class Carrito {
 
         this.precioTotal = totalVenta;
         this.estado = EstadoCarrito.VENDIDO;
+    }
+
+    private void verificarStockDisponible() {
+        this.items.forEach(item -> {
+            if (item.getStockLibro().stock() < item.getCantidad()) {
+                throw new ReglaDominioException(
+                        "Actualmente no hay suficiente stock del libro: " + item.getIsbnLibro() + ", stock disponible: " + item.getStockLibro().stock()
+                );
+            }
+        });
     }
 
     private List<ItemVenta> procesarItemsCarrito() {

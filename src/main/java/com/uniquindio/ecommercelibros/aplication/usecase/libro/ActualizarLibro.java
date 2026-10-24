@@ -2,6 +2,7 @@ package com.uniquindio.ecommercelibros.aplication.usecase.libro;
 
 import com.uniquindio.ecommercelibros.domain.entity.Libro;
 import com.uniquindio.ecommercelibros.domain.repository.LibroRepository;
+import com.uniquindio.ecommercelibros.domain.service.VerificadorDeCarrito;
 import com.uniquindio.ecommercelibros.domain.valueObject.*;
 
 import java.util.UUID;
@@ -9,9 +10,11 @@ import java.util.UUID;
 public class ActualizarLibro {
 
     private final LibroRepository libroRepository;
+    private final VerificadorDeCarrito verificadorDeCarrito;
 
-    public ActualizarLibro(LibroRepository libroRepository) {
+    public ActualizarLibro(LibroRepository libroRepository, VerificadorDeCarrito verificadorDeCarrito) {
         this.libroRepository = libroRepository;
+        this.verificadorDeCarrito = verificadorDeCarrito;
     }
 
     public void actualizarTitulo(UUID idLibro, NombreLibro nuevoTitulo) {
@@ -35,12 +38,14 @@ public class ActualizarLibro {
     public void actualizarPrecio(UUID idLibro, Precio nuevoPrecio) {
         Libro libro = obtenerLibro(idLibro);
         libro.cambiarPrecio(nuevoPrecio);
+        verificadorDeCarrito.actualizarPrecioItemsCarritoCreado(libro.getIsbn().isbn(), nuevoPrecio);
         libroRepository.guardarLibro(libro);
     }
 
     public void actualizarStock(UUID idLibro, Stock nuevoStock) {
         Libro libro = obtenerLibro(idLibro);
         libro.actualizarStock(nuevoStock);
+        verificadorDeCarrito.actualizarStockItemsCarritoCreado(libro.getIsbn().isbn(), nuevoStock);
         libroRepository.guardarLibro(libro);
     }
 

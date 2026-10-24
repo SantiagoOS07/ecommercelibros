@@ -17,6 +17,8 @@ public interface CarritoRepository {
 
     List<Carrito> listarTodos();
 
+    List<Carrito> listarCarritosEnCreado();
+
     void guardarCarrito(Carrito carrito);
 
     void eliminarCarrito(UUID idCarrito);

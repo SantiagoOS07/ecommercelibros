@@ -14,10 +14,10 @@ public class ItemCarrito {
 
     private final UUID idItemCarrito;
     private final ISBN isbnLibro;
-    private final Precio precioUnitario;
-    private final Stock stockLibro;
-    private int cantidad;
+    private Precio precioUnitario;
     private Precio precioTotal;
+    private Stock stockLibro;
+    private int cantidad;
 
     private ItemCarrito(ISBN isbnLibro, int cantidad, Precio precioLibro, Stock stockLibro) {
         this.idItemCarrito = UUID.randomUUID();
@@ -69,7 +69,15 @@ public class ItemCarrito {
         if (nuevoPrecioLibro == null) {
             throw new ReglaDominioException("El precio del libro no puede ser nulo");
         }
+        this.precioUnitario = nuevoPrecioLibro;
         this.precioTotal = new Precio(nuevoPrecioLibro.monto() * cantidad, nuevoPrecioLibro.moneda());
+    }
+
+    public void actualizarStock(Stock stockLibro) {
+        if (stockLibro == null) {
+            throw new ReglaDominioException("El stock del libro no puede ser nulo.");
+        }
+        this.stockLibro = stockLibro;
     }
 
     @Override
