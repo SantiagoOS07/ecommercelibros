@@ -54,16 +54,12 @@ public class Venta {
     }
 
     public void solicitarReembolsoVenta(String motivo) {
-        if (motivo == null || motivo.isEmpty()) {
-            throw new CasillaVaciaException("El motivo del reembolso no puede ser nulo o vacío.");
-        }
-        if (!this.estadoPedido.puedeTransicionarA(EstadoPedido.REEMBOLSADO)) {
-            throw new ReglaDominioException("La venta solo puede pedir reembolso si está en estado CANCELADO o ENTREGADO.");
-        }
+        verificarMotivo(motivo);
+        verificarVentaReembolsable();
         if (estadoPedido.fueCancelado()) {
             this.estadoPedido = EstadoPedido.REEMBOLSADO;
         }
-        if (estadoPedido.fueEntregado()) {
+        else if (estadoPedido.fueEntregado()) {
             if (fecha.isBefore(LocalDate.now().minusDays(DIAS_MAXIMOS_REEMBOLSO))) {
                 this.estadoPedido = EstadoPedido.REEMBOLSADO;
             } else {
@@ -72,14 +68,30 @@ public class Venta {
         }
     }
 
+    private void verificarMotivo(String motivo) {
+        if (motivo == null || motivo.isEmpty()) {
+            throw new CasillaVaciaException("El motivo del reembolso no puede ser nulo o vacío.");
+        }
+    }
+
+    private void verificarVentaReembolsable() {
+        if (!this.estadoPedido.puedeTransicionarA(EstadoPedido.REEMBOLSADO)) {
+            throw new ReglaDominioException("La venta solo puede pedir reembolso si está en estado CANCELADO o ENTREGADO.");
+        }
+    }
+
     public void actualizarEstadoPedido() {
+        verificarActualizacionEstado();
         if (this.estadoPedido.estaEnProceso()) {
             this.estadoPedido = EstadoPedido.ENVIADO;
         }
         if (this.estadoPedido.fueEnviado()) {
             this.estadoPedido = EstadoPedido.ENTREGADO;
         }
-        else {
+    }
+
+    private void verificarActualizacionEstado() {
+        if (!(this.estadoPedido.estaEnProceso() || this.estadoPedido.fueEnviado())) {
             throw new ReglaDominioException("El estado del pedido solo se puede actualizar si está en estado PREPARANDO o ENVIADO.");
         }
     }
