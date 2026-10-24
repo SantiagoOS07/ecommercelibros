@@ -7,34 +7,37 @@ import com.uniquindio.ecommercelibros.domain.valueObject.Precio;
 import lombok.Getter;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-import java.util.UUID;
+import java.util.*;
 
 @Getter
 public class Venta {
 
     private final UUID idVenta;
+    private final String idUsuario;
     private final List<ItemVenta> items;
-    private LocalDate fecha;
-    private Precio total;
+    private final LocalDate fecha;
+    private final Precio total;
     private EstadoPedido estadoPedido;
+    private final int DIAS_MAXIMOS_REEMBOLSO = 30;
 
-    private Venta(UUID idVenta, List<ItemVenta> items, Precio total, LocalDate fecha, EstadoPedido estadoPedido) {
+    private Venta(UUID idVenta, String idUsuario, List<ItemVenta> items, Precio total, LocalDate fecha, EstadoPedido estadoPedido) {
         this.idVenta = idVenta;
+        this.idUsuario = idUsuario;
         this.items = items;
         this.total = total;
         this.fecha = fecha;
         this.estadoPedido = estadoPedido;
     }
 
-    public static Venta crear(List<ItemVenta> items, Precio total) {
-        validar(items, total);
-        return new Venta(UUID.randomUUID(), new ArrayList<>(items), total, LocalDate.now(), EstadoPedido.EN_PROCESO);
+    public static Venta crear(String idUsuario, List<ItemVenta> items, Precio total) {
+        validar(idUsuario, items, total);
+        return new Venta(UUID.randomUUID(), idUsuario, new ArrayList<>(items), total, LocalDate.now(), EstadoPedido.PREPARANDO);
     }
 
-    private static void validar(List<ItemVenta> items, Precio total) {
+    private static void validar(String idUsuario,List<ItemVenta> items, Precio total) {
+        if (idUsuario == null || idUsuario.isEmpty()) {
+            throw new CasillaVaciaException("El id del usuario no puede ser nulo o vacío.");
+        }
         if (items == null || items.isEmpty()) {
             throw new CasillaVaciaException("La venta debe tener al menos un item.");
         }
@@ -43,45 +46,42 @@ public class Venta {
         }
     }
 
-    public void agregarItem(ItemVenta item) {
-        if (item == null) {
-            throw new CasillaVaciaException("El item a agregar no puede ser nulo.");
+    public void cancelarVenta() {
+        if (!this.estadoPedido.puedeTransicionarA(EstadoPedido.CANCELADO)) {
+            throw new ReglaDominioException("La venta solo puede cancelarse si está en estado PREPARANDO.");
         }
-        if (this.items.contains(item)) {
-            throw new ReglaDominioException("El item ya se encuentra registrado en la venta.");
-        }
-        this.items.add(item);
+        this.estadoPedido = EstadoPedido.CANCELADO;
     }
 
-    public void eliminarItem(ItemVenta item) {
-        if (item == null || !this.items.contains(item)) {
-            throw new ReglaDominioException("El item seleccionado no pertenece a la venta.");
+    public void solicitarReembolsoVenta(String motivo) {
+        if (motivo == null || motivo.isEmpty()) {
+            throw new CasillaVaciaException("El motivo del reembolso no puede ser nulo o vacío.");
         }
-        if (this.items.size() == 1) {
-            throw new CasillaVaciaException("La venta debe conservar al menos un item.");
+        if (!this.estadoPedido.puedeTransicionarA(EstadoPedido.REEMBOLSADO)) {
+            throw new ReglaDominioException("La venta solo puede pedir reembolso si está en estado CANCELADO o ENTREGADO.");
         }
-        this.items.remove(item);
+        if (estadoPedido.fueCancelado()) {
+            this.estadoPedido = EstadoPedido.REEMBOLSADO;
+        }
+        if (estadoPedido.fueEntregado()) {
+            if (fecha.isBefore(LocalDate.now().minusDays(DIAS_MAXIMOS_REEMBOLSO))) {
+                this.estadoPedido = EstadoPedido.REEMBOLSADO;
+            } else {
+                throw new ReglaDominioException("El tiempo maximo de reembolso ha expirado. El reembolso ya no está disponible.");
+            }
+        }
     }
 
-    public void actualizarTotal(Precio nuevoTotal) {
-        if (nuevoTotal == null) {
-            throw new CasillaVaciaException("El total de la venta no puede ser nulo.");
+    public void actualizarEstadoPedido() {
+        if (this.estadoPedido.estaEnProceso()) {
+            this.estadoPedido = EstadoPedido.ENVIADO;
         }
-        this.total = nuevoTotal;
-    }
-
-    public void cambiarFecha(LocalDate nuevaFecha) {
-        if (nuevaFecha == null) {
-            throw new CasillaVaciaException("La fecha de la venta no puede ser nula.");
+        if (this.estadoPedido.fueEnviado()) {
+            this.estadoPedido = EstadoPedido.ENTREGADO;
         }
-        this.fecha = nuevaFecha;
-    }
-
-    public void cambiarEstado(EstadoPedido nuevoEstado) {
-        if (nuevoEstado == null) {
-            throw new CasillaVaciaException("El estado del pedido no puede ser nulo.");
+        else {
+            throw new ReglaDominioException("El estado del pedido solo se puede actualizar si está en estado PREPARANDO o ENVIADO.");
         }
-        this.estadoPedido = nuevoEstado;
     }
 
     @Override

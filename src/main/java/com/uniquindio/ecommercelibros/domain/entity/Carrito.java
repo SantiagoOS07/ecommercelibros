@@ -103,7 +103,7 @@ public class Carrito {
         this.estado = EstadoCarrito.CREADO;
     }
 
-    public void completarVentaCarrito() {
+    public Venta completarVentaCarrito() {
         verificarCarritoNoVendido();
 
         if (this.estado != EstadoCarrito.PROCESANDO) {
@@ -124,10 +124,20 @@ public class Carrito {
         Precio totalVenta = calcularPrecioTotal();
         List<ItemVenta> itemsVenta = procesarItemsCarrito();
 
-        Venta.crear(itemsVenta, totalVenta);
+        Venta venta = Venta.crear(idUsuario, itemsVenta, totalVenta);
 
         this.precioTotal = totalVenta;
         this.estado = EstadoCarrito.VENDIDO;
+        return venta;
+    }
+
+    public Precio calcularPrecioTotal() {
+        double total = items.stream()
+                .map(ItemCarrito::getPrecioTotal)
+                .mapToDouble(this::convertirAUSD)
+                .sum();
+
+        return new Precio(total, Moneda.USD);
     }
 
     private void verificarStockDisponible() {
@@ -149,15 +159,6 @@ public class Carrito {
                         item.getPrecioTotal()
                 ))
                 .toList();
-    }
-
-    private Precio calcularPrecioTotal() {
-        double total = items.stream()
-                .map(ItemCarrito::getPrecioTotal)
-                .mapToDouble(this::convertirAUSD)
-                .sum();
-
-        return new Precio(total, Moneda.USD);
     }
 
     private double convertirAUSD(Precio precio) {

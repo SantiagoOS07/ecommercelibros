@@ -3,7 +3,9 @@ package com.uniquindio.ecommercelibros.aplication.usecase.Carrito;
 
 import com.uniquindio.ecommercelibros.domain.entity.Carrito;
 import com.uniquindio.ecommercelibros.domain.entity.Libro;
+import com.uniquindio.ecommercelibros.domain.entity.Venta;
 import com.uniquindio.ecommercelibros.domain.repository.LibroRepository;
+import com.uniquindio.ecommercelibros.domain.repository.VentaRepository;
 import com.uniquindio.ecommercelibros.domain.service.VerificadorDeCarrito;
 import com.uniquindio.ecommercelibros.domain.repository.CarritoRepository;
 import com.uniquindio.ecommercelibros.domain.valueObject.Stock;
@@ -16,14 +18,17 @@ public class CompletarVentaCarrito {
 
     private final CarritoRepository carritoRepository;
     private final LibroRepository libroRepository;
+    private final VentaRepository ventaRepository;
     private final VerificadorDeCarrito verificadorDeCarrito;
 
     public CompletarVentaCarrito(
             CarritoRepository carritoRepository,
             LibroRepository libroRepository,
+            VentaRepository ventaRepository,
             VerificadorDeCarrito verificadorDeCarrito) {
         this.carritoRepository = carritoRepository;
         this.libroRepository = libroRepository;
+        this.ventaRepository = ventaRepository;
         this.verificadorDeCarrito = verificadorDeCarrito;
     }
 
@@ -36,7 +41,7 @@ public class CompletarVentaCarrito {
                                 "El carrito no existe."
                         ));
 
-        carrito.completarVentaCarrito();
+        Venta venta = carrito.completarVentaCarrito();
         carrito.getItems()
                 .forEach(itemCarrito -> {
                         String isbnLibro = itemCarrito.getIsbnLibro().isbn();
@@ -45,6 +50,7 @@ public class CompletarVentaCarrito {
                         libro.actualizarStock(stockNuevo);
                         verificadorDeCarrito.actualizarStockItemsCarritoCreado(libro.getIsbn().isbn(), stockNuevo);
                 });
+        ventaRepository.guardarVenta(venta);
         carritoRepository.guardarCarrito(carrito);
     }
 }
