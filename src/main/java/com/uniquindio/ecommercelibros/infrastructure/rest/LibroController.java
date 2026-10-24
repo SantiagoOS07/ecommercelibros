@@ -32,11 +32,28 @@ public class LibroController {
         this.mapper = mapper;
     }
 
+
     @PostMapping
     public ResponseEntity<LibroResponse> registrar(
             @Valid @RequestBody RegistrarLibroRequest request) {
 
-        Libro libro = registrarLibro.registrarLibro(mapper.toDomain(request));
+        Libro libroRequest = mapper.toDomain(request);
+
+        Libro libro = registrarLibro.registrarLibro(
+                libroRequest.getTitulo(),
+                libroRequest.getIdAutor(),
+                libroRequest.getIsbn(),
+                libroRequest.getDescripcion(),
+                libroRequest.getNumeroPaginas(),
+                libroRequest.getPrecio(),
+                libroRequest.getStock(),
+                libroRequest.getEdicion(),
+                libroRequest.getIdEditorial(),
+                libroRequest.getFechaPublicacion(),
+                libroRequest.getCategoria(),
+                libroRequest.getImagen(),
+                libroRequest.getEstado()
+        );
 
         LibroResponse response = mapper.toResponse(libro);
 
@@ -49,11 +66,16 @@ public class LibroController {
         return ResponseEntity.created(location).body(response);
     }
 
+
     @GetMapping("/{id}")
     public ResponseEntity<LibroResponse> consultarPorId(
             @PathVariable UUID id) {
 
-        Optional<Libro> libro = consultarLibroID.ConsultarLibroPorID(id);
+        Libro libro = consultarLibroID
+                .ConsultarLibroPorID(id)
+                .orElseThrow(() -> new java.util.NoSuchElementException(
+                        "No se encontró el libro con ID: " + id
+                ));
 
         return ResponseEntity.ok(mapper.toResponse(libro));
     }
