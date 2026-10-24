@@ -15,76 +15,6 @@ class EstadoPedidoTest {
     }
 
     @Test
-    void enProcesoPuedePasarAEsperandoPago() {
-        assertTrue(
-                EstadoPedido.EN_PROCESO
-                        .puedeTransicionarA(
-                                EstadoPedido.ESPERANDO_PAGO
-                        )
-        );
-    }
-
-    @Test
-    void enProcesoPuedePasarACancelado() {
-        assertTrue(
-                EstadoPedido.EN_PROCESO
-                        .puedeTransicionarA(
-                                EstadoPedido.CANCELADO
-                        )
-        );
-    }
-
-    @Test
-    void enProcesoNoPuedePasarDirectamenteAEnviado() {
-        assertFalse(
-                EstadoPedido.EN_PROCESO
-                        .puedeTransicionarA(
-                                EstadoPedido.ENVIADO
-                        )
-        );
-    }
-
-    @Test
-    void enProcesoNoPuedePasarDirectamenteAEntregado() {
-        assertFalse(
-                EstadoPedido.EN_PROCESO
-                        .puedeTransicionarA(
-                                EstadoPedido.ENTREGADO
-                        )
-        );
-    }
-
-    @Test
-    void esperandoPagoPuedePasarAEnviado() {
-        assertTrue(
-                EstadoPedido.ESPERANDO_PAGO
-                        .puedeTransicionarA(
-                                EstadoPedido.ENVIADO
-                        )
-        );
-    }
-
-    @Test
-    void esperandoPagoPuedePasarACancelado() {
-        assertTrue(
-                EstadoPedido.ESPERANDO_PAGO
-                        .puedeTransicionarA(
-                                EstadoPedido.CANCELADO
-                        )
-        );
-    }
-
-    @Test
-    void esperandoPagoNoPuedeRegresarAEnProceso() {
-        assertFalse(
-                EstadoPedido.ESPERANDO_PAGO
-                        .puedeTransicionarA(
-                                EstadoPedido.EN_PROCESO
-                        )
-        );
-    }
-
-    @Test
     void enviadoPuedePasarAEntregado() {
         assertTrue(
                 EstadoPedido.ENVIADO
@@ -105,21 +35,11 @@ class EstadoPedidoTest {
     }
 
     @Test
-    void enviadoNoPuedeRegresarAEsperandoPago() {
-        assertFalse(
-                EstadoPedido.ENVIADO
-                        .puedeTransicionarA(
-                                EstadoPedido.ESPERANDO_PAGO
-                        )
-        );
-    }
-
-    @Test
     void entregadoNoPuedeTransicionarAEnProceso() {
         assertFalse(
                 EstadoPedido.ENTREGADO
                         .puedeTransicionarA(
-                                EstadoPedido.EN_PROCESO
+                                EstadoPedido.PREPARANDO
                         )
         );
     }
@@ -139,7 +59,7 @@ class EstadoPedidoTest {
         assertFalse(
                 EstadoPedido.CANCELADO
                         .puedeTransicionarA(
-                                EstadoPedido.EN_PROCESO
+                                EstadoPedido.PREPARANDO
                         )
         );
     }
@@ -171,14 +91,7 @@ class EstadoPedidoTest {
     @Test
     void enProcesoNoEsEstadoFinal() {
         assertFalse(
-                EstadoPedido.EN_PROCESO.esFinal()
-        );
-    }
-
-    @Test
-    void esperandoPagoNoEsEstadoFinal() {
-        assertFalse(
-                EstadoPedido.ESPERANDO_PAGO.esFinal()
+                EstadoPedido.PREPARANDO.esFinal()
         );
     }
 
@@ -190,40 +103,40 @@ class EstadoPedidoTest {
     }
 
     @Test
-    void debeIdentificarCorrectamenteElEstadoEnProceso() {
+    void debeIdentificarCorrectamenteElEstadoPreparandp() {
         assertTrue(
-                EstadoPedido.EN_PROCESO.estaEnProceso()
+                EstadoPedido.PREPARANDO.estaEnProceso()
         );
 
         assertFalse(
-                EstadoPedido.EN_PROCESO.estaEsperandoPago()
+                EstadoPedido.PREPARANDO.fueReembolsado()
         );
 
         assertFalse(
-                EstadoPedido.EN_PROCESO.fueEnviado()
+                EstadoPedido.PREPARANDO.fueEnviado()
         );
 
         assertFalse(
-                EstadoPedido.EN_PROCESO.fueEntregado()
+                EstadoPedido.PREPARANDO.fueEntregado()
         );
 
         assertFalse(
-                EstadoPedido.EN_PROCESO.fueCancelado()
+                EstadoPedido.PREPARANDO.fueCancelado()
         );
     }
 
     @Test
     void debeIdentificarCorrectamenteElEstadoEsperandoPago() {
         assertFalse(
-                EstadoPedido.ESPERANDO_PAGO.estaEnProceso()
+                EstadoPedido.PREPARANDO.fueEnviado()
         );
 
         assertTrue(
-                EstadoPedido.ESPERANDO_PAGO.estaEsperandoPago()
+                EstadoPedido.PREPARANDO.estaEnProceso()
         );
 
         assertFalse(
-                EstadoPedido.ESPERANDO_PAGO.fueEnviado()
+                EstadoPedido.PREPARANDO.fueEntregado()
         );
     }
 
@@ -234,7 +147,7 @@ class EstadoPedidoTest {
         );
 
         assertFalse(
-                EstadoPedido.ENVIADO.estaEsperandoPago()
+                EstadoPedido.ENVIADO.fueCancelado()
         );
 
         assertTrue(

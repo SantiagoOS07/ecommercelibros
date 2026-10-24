@@ -12,25 +12,25 @@ import java.util.UUID;
 public class ItemVenta {
 
     private final UUID idItemVenta;
-    private ISBN isbnLibro;
-    private int cantidad;
-    private Precio precioUnitario;
-    private Precio subTotal;
+    private final ISBN isbnLibro;
+    private final int cantidad;
+    private final Precio precioUnitario;
+    private final Precio precioTotal;
 
-    private ItemVenta(UUID idItemVenta, ISBN isbnLibro, int cantidad, Precio precioUnitario, Precio subTotal) {
+    private ItemVenta(UUID idItemVenta, ISBN isbnLibro, int cantidad, Precio precioUnitario, Precio precioTotal) {
         this.idItemVenta = idItemVenta;
         this.isbnLibro = isbnLibro;
         this.cantidad = cantidad;
         this.precioUnitario = precioUnitario;
-        this.subTotal = subTotal;
+        this.precioTotal = precioTotal;
     }
 
-    public static ItemVenta crear(ISBN isbnLibro, int cantidad, Precio precioUnitario, Precio subTotal) {
-        validar(isbnLibro, cantidad, precioUnitario, subTotal);
-        return new ItemVenta(UUID.randomUUID(), isbnLibro, cantidad, precioUnitario, subTotal);
+    public static ItemVenta crear(ISBN isbnLibro, int cantidad, Precio precioUnitario, Precio precioTotal) {
+        validar(isbnLibro, cantidad, precioUnitario, precioTotal);
+        return new ItemVenta(UUID.randomUUID(), isbnLibro, cantidad, precioUnitario, precioTotal);
     }
 
-    private static void validar(ISBN isbnLibro, int cantidad, Precio precioUnitario, Precio subTotal) {
+    private static void validar(ISBN isbnLibro, int cantidad, Precio precioUnitario, Precio precioTotal) {
         if (isbnLibro == null) {
             throw new CasillaVaciaException("El ISBN del libro no puede ser nulo.");
         }
@@ -40,34 +40,9 @@ public class ItemVenta {
         if (precioUnitario == null) {
             throw new CasillaVaciaException("El precio unitario no puede ser nulo.");
         }
-        if (subTotal == null) {
-            throw new CasillaVaciaException("El subtotal del item no puede ser nulo.");
+        if (precioTotal == null) {
+            throw new CasillaVaciaException("El precio total no puede ser nulo.");
         }
-    }
-
-    public void cambiarCantidad(int nuevaCantidad, Precio nuevoSubTotal) {
-        if (nuevaCantidad <= 0) {
-            throw new CasillaVaciaException("La cantidad del item debe ser mayor a cero.");
-        }
-        if (nuevoSubTotal == null) {
-            throw new CasillaVaciaException("El subtotal del item no puede ser nulo.");
-        }
-        this.cantidad = nuevaCantidad;
-        this.subTotal = nuevoSubTotal;
-    }
-
-    public void cambiarPrecioUnitario(Precio nuevoPrecioUnitario) {
-        if (nuevoPrecioUnitario == null) {
-            throw new CasillaVaciaException("El precio unitario no puede ser nulo.");
-        }
-        this.precioUnitario = nuevoPrecioUnitario;
-    }
-
-    public void actualizarSubTotal(Precio nuevoSubTotal) {
-        if (nuevoSubTotal == null) {
-            throw new CasillaVaciaException("El subtotal del item no puede ser nulo.");
-        }
-        this.subTotal = nuevoSubTotal;
     }
 
     @Override

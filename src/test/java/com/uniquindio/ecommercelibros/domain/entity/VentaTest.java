@@ -56,7 +56,7 @@ class VentaTest {
                 () -> venta.eliminarItem(item));
 
         assertEquals(cantidadOriginal, venta.getItems().size());
-        assertEquals(EstadoPedido.EN_PROCESO, venta.getEstadoPedido());
+        assertEquals(EstadoPedido.PREPARANDO, venta.getEstadoPedido());
     }
 
     private Venta crearVenta() {
