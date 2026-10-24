@@ -103,7 +103,7 @@ public class Carrito {
         this.estado = EstadoCarrito.CREADO;
     }
 
-    public void completarVentaCarrito() {
+    public Venta completarVentaCarrito() {
         verificarCarritoNoVendido();
 
         if (this.estado != EstadoCarrito.PROCESANDO) {
@@ -124,10 +124,11 @@ public class Carrito {
         Precio totalVenta = calcularPrecioTotal();
         List<ItemVenta> itemsVenta = procesarItemsCarrito();
 
-        Venta.crear(itemsVenta, totalVenta);
+        Venta venta = Venta.crear(idUsuario, itemsVenta, totalVenta);
 
         this.precioTotal = totalVenta;
         this.estado = EstadoCarrito.VENDIDO;
+        return venta;
     }
 
     public Precio calcularPrecioTotal() {

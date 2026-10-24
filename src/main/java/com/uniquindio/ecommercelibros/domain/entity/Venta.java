@@ -13,26 +13,31 @@ import java.util.*;
 public class Venta {
 
     private final UUID idVenta;
+    private final String idUsuario;
     private final List<ItemVenta> items;
     private final LocalDate fecha;
     private final Precio total;
     private EstadoPedido estadoPedido;
     private final int DIAS_MAXIMOS_REEMBOLSO = 30;
 
-    private Venta(UUID idVenta, List<ItemVenta> items, Precio total, LocalDate fecha, EstadoPedido estadoPedido) {
+    private Venta(UUID idVenta, String idUsuario, List<ItemVenta> items, Precio total, LocalDate fecha, EstadoPedido estadoPedido) {
         this.idVenta = idVenta;
+        this.idUsuario = idUsuario;
         this.items = items;
         this.total = total;
         this.fecha = fecha;
         this.estadoPedido = estadoPedido;
     }
 
-    public static Venta crear(List<ItemVenta> items, Precio total) {
-        validar(items, total);
-        return new Venta(UUID.randomUUID(), new ArrayList<>(items), total, LocalDate.now(), EstadoPedido.PREPARANDO);
+    public static Venta crear(String idUsuario, List<ItemVenta> items, Precio total) {
+        validar(idUsuario, items, total);
+        return new Venta(UUID.randomUUID(), idUsuario, new ArrayList<>(items), total, LocalDate.now(), EstadoPedido.PREPARANDO);
     }
 
-    private static void validar(List<ItemVenta> items, Precio total) {
+    private static void validar(String idUsuario,List<ItemVenta> items, Precio total) {
+        if (idUsuario == null || idUsuario.isEmpty()) {
+            throw new CasillaVaciaException("El id del usuario no puede ser nulo o vacío.");
+        }
         if (items == null || items.isEmpty()) {
             throw new CasillaVaciaException("La venta debe tener al menos un item.");
         }
