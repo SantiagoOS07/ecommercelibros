@@ -39,9 +39,6 @@ public class LibroRepositoryJpa implements LibroRepository {
 
     @Override
     public List<Libro> buscarPorAutor(String autor) {
-        // La interfaz de dominio recibe el nombre del autor,
-        // pero LibroEntity almacena el idAutor.
-        // Esta búsqueda requiere resolver el nombre mediante AutorRepository.
         throw new UnsupportedOperationException(
                 "Implementar búsqueda por nombre de autor mediante AutorRepository"
         );
