@@ -38,3 +38,29 @@
 | Libro.cambiarEstado(DISPONIBLE) via ActualizarLibro.actualizarEstado | PUT | /libros/{idLibro}/reactivar |
 | Libro.cambiarEstado(DESCONTINUADO) via ActualizarLibro.actualizarEstado | PUT | /libros/{idLibro}/descontinuar |
 | EliminarLibro.eliminar(idLibro) | DELETE | /libros/{idLibro} |
+
+## Carrito
+
+| Operación del dominio (caso de uso) | Método HTTP | Endpoint |
+|---|---|---|
+| RegistrarCarrito.ejecutar(idUsuario) | POST | /carritos?idUsuario={idUsuario} |
+| ListarCarritos.ejecutar() | GET | /carritos |
+| ConsultarCarritoPorID.ejecutar(idCarrito) | GET | /carritos/{idCarrito} |
+| ConsultarCarritoPorUsuario.ejecutar(idUsuario) | GET | /carritos?idUsuario={idUsuario} |
+| AgregarItemCarrito.ejecutar(idCarrito, isbnLibro, cantidad, precioLibro, stockLibro) | POST | /carritos/{idCarrito}/items |
+| ActualizarCantidadItemCarrito.ejecutar(idCarrito, isbnLibro, nuevaCantidad, stockLibro) | PUT | /carritos/{idCarrito}/items/{idLibro}?cantidad={cantidad} |
+| EliminarItemCarrito.ejecutar(idCarrito, isbnLibro) | DELETE | /carritos/{idCarrito}/items/{idLibro} |
+| ConfirmarCarrito.ejecutar(idCarrito) | PUT | /carritos/{idCarrito}/confirmar |
+| CancelarConfirmacionCarrito.ejecutar(idCarrito) | PUT | /carritos/{idCarrito}/cancelar-confirmacion |
+| CompletarVentaCarrito.ejecutar(idCarrito) | PUT | /carritos/{idCarrito}/completar-venta |
+| EliminarCarrito.ejecutar(idCarrito) | DELETE | /carritos/{idCarrito} |
+
+## Venta
+
+| Operación del dominio (caso de uso) | Método HTTP | Endpoint |
+|---|---|---|
+| ConsultarVentaUseCase.ejecutar(idVenta) | GET | /ventas/{idVenta} |
+| ConsultarVentasPorUsuarioUseCase.ejecutar(idUsuario) | GET | /ventas?idUsuario={idUsuario} |
+| ActualizarEstadoVentaUseCase.ejecutar(idVenta) | PUT | /ventas/{idVenta}/estado |
+| CancelarVentaUseCase.ejecutar(idVenta) | PUT | /ventas/{idVenta}/cancelar |
+| SolicitarReembolsoVentaUseCase.ejecutar(idVenta, motivo) | PUT | /ventas/{idVenta}/reembolso |
