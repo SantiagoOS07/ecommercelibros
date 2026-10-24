@@ -88,7 +88,6 @@ public class CarritoPersistenceMapper {
                 UUID.fromString(entity.getIdCarrito()),
                 entity.getIdUsuario(),
                 entity.getEstado(),
-                items
-        );
+                items, entity.getPrecioTotal().toBigInteger().doubleValue());
     }
 }

@@ -2,6 +2,7 @@ package com.uniquindio.ecommercelibros.infrastructure.persistence.jpa;
 
 import com.uniquindio.ecommercelibros.domain.entity.Carrito;
 import com.uniquindio.ecommercelibros.domain.repository.CarritoRepository;
+import com.uniquindio.ecommercelibros.domain.valueObject.EstadoCarrito;
 import com.uniquindio.ecommercelibros.infrastructure.persistence.jpa.entity.CarritoEntity;
 import com.uniquindio.ecommercelibros.infrastructure.persistence.jpa.mapper.CarritoPersistenceMapper;
 
@@ -37,6 +38,14 @@ public class CarritoRepositoryJpa implements CarritoRepository {
     public List<Carrito> listarTodos() {
 
         return dataRepository.findAll()
+                .stream()
+                .map(mapper::toDomain)
+                .toList();
+    }
+
+    @Override
+    public List<Carrito> listarCarritosEnCreado() {
+        return dataRepository.findByEstado(EstadoCarrito.CREADO)
                 .stream()
                 .map(mapper::toDomain)
                 .toList();
