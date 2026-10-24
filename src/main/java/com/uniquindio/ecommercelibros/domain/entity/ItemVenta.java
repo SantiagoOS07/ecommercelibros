@@ -45,6 +45,10 @@ public class ItemVenta {
         }
     }
 
+    public static ItemVenta reconstruir(UUID idItemVenta, ISBN isbnLibro, int cantidad, Precio precioUnitario, Precio precioTotal) {
+        return new ItemVenta(idItemVenta, isbnLibro, cantidad, precioUnitario, precioTotal);
+    }
+
     @Override
     public boolean equals(Object o) {
         if (o == null || getClass() != o.getClass()) return false;

@@ -46,6 +46,10 @@ public class Venta {
         }
     }
 
+    public static Venta reconstruir(UUID idVenta, String idUsuario, List<ItemVenta> items, Precio total, LocalDate fecha, EstadoPedido estadoPedido) {
+        return new Venta(idVenta, idUsuario, new ArrayList<>(items), total, fecha, estadoPedido);
+    }
+
     public void cancelarVenta() {
         if (!this.estadoPedido.puedeTransicionarA(EstadoPedido.CANCELADO)) {
             throw new ReglaDominioException("La venta solo puede cancelarse si está en estado PREPARANDO.");
