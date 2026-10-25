@@ -55,97 +55,28 @@ class LibroControllerTest {
 
     @Test
     void registrarLibro_debeRetornar201() {
-        RegistrarLibroRequest request =
-                mock(RegistrarLibroRequest.class);
-
-        Libro libroRequest = mock(Libro.class);
+        // Arrange
+        RegistrarLibroRequest request = mock(RegistrarLibroRequest.class);
+        Libro libroDominio = mock(Libro.class);
         Libro libroRegistrado = mock(Libro.class);
         LibroResponse response = mock(LibroResponse.class);
-
         UUID id = UUID.randomUUID();
 
-        NombreLibro titulo = mock(NombreLibro.class);
-        ISBN isbn = mock(ISBN.class);
-        NumeroPaginas numeroPaginas = mock(NumeroPaginas.class);
-        Precio precio = mock(Precio.class);
-        Stock stock = mock(Stock.class);
-        FechaPublicacion fechaPublicacion =
-                mock(FechaPublicacion.class);
-
-        String idAutor = "autor-123";
-        String descripcion = "Libro de prueba";
-        String edicion = "Primera";
-        UUID idEditorial = UUID.randomUUID();
-        CategoriaLibro categoria =
-                CategoriaLibro.values()[0];
-        EstadoLibro estado =
-                EstadoLibro.values()[0];
-        String imagen = "imagen.jpg";
-
-        when(mapper.toDomain(request)).thenReturn(libroRequest);
-
-        when(libroRequest.getTitulo()).thenReturn(titulo);
-        when(libroRequest.getIdAutor()).thenReturn(idAutor);
-        when(libroRequest.getIsbn()).thenReturn(isbn);
-        when(libroRequest.getDescripcion()).thenReturn(descripcion);
-        when(libroRequest.getNumeroPaginas()).thenReturn(numeroPaginas);
-        when(libroRequest.getPrecio()).thenReturn(precio);
-        when(libroRequest.getStock()).thenReturn(stock);
-        when(libroRequest.getEdicion()).thenReturn(edicion);
-        when(libroRequest.getIdEditorial()).thenReturn(idEditorial);
-        when(libroRequest.getFechaPublicacion())
-                .thenReturn(fechaPublicacion);
-        when(libroRequest.getCategoria()).thenReturn(categoria);
-        when(libroRequest.getImagen()).thenReturn(imagen);
-        when(libroRequest.getEstado()).thenReturn(estado);
-
-        when(registrarLibro.registrarLibro(
-                titulo,
-                idAutor,
-                isbn,
-                descripcion,
-                numeroPaginas,
-                precio,
-                stock,
-                edicion,
-                idEditorial,
-                fechaPublicacion,
-                categoria,
-                imagen,
-                estado
-        )).thenReturn(libroRegistrado);
-
+        when(mapper.toDomain(request)).thenReturn(libroDominio);
+        when(registrarLibro.registrarLibro(libroDominio)).thenReturn(libroRegistrado);
         when(libroRegistrado.getIdLibro()).thenReturn(id);
         when(mapper.toResponse(libroRegistrado)).thenReturn(response);
 
-        ResponseEntity<LibroResponse> resultado =
-                controller.registrar(request);
+        // Act
+        ResponseEntity<LibroResponse> resultado = controller.registrar(request);
 
+        // Assert
         assertEquals(201, resultado.getStatusCode().value());
         assertSame(response, resultado.getBody());
-        assertEquals(
-                "/api/libros/" + id,
-                resultado.getHeaders().getLocation().getPath()
-        );
+        assertEquals("/api/libros/" + id, resultado.getHeaders().getLocation().getPath());
 
         verify(mapper).toDomain(request);
-
-        verify(registrarLibro).registrarLibro(
-                titulo,
-                idAutor,
-                isbn,
-                descripcion,
-                numeroPaginas,
-                precio,
-                stock,
-                edicion,
-                idEditorial,
-                fechaPublicacion,
-                categoria,
-                imagen,
-                estado
-        );
-
+        verify(registrarLibro).registrarLibro(libroDominio);
         verify(mapper).toResponse(libroRegistrado);
     }
 
