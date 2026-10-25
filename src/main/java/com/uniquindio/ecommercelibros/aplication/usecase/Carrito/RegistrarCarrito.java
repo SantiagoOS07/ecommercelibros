@@ -21,6 +21,7 @@ public class RegistrarCarrito {
         this.verificadorDeCarrito = verificadorDeCarrito;
     }
 
+    @Transactional
     public Carrito ejecutar(String idUsuario) {
 
         verificadorDeCarrito.verificarQueUsuarioNoTieneCarrito(idUsuario);
