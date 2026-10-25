@@ -22,6 +22,7 @@ public class RegistrarLibroUseCase {
         this.verificadorDeLibro = verificadorDeLibro;
     }
 
+    @Transactional
     public Libro registrarLibro(Libro libro) {
         verificadorDeLibro.verificarQueISBNNoExiste(libro.getIsbn().isbn());
         libroRepository.guardarLibro(libro);

@@ -4,9 +4,12 @@ import com.uniquindio.ecommercelibros.domain.entity.Libro;
 import com.uniquindio.ecommercelibros.domain.repository.LibroRepository;
 import com.uniquindio.ecommercelibros.domain.service.VerificadorDeCarrito;
 import com.uniquindio.ecommercelibros.domain.valueObject.*;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.UUID;
 
+@Service
 public class ActualizarLibro {
 
     private final LibroRepository libroRepository;
@@ -17,12 +20,14 @@ public class ActualizarLibro {
         this.verificadorDeCarrito = verificadorDeCarrito;
     }
 
+    @Transactional
     public void actualizarTitulo(UUID idLibro, NombreLibro nuevoTitulo) {
         Libro libro = obtenerLibro(idLibro);
         libro.cambiarTitulo(nuevoTitulo);
         libroRepository.guardarLibro(libro);
     }
 
+    @Transactional
     public void actualizarDescripcion(UUID idLibro, String nuevaDescripcion) {
         Libro libro = obtenerLibro(idLibro);
         libro.cambiarDescripcion(nuevaDescripcion);
@@ -35,6 +40,7 @@ public class ActualizarLibro {
         libroRepository.guardarLibro(libro);
     }
 
+    @Transactional
     public void actualizarPrecio(UUID idLibro, Precio nuevoPrecio) {
         Libro libro = obtenerLibro(idLibro);
         libro.cambiarPrecio(nuevoPrecio);
@@ -42,6 +48,7 @@ public class ActualizarLibro {
         libroRepository.guardarLibro(libro);
     }
 
+    @Transactional
     public void actualizarStock(UUID idLibro, Stock nuevoStock) {
         Libro libro = obtenerLibro(idLibro);
         libro.actualizarStock(nuevoStock);
@@ -49,36 +56,42 @@ public class ActualizarLibro {
         libroRepository.guardarLibro(libro);
     }
 
+    @Transactional
     public void actualizarEdicion(UUID idLibro, String nuevaEdicion) {
         Libro libro = obtenerLibro(idLibro);
         libro.cambiarEdicion(nuevaEdicion);
         libroRepository.guardarLibro(libro);
     }
 
+    @Transactional
     public void actualizarEditorial(UUID idLibro, UUID nuevoIdEditorial) {
         Libro libro = obtenerLibro(idLibro);
         libro.cambiarEditorial(nuevoIdEditorial);
         libroRepository.guardarLibro(libro);
     }
 
+    @Transactional
     public void actualizarFechaPublicacion(UUID idLibro, FechaPublicacion nuevaFechaPublicacion) {
         Libro libro = obtenerLibro(idLibro);
         libro.cambiarFechaPublicacion(nuevaFechaPublicacion);
         libroRepository.guardarLibro(libro);
     }
 
+    @Transactional
     public void actualizarCategoria(UUID idLibro, CategoriaLibro nuevaCategoria) {
         Libro libro = obtenerLibro(idLibro);
         libro.cambiarCategoria(nuevaCategoria);
         libroRepository.guardarLibro(libro);
     }
 
+    @Transactional
     public void actualizarImagen(UUID idLibro, String nuevaImagen) {
         Libro libro = obtenerLibro(idLibro);
         libro.cambiarImagen(nuevaImagen);
         libroRepository.guardarLibro(libro);
     }
 
+    @Transactional
     public void actualizarEstado(UUID idLibro, EstadoLibro nuevoEstado) {
         Libro libro = obtenerLibro(idLibro);
         libro.cambiarEstado(nuevoEstado);
