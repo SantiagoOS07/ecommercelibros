@@ -1,7 +1,9 @@
-package com.uniquindio.ecommercelibros.infrastructure.persistence.jpa;
+package com.uniquindio.ecommercelibros.infraestructure.persistence.jpa;
 
 import com.uniquindio.ecommercelibros.domain.entity.Libro;
 import com.uniquindio.ecommercelibros.domain.valueObject.*;
+import com.uniquindio.ecommercelibros.infrastructure.persistence.jpa.LibroJpaDataRepository;
+import com.uniquindio.ecommercelibros.infrastructure.persistence.jpa.LibroRepositoryJpa;
 import com.uniquindio.ecommercelibros.infrastructure.persistence.jpa.entity.LibroEntity;
 import com.uniquindio.ecommercelibros.infrastructure.persistence.jpa.mapper.LibroPersistenceMapper;
 import jakarta.persistence.EntityManager;
