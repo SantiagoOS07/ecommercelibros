@@ -4,7 +4,7 @@ package com.uniquindio.ecommercelibros.aplication.usecase.libro;
 import com.uniquindio.ecommercelibros.domain.entity.Libro;
 import com.uniquindio.ecommercelibros.domain.repository.LibroRepository;
 
-import java.util.Optional;
+import java.util.List;
 
 public class BuscarLibroNombre {
 
@@ -14,7 +14,7 @@ public class BuscarLibroNombre {
         this.libroRepository = libroRepository;
     }
 
-    public Optional<Libro> buscar(String nombre) {
+    public List<Libro> buscar(String nombre) {
         return libroRepository.buscarPorNombre(nombre);
     }
 }

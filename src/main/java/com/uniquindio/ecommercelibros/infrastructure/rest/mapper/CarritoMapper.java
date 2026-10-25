@@ -28,7 +28,7 @@ public class CarritoMapper {
                 .map(item -> itemCarritoMapper.toResponse(
                         item,
                         titulosLibros.getOrDefault(
-                                item.getIsbnLibro().toString(),
+                                item.getIsbnLibro().isbn(),
                                 "Libro no disponible"
                         )
                 ))

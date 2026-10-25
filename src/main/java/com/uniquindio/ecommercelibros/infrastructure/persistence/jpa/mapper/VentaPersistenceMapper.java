@@ -19,7 +19,7 @@ public class VentaPersistenceMapper {
         VentaEntity ventaEntity = new VentaEntity();
         ventaEntity.setIdVenta(venta.getIdVenta().toString());
         ventaEntity.setFechaVenta(venta.getFecha());
-        ventaEntity.setPrecioTotal(new PrecioEmbeddable(venta.getTotal().monto(), venta.getTotal().moneda()));
+        ventaEntity.setPrecioTotal(PrecioEmbeddable.desde(venta.getTotal()));
         ventaEntity.setEstadoVenta(venta.getEstadoPedido());
         ventaEntity.setIdUsuario(venta.getIdUsuario());
         for (ItemVenta itemVenta : venta.getItems()) {
@@ -28,8 +28,8 @@ public class VentaPersistenceMapper {
             itemVentaEntity.setIdItemVenta(itemVenta.getIdItemVenta().toString());
             itemVentaEntity.setIsbn(new ISBNEmbeddable(itemVenta.getIsbnLibro().isbn()));
             itemVentaEntity.setCantidad(itemVenta.getCantidad());
-            itemVentaEntity.setPrecioUnitario(new PrecioEmbeddable(itemVenta.getPrecioUnitario().monto(), itemVenta.getPrecioUnitario().moneda()));
-            itemVentaEntity.setPrecioTotal(new PrecioEmbeddable(itemVenta.getPrecioTotal().monto(), itemVenta.getPrecioTotal().moneda()));
+            itemVentaEntity.setPrecioUnitario(PrecioEmbeddable.desde(itemVenta.getPrecioUnitario()));
+            itemVentaEntity.setPrecioTotal(PrecioEmbeddable.desde(itemVenta.getPrecioTotal()));
             ventaEntity.getItems().add(itemVentaEntity);
         }
         return ventaEntity;
@@ -41,15 +41,15 @@ public class VentaPersistenceMapper {
                         UUID.fromString(item.getIdItemVenta()),
                         new ISBN(item.getIsbn().getIsbn()),
                         item.getCantidad(),
-                        new Precio(item.getPrecioUnitario().getMonto(), item.getPrecioUnitario().getMoneda()),
-                        new Precio(item.getPrecioTotal().getMonto(), item.getPrecioTotal().getMoneda())))
+                        item.getPrecioUnitario().aDominio(),
+                        item.getPrecioTotal().aDominio()))
                 .toList();
 
         return Venta.reconstruir(
                 UUID.fromString(ventaEntity.getIdVenta()),
                 ventaEntity.getIdUsuario(),
                 items,
-                new Precio(ventaEntity.getPrecioTotal().getMonto(), ventaEntity.getPrecioTotal().getMoneda()),
+                ventaEntity.getPrecioTotal().aDominio(),
                 ventaEntity.getFechaVenta(),
                 ventaEntity.getEstadoVenta());
     }

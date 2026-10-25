@@ -5,7 +5,7 @@ import com.uniquindio.ecommercelibros.domain.exception.ReglaDominioException;
 
 public record NombreLibro(String nombreLibro) {
     public NombreLibro {
-        if  (nombreLibro == null) {
+        if  (nombreLibro == null || nombreLibro.isBlank()) {
             throw new CasillaVaciaException("El nombre del libro no puede ser vacio");
         }
     }

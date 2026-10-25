@@ -11,45 +11,57 @@ import java.util.UUID;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 @Repository
 @RequiredArgsConstructor
+@Transactional
 public class LibroRepositoryJpa implements LibroRepository {
 
     private final LibroJpaDataRepository dataRepository;
     private final LibroPersistenceMapper mapper;
 
     @Override
+    @Transactional(readOnly = true)
     public Optional<Libro> buscarPorISBN(String isbn) {
         return dataRepository.findByIsbn(isbn)
                 .map(mapper::toDomain);
     }
 
     @Override
+    @Transactional(readOnly = true)
     public Optional<Libro> buscarPorIdLibro(UUID idLibro) {
         return dataRepository.findById(idLibro.toString())
                 .map(mapper::toDomain);
     }
 
     @Override
-    public Optional<Libro> buscarPorNombre(String nombre) {
+    @Transactional(readOnly = true)
+    public List<Libro> buscarPorNombre(String nombre) {
         return dataRepository.findByTituloContainingIgnoreCase(nombre)
-                .map(mapper::toDomain);
+                .stream()
+                .map(mapper::toDomain)
+                .toList();
     }
 
     @Override
-    public List<Libro> buscarPorAutor(String autor) {
-        throw new UnsupportedOperationException(
-                "Implementar búsqueda por nombre de autor mediante AutorRepository"
-        );
+    @Transactional(readOnly = true)
+    public List<Libro> buscarPorAutor(String idAutor) {
+        return dataRepository.findByIdAutor(idAutor)
+                .stream()
+                .map(mapper::toDomain)
+                .toList();
     }
 
     @Override
     public void guardarLibro(Libro libro) {
-        dataRepository.save(mapper.toEntity(libro));
+        LibroEntity entity = dataRepository.findById(libro.getIdLibro().toString())
+                .map(existente -> mapper.actualizarEntity(existente, libro))
+                .orElseGet(() -> mapper.toEntity(libro));
+        dataRepository.save(entity);
     }
-
     @Override
+    @Transactional(readOnly = true)
     public List<Libro> listarTodosLosLibros() {
         return dataRepository.findAll()
                 .stream()

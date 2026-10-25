@@ -18,28 +18,25 @@ import java.util.UUID;
 public class LibroPersistenceMapper {
 
     public LibroEntity toEntity(Libro libro) {
-
         LibroEntity entity = new LibroEntity();
-
         entity.setIdLibro(libro.getIdLibro().toString());
+        return actualizarEntity(entity, libro);
+    }
+
+    public LibroEntity actualizarEntity(LibroEntity entity, Libro libro) {
         entity.setTitulo(libro.getTitulo().nombreLibro());
         entity.setIdAutor(libro.getIdAutor());
         entity.setIsbn(libro.getIsbn().isbn());
         entity.setDescripcion(libro.getDescripcion());
         entity.setNumeroPaginas(libro.getNumeroPaginas().numeroPaginas());
-
-        entity.setPrecio(new PrecioEmbeddable(libro.getPrecio().monto(),libro.getPrecio().moneda()));
-
+        entity.setPrecio(PrecioEmbeddable.desde(libro.getPrecio()));
         entity.setStock(libro.getStock().stock());
         entity.setEdicion(libro.getEdicion());
         entity.setIdEditorial(libro.getIdEditorial().toString());
-        entity.setFechaPublicacion(
-                libro.getFechaPublicacion().fecha()
-        );
+        entity.setFechaPublicacion(libro.getFechaPublicacion().fecha());
         entity.setCategoria(libro.getCategoria());
         entity.setImagen(libro.getImagen());
         entity.setEstado(libro.getEstado());
-
         return entity;
     }
 
@@ -52,7 +49,7 @@ public class LibroPersistenceMapper {
                 new ISBN(entity.getIsbn()),
                 entity.getDescripcion(),
                 new NumeroPaginas(entity.getNumeroPaginas()),
-                new Precio(entity.getPrecio().getMonto(), entity.getPrecio().getMoneda()),
+                entity.getPrecio().aDominio(),
                 new Stock(entity.getStock()),
                 entity.getEdicion(),
                 UUID.fromString(entity.getIdEditorial()),

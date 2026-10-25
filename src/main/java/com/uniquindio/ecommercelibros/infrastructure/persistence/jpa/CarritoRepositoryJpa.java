@@ -12,15 +12,18 @@ import java.util.UUID;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 @Repository
 @RequiredArgsConstructor
+@Transactional
 public class CarritoRepositoryJpa implements CarritoRepository {
 
     private final CarritoJpaDataRepository dataRepository;
     private final CarritoPersistenceMapper mapper;
 
     @Override
+    @Transactional(readOnly = true)
     public Optional<Carrito> buscarPorIdCarrito(UUID idCarrito) {
 
         return dataRepository.findById(idCarrito.toString())
@@ -28,13 +31,16 @@ public class CarritoRepositoryJpa implements CarritoRepository {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public Optional<Carrito> buscarPorIdUsuario(String idUsuario) {
 
-        return dataRepository.findByIdUsuario(idUsuario)
+        return dataRepository
+                .findByIdUsuarioAndEstadoNot(idUsuario, EstadoCarrito.VENDIDO)
                 .map(mapper::toDomain);
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<Carrito> listarTodos() {
 
         return dataRepository.findAll()
@@ -44,6 +50,7 @@ public class CarritoRepositoryJpa implements CarritoRepository {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<Carrito> listarCarritosEnCreado() {
         return dataRepository.findByEstado(EstadoCarrito.CREADO)
                 .stream()
@@ -64,4 +71,3 @@ public class CarritoRepositoryJpa implements CarritoRepository {
         dataRepository.deleteById(idCarrito.toString());
     }
 }
-

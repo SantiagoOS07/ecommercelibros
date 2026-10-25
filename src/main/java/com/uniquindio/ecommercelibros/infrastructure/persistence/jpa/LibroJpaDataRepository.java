@@ -13,7 +13,7 @@ public interface LibroJpaDataRepository
 
     Optional<LibroEntity> findByIsbn(String isbn);
 
-    Optional<LibroEntity> findByTituloContainingIgnoreCase(String titulo);
+    List<LibroEntity> findByTituloContainingIgnoreCase(String titulo);
 
     List<LibroEntity> findByIdAutor(String idAutor);
 

@@ -3,13 +3,7 @@
     import com.uniquindio.ecommercelibros.domain.valueObject.CategoriaLibro;
     import com.uniquindio.ecommercelibros.domain.valueObject.EstadoLibro;
 
-    import jakarta.persistence.Column;
-    import jakarta.persistence.Embedded;
-    import jakarta.persistence.Entity;
-    import jakarta.persistence.EnumType;
-    import jakarta.persistence.Enumerated;
-    import jakarta.persistence.Id;
-    import jakarta.persistence.Table;
+    import jakarta.persistence.*;
 
     import java.time.LocalDate;
     import lombok.Getter;
@@ -67,5 +61,8 @@
         @Enumerated(EnumType.STRING)
         @Column(nullable = false, length = 30)
         private EstadoLibro estado;
+
+        @Version
+        private Long version;
     }
 

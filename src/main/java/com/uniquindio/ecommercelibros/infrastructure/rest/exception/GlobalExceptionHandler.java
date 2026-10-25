@@ -1,6 +1,7 @@
 package com.uniquindio.ecommercelibros.infrastructure.rest.exception;
 
 import com.uniquindio.ecommercelibros.domain.exception.CasillaVaciaException;
+import com.uniquindio.ecommercelibros.domain.exception.RecursoNoEncontradoException;
 import com.uniquindio.ecommercelibros.domain.exception.ReglaDominioException;
 import com.uniquindio.ecommercelibros.domain.exception.StockInsuficienteException;
 import org.springframework.http.HttpStatus;
@@ -41,6 +42,16 @@ public class GlobalExceptionHandler {
 
         return construirRespuesta(
                 HttpStatus.BAD_REQUEST,
+                ex.getMessage()
+        );
+    }
+
+    @ExceptionHandler(RecursoNoEncontradoException.class)
+    public ResponseEntity<Map<String, Object>> manejarRecursoNoEncontrado(
+            RecursoNoEncontradoException ex) {
+
+        return construirRespuesta(
+                HttpStatus.NOT_FOUND,
                 ex.getMessage()
         );
     }

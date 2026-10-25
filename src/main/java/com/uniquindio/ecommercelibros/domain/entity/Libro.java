@@ -45,7 +45,7 @@ public class Libro {
     }
 
     public static Libro crear(NombreLibro titulo, String idAutor, ISBN isbn, String descripcion, NumeroPaginas numeroPaginas, Precio precio, Stock stock, String edicion, UUID idEditorial, FechaPublicacion fechaPublicacion, CategoriaLibro categoria, String imagen, EstadoLibro estado) {
-        validar(titulo, idAutor, isbn, precio, stock, idEditorial, fechaPublicacion, categoria, estado);
+        validar(titulo, idAutor, isbn, numeroPaginas, precio, stock,edicion, idEditorial, fechaPublicacion, categoria, estado);
         return new Libro(UUID.randomUUID(), titulo, idAutor, isbn, descripcion, numeroPaginas, precio, stock, edicion, idEditorial, fechaPublicacion, categoria, imagen, estado);
     }
 
@@ -53,7 +53,7 @@ public class Libro {
         return new Libro(idLibro, titulo, idAutor, isbn, descripcion, numeroPaginas, precio, stock, edicion, idEditorial, fechaPublicacion, categoria, imagen, estado);
     }
 
-    private static void validar(NombreLibro titulo, String idAutor, ISBN isbn, Precio precio, Stock stock, UUID idEditorial, FechaPublicacion fechaPublicacion, CategoriaLibro categoria, EstadoLibro estado) {
+    private static void validar(NombreLibro titulo, String idAutor, ISBN isbn, NumeroPaginas numeroPaginas, Precio precio, Stock stock, String edicion, UUID idEditorial, FechaPublicacion fechaPublicacion, CategoriaLibro categoria, EstadoLibro estado) {
         if (titulo == null) {
             throw new CasillaVaciaException("El título del libro no puede ser nulo.");
         }
@@ -63,11 +63,17 @@ public class Libro {
         if (isbn == null) {
             throw new CasillaVaciaException("El ISBN del libro no puede ser nulo.");
         }
+        if (numeroPaginas == null){
+            throw new CasillaVaciaException("El numero de paginas no puede ser nulo.");
+        }
         if (precio == null) {
             throw new CasillaVaciaException("El precio del libro no puede ser nulo.");
         }
         if (stock == null) {
             throw new CasillaVaciaException("El stock del libro no puede ser nulo.");
+        }
+        if (edicion == null) {
+            throw new CasillaVaciaException("El edicion del libro no puede ser nulo.");
         }
         if (idEditorial == null) {
             throw new CasillaVaciaException("El id de la editorial no puede ser nulo.");

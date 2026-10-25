@@ -10,7 +10,7 @@ public interface LibroRepository {
 
     Optional<Libro> buscarPorISBN(String ISBN);
     Optional<Libro> buscarPorIdLibro(UUID idLibro);
-    Optional<Libro> buscarPorNombre(String nombre);
+    List<Libro> buscarPorNombre(String nombre);
     List<Libro> buscarPorAutor(String autor);
     void guardarLibro(Libro libro);
     List<Libro> listarTodosLosLibros();

@@ -1,6 +1,5 @@
 package com.uniquindio.ecommercelibros.infrastructure.persistence.jpa.entity;
 
-import com.uniquindio.ecommercelibros.domain.valueObject.Stock;
 import jakarta.persistence.Column;
 import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
@@ -66,7 +65,7 @@ public class ItemCarritoEntity {
 
 
     @Column(name = "stock_libro", nullable = false)
-    private Stock stockLibro;
+    private int stockLibro;
 
     @Column(nullable = false)
     private int cantidad;

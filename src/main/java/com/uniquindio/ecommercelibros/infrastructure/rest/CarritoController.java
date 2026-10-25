@@ -1,24 +1,35 @@
 package com.uniquindio.ecommercelibros.infrastructure.rest;
 
 import com.uniquindio.ecommercelibros.aplication.dto.request.carrito.AgregarItemCarritoRequest;
-import com.uniquindio.ecommercelibros.aplication.usecase.Carrito.AgregarItemCarrito;
+import com.uniquindio.ecommercelibros.aplication.dto.response.carrito.CarritoResponse;
 import com.uniquindio.ecommercelibros.aplication.usecase.Carrito.ActualizarCantidadItemCarrito;
+import com.uniquindio.ecommercelibros.aplication.usecase.Carrito.AgregarItemCarrito;
+import com.uniquindio.ecommercelibros.aplication.usecase.Carrito.CancelarConfirmacionCarrito;
 import com.uniquindio.ecommercelibros.aplication.usecase.Carrito.CompletarVentaCarrito;
+import com.uniquindio.ecommercelibros.aplication.usecase.Carrito.ConfirmarCarrito;
+import com.uniquindio.ecommercelibros.aplication.usecase.Carrito.ConsultarCarritoPorID;
+import com.uniquindio.ecommercelibros.aplication.usecase.Carrito.ConsultarCarritoPorUsuario;
+import com.uniquindio.ecommercelibros.aplication.usecase.Carrito.EliminarCarrito;
 import com.uniquindio.ecommercelibros.aplication.usecase.Carrito.EliminarItemCarrito;
+import com.uniquindio.ecommercelibros.aplication.usecase.Carrito.ListarCarritos;
 import com.uniquindio.ecommercelibros.aplication.usecase.Carrito.RegistrarCarrito;
+import com.uniquindio.ecommercelibros.aplication.usecase.libro.BuscarLibroISBN;
 import com.uniquindio.ecommercelibros.aplication.usecase.libro.ConsultarLibroID;
 import com.uniquindio.ecommercelibros.domain.entity.Carrito;
 import com.uniquindio.ecommercelibros.domain.entity.Libro;
-import com.uniquindio.ecommercelibros.domain.valueObject.ISBN;
+import com.uniquindio.ecommercelibros.domain.exception.RecursoNoEncontradoException;
 import com.uniquindio.ecommercelibros.infrastructure.rest.mapper.CarritoMapper;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.net.URI;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.UUID;
 
 @RestController
@@ -29,8 +40,15 @@ public class CarritoController {
     private final AgregarItemCarrito agregarItemCarrito;
     private final ActualizarCantidadItemCarrito actualizarCantidadItemCarrito;
     private final EliminarItemCarrito eliminarItemCarrito;
+    private final ConfirmarCarrito confirmarCarrito;
+    private final CancelarConfirmacionCarrito cancelarConfirmacionCarrito;
     private final CompletarVentaCarrito completarVentaCarrito;
+    private final ConsultarCarritoPorID consultarCarritoPorID;
+    private final ConsultarCarritoPorUsuario consultarCarritoPorUsuario;
+    private final ListarCarritos listarCarritos;
+    private final EliminarCarrito eliminarCarrito;
     private final ConsultarLibroID consultarLibroID;
+    private final BuscarLibroISBN buscarLibroISBN;
     private final CarritoMapper mapper;
 
     public CarritoController(
@@ -38,27 +56,41 @@ public class CarritoController {
             AgregarItemCarrito agregarItemCarrito,
             ActualizarCantidadItemCarrito actualizarCantidadItemCarrito,
             EliminarItemCarrito eliminarItemCarrito,
+            ConfirmarCarrito confirmarCarrito,
+            CancelarConfirmacionCarrito cancelarConfirmacionCarrito,
             CompletarVentaCarrito completarVentaCarrito,
+            ConsultarCarritoPorID consultarCarritoPorID,
+            ConsultarCarritoPorUsuario consultarCarritoPorUsuario,
+            ListarCarritos listarCarritos,
+            EliminarCarrito eliminarCarrito,
             ConsultarLibroID consultarLibroID,
+            BuscarLibroISBN buscarLibroISBN,
             CarritoMapper mapper) {
 
         this.registrarCarrito = registrarCarrito;
         this.agregarItemCarrito = agregarItemCarrito;
         this.actualizarCantidadItemCarrito = actualizarCantidadItemCarrito;
         this.eliminarItemCarrito = eliminarItemCarrito;
+        this.confirmarCarrito = confirmarCarrito;
+        this.cancelarConfirmacionCarrito = cancelarConfirmacionCarrito;
         this.completarVentaCarrito = completarVentaCarrito;
+        this.consultarCarritoPorID = consultarCarritoPorID;
+        this.consultarCarritoPorUsuario = consultarCarritoPorUsuario;
+        this.listarCarritos = listarCarritos;
+        this.eliminarCarrito = eliminarCarrito;
         this.consultarLibroID = consultarLibroID;
+        this.buscarLibroISBN = buscarLibroISBN;
         this.mapper = mapper;
     }
 
     @PostMapping
-    public ResponseEntity<?> crear(
-            @RequestParam String idUsuario) {
+    public ResponseEntity<CarritoResponse> crear(
+            @RequestParam @NotBlank @Size(max = 36) String idUsuario) {
 
         Carrito carrito = registrarCarrito.ejecutar(idUsuario);
 
         URI location = ServletUriComponentsBuilder
-                .fromCurrentRequest()
+                .fromCurrentRequestUri()
                 .path("/{id}")
                 .buildAndExpand(carrito.getIdCarrito())
                 .toUri();
@@ -67,19 +99,54 @@ public class CarritoController {
                 .body(mapper.toResponse(carrito, Map.of()));
     }
 
+    @GetMapping("/{idCarrito}")
+    public ResponseEntity<CarritoResponse> consultarPorId(
+            @PathVariable UUID idCarrito) {
+
+        Carrito carrito = consultarCarritoPorID.ejecutar(idCarrito)
+                .orElseThrow(() -> new RecursoNoEncontradoException(
+                        "No se encontró el carrito con ID: " + idCarrito
+                ));
+
+        return ResponseEntity.ok(mapper.toResponse(carrito, titulosDe(carrito)));
+    }
+
+    @GetMapping(params = "idUsuario")
+    public ResponseEntity<CarritoResponse> consultarPorUsuario(
+            @RequestParam String idUsuario) {
+
+        Carrito carrito = consultarCarritoPorUsuario.ejecutar(idUsuario)
+                .orElseThrow(() -> new RecursoNoEncontradoException(
+                        "El usuario " + idUsuario + " no tiene un carrito activo"
+                ));
+
+        return ResponseEntity.ok(mapper.toResponse(carrito, titulosDe(carrito)));
+    }
+
+    @GetMapping
+    public ResponseEntity<List<CarritoResponse>> listar() {
+
+        List<CarritoResponse> respuesta = listarCarritos.ejecutar()
+                .stream()
+                .map(carrito -> mapper.toResponse(carrito, titulosDe(carrito)))
+                .toList();
+
+        return ResponseEntity.ok(respuesta);
+    }
+
     @PostMapping("/{idCarrito}/items")
     public ResponseEntity<Void> agregarItem(
             @PathVariable UUID idCarrito,
             @Valid @RequestBody AgregarItemCarritoRequest request) {
 
-        Optional<Libro> libro = consultarLibroID.ConsultarLibroPorID(request.idLibro());
+        Libro libro = obtenerLibro(request.idLibro());
 
         agregarItemCarrito.ejecutar(
                 idCarrito,
-                libro.get().getIsbn(),
+                libro.getIsbn(),
                 request.cantidad(),
-                libro.get().getPrecio(),
-                libro.get().getStock()
+                libro.getPrecio(),
+                libro.getStock()
         );
 
         return ResponseEntity.noContent().build();
@@ -91,13 +158,13 @@ public class CarritoController {
             @PathVariable UUID idLibro,
             @RequestParam int cantidad) {
 
-        Optional<Libro> libro = consultarLibroID.ConsultarLibroPorID(idLibro);
+        Libro libro = obtenerLibro(idLibro);
 
         actualizarCantidadItemCarrito.ejecutar(
                 idCarrito,
-                libro.get().getIsbn(),
+                libro.getIsbn(),
                 cantidad,
-                libro.get().getStock()
+                libro.getStock()
         );
 
         return ResponseEntity.noContent().build();
@@ -108,12 +175,30 @@ public class CarritoController {
             @PathVariable UUID idCarrito,
             @PathVariable UUID idLibro) {
 
-        Optional<Libro> libro = consultarLibroID.ConsultarLibroPorID(idLibro);
+        Libro libro = obtenerLibro(idLibro);
 
         eliminarItemCarrito.ejecutar(
                 idCarrito,
-                libro.get().getIsbn()
+                libro.getIsbn()
         );
+
+        return ResponseEntity.noContent().build();
+    }
+
+    @PutMapping("/{idCarrito}/confirmar")
+    public ResponseEntity<Void> confirmar(
+            @PathVariable UUID idCarrito) {
+
+        confirmarCarrito.ejecutar(idCarrito);
+
+        return ResponseEntity.noContent().build();
+    }
+
+    @PutMapping("/{idCarrito}/cancelar-confirmacion")
+    public ResponseEntity<Void> cancelarConfirmacion(
+            @PathVariable UUID idCarrito) {
+
+        cancelarConfirmacionCarrito.ejecutar(idCarrito);
 
         return ResponseEntity.noContent().build();
     }
@@ -125,5 +210,33 @@ public class CarritoController {
         completarVentaCarrito.ejecutar(idCarrito);
 
         return ResponseEntity.noContent().build();
+    }
+
+    @DeleteMapping("/{idCarrito}")
+    public ResponseEntity<Void> eliminar(
+            @PathVariable UUID idCarrito) {
+
+        eliminarCarrito.ejecutar(idCarrito);
+
+        return ResponseEntity.noContent().build();
+    }
+
+    private Libro obtenerLibro(UUID idLibro) {
+        return consultarLibroID.ConsultarLibroPorID(idLibro)
+                .orElseThrow(() -> new RecursoNoEncontradoException(
+                        "No se encontró el libro con ID: " + idLibro
+                ));
+    }
+
+    private Map<String, String> titulosDe(Carrito carrito) {
+        Map<String, String> titulos = new HashMap<>();
+
+        carrito.getItems().forEach(item -> {
+            String isbn = item.getIsbnLibro().isbn();
+            buscarLibroISBN.buscar(isbn).ifPresent(libro ->
+                    titulos.put(isbn, libro.getTitulo().nombreLibro()));
+        });
+
+        return titulos;
     }
 }

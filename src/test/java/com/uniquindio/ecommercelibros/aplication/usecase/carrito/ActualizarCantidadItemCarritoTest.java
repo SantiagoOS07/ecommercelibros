@@ -1,5 +1,6 @@
 package com.uniquindio.ecommercelibros.aplication.usecase.carrito;
 
+import com.uniquindio.ecommercelibros.domain.exception.RecursoNoEncontradoException;
 import com.uniquindio.ecommercelibros.aplication.usecase.Carrito.ActualizarCantidadItemCarrito;
 import com.uniquindio.ecommercelibros.domain.entity.Carrito;
 import com.uniquindio.ecommercelibros.domain.repository.CarritoRepository;
@@ -52,7 +53,7 @@ class ActualizarCantidadItemCarritoTest {
         when(carritoRepository.buscarPorIdCarrito(idCarrito))
                 .thenReturn(Optional.empty());
 
-        assertThrows(IllegalArgumentException.class, () ->
+        assertThrows(RecursoNoEncontradoException.class, () ->
                 actualizarCantidad.ejecutar(
                         idCarrito,
                         mock(ISBN.class),

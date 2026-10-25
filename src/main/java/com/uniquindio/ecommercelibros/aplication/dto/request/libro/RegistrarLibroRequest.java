@@ -17,9 +17,11 @@ import java.util.UUID;
 /** POST /libros */
 public record RegistrarLibroRequest(
         @NotBlank(message = "El título del libro es obligatorio")
+        @Size(max = 150, message = "El título no puede superar los 150 caracteres")
         String titulo,
 
         @NotBlank(message = "El id del autor es obligatorio")
+        @Size(max = 36, message = "El id del autor no puede superar los 36 caracteres")
         String idAutor,
 
         @NotBlank(message = "El ISBN es obligatorio")

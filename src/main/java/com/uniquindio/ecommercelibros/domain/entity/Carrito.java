@@ -64,8 +64,7 @@ public class Carrito {
             UUID idCarrito,
             String idUsuario,
             EstadoCarrito estado,
-            List<ItemCarrito> items,
-            double precioTotal) {
+            List<ItemCarrito> items) {
 
         return new Carrito(
                 idCarrito,
@@ -215,6 +214,10 @@ public class Carrito {
                 stock
         );
 
+        if(items.contains(itemCarrito)) {
+            throw new ReglaDominioException("El item ya se encuentra en el carrito");
+        }
+
         this.items.add(itemCarrito);
         actualizarPrecioTotal();
     }
@@ -273,33 +276,35 @@ public class Carrito {
             );
         }
 
-        int indice = -1;
+        ItemCarrito item = buscarItem(isbnLibro);
 
-        for (int i = 0; i < items.size(); i++) {
-            if (items.get(i).getIsbnLibro().equals(isbnLibro)) {
-                indice = i;
-                break;
-            }
-        }
-
-        if (indice == -1) {
-            throw new ReglaDominioException(
-                    "El libro no se encuentra en el carrito."
-            );
-        }
-
-        ItemCarrito itemAnterior = items.get(indice);
-
-        ItemCarrito itemActualizado = ItemCarrito.crear(
-                itemAnterior.getIsbnLibro(),
-                itemAnterior.getCantidad(),
-                nuevoPrecio,
-                itemAnterior.getStockLibro()
-        );
-
-        items.set(indice, itemActualizado);
+        item.actualizarPrecio(nuevoPrecio);
 
         actualizarPrecioTotal();
+    }
+
+    public boolean contieneLibro(ISBN isbnLibro) {
+        return this.items.stream()
+                .anyMatch(item -> item.getIsbnLibro().equals(isbnLibro));
+    }
+
+    /**
+     * Sincroniza el stock conocido de un ítem con el stock actual del libro.
+     * No modifica la cantidad ni el precio; la validación contra el stock se
+     * hace al confirmar el carrito.
+     */
+    public void actualizarItemStock(ISBN isbnLibro, Stock nuevoStock) {
+        verificarCarritoEditable();
+        buscarItem(isbnLibro).actualizarStock(nuevoStock);
+    }
+
+    private ItemCarrito buscarItem(ISBN isbnLibro) {
+        return this.items.stream()
+                .filter(i -> i.getIsbnLibro().equals(isbnLibro))
+                .findFirst()
+                .orElseThrow(() -> new ReglaDominioException(
+                        "El libro no se encuentra en el carrito."
+                ));
     }
 
     @Override

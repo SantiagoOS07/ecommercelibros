@@ -1,5 +1,6 @@
 package com.uniquindio.ecommercelibros.domain.entity;
 
+import com.uniquindio.ecommercelibros.aplication.usecase.libro.BuscarLibroISBN;
 import com.uniquindio.ecommercelibros.domain.exception.ReglaDominioException;
 import com.uniquindio.ecommercelibros.domain.valueObject.ISBN;
 import com.uniquindio.ecommercelibros.domain.valueObject.Precio;
@@ -19,24 +20,30 @@ public class ItemCarrito {
     private Stock stockLibro;
     private int cantidad;
 
-    private ItemCarrito(ISBN isbnLibro, int cantidad, Precio precioLibro, Stock stockLibro) {
-        this.idItemCarrito = UUID.randomUUID();
+    private ItemCarrito(UUID idItemCarrito, ISBN isbnLibro, int cantidad, Precio precioUnitario, Precio precioTotal, Stock stockLibro) {
+        this.idItemCarrito = idItemCarrito;
         this.isbnLibro = isbnLibro;
         this.cantidad = cantidad;
         this.stockLibro = stockLibro;
-        this.precioUnitario = precioLibro;
-        this.precioTotal = new Precio(precioLibro.monto() * cantidad, precioLibro.moneda());
+        this.precioUnitario = precioUnitario;
+        this.precioTotal = precioTotal;
     }
 
     public static ItemCarrito crear(ISBN isbnLibro, int cantidad, Precio precioLibro, Stock stock) {
         verificar(isbnLibro, cantidad, precioLibro, stock);
-        return new ItemCarrito(isbnLibro, cantidad, precioLibro, stock);
+        return new ItemCarrito(
+                UUID.randomUUID(),
+                isbnLibro,
+                cantidad,
+                precioLibro,
+                new Precio(precioLibro.monto() * cantidad, precioLibro.moneda()),
+                stock
+        );
     }
 
     public static ItemCarrito reconstruir(UUID idItemCarrito, ISBN isbnLibro, Precio precioUnitario, Stock stockLibro, int cantidad, Precio precioTotal) {
 
-        return new ItemCarrito(isbnLibro, cantidad, precioUnitario, stockLibro);
-
+        return new ItemCarrito(idItemCarrito, isbnLibro, cantidad, precioUnitario, precioTotal, stockLibro);
     }
 
     private static void verificar(ISBN isbnLibro, int cantidad, Precio precioLibro, Stock stockLibro) {
@@ -60,6 +67,9 @@ public class ItemCarrito {
     public void actualizarCantidad(int cantidad, Stock stockLibro) {
         if (cantidad > stockLibro.stock()) {
             throw new ReglaDominioException("La cantidad del libro no puede ser mayor al stock disponible.");
+        }
+        if(cantidad <= 0) {
+            throw new ReglaDominioException("La cantidad no puede ser negativa");
         }
         this.cantidad = cantidad;
         this.precioTotal = new Precio(precioUnitario.monto() * cantidad, precioUnitario.moneda());

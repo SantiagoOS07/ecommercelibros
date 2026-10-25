@@ -9,6 +9,8 @@ import com.uniquindio.ecommercelibros.infrastructure.persistence.jpa.entity.Carr
 import com.uniquindio.ecommercelibros.infrastructure.persistence.jpa.entity.ItemCarritoEntity;
 import com.uniquindio.ecommercelibros.infrastructure.persistence.jpa.entity.PrecioEmbeddable;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -25,6 +27,7 @@ public class CarritoPersistenceMapper {
         entity.setIdCarrito(carrito.getIdCarrito().toString());
         entity.setIdUsuario(carrito.getIdUsuario());
         entity.setEstado(carrito.getEstado());
+        entity.setPrecioTotal(BigDecimal.valueOf(carrito.getPrecioTotal().monto()));
 
         List<ItemCarritoEntity> itemsEntity = new ArrayList<>();
 
@@ -39,22 +42,17 @@ public class CarritoPersistenceMapper {
             itemEntity.setCarrito(entity);
             itemEntity.setIsbnLibro(item.getIsbnLibro().isbn());
 
-            itemEntity.setPrecioUnitario(
-                    new PrecioEmbeddable(
-                            item.getPrecioUnitario().monto(),
-                            item.getPrecioUnitario().moneda()
-                    )
-            );
 
-            itemEntity.setStockLibro(item.getStockLibro());
+            itemEntity.setPrecioUnitario(PrecioEmbeddable.desde(item.getPrecioUnitario()));
+            itemEntity.setPrecioTotal(PrecioEmbeddable.desde(item.getPrecioTotal()));
+
+
+            itemEntity.setStockLibro(item.getStockLibro().stock());
             itemEntity.setCantidad(item.getCantidad());
 
-            itemEntity.setPrecioTotal(
-                    new PrecioEmbeddable(
-                            item.getPrecioTotal().monto(),
-                            item.getPrecioTotal().moneda()
-                    )
-            );
+            entity.setPrecioTotal(
+                    BigDecimal.valueOf(carrito.getPrecioTotal().monto())
+                            .setScale(2, RoundingMode.HALF_UP));
 
             itemsEntity.add(itemEntity);
         }
@@ -71,16 +69,10 @@ public class CarritoPersistenceMapper {
                 .map(item -> ItemCarrito.reconstruir(
                         UUID.fromString(item.getIdItemCarrito()),
                         new ISBN(item.getIsbnLibro()),
-                        new Precio(
-                                item.getPrecioUnitario().getMonto(),
-                                item.getPrecioUnitario().getMoneda()
-                        ),
-                        new Stock(item.getStockLibro().stock()),
+                        item.getPrecioUnitario().aDominio(),
+                        new Stock(item.getStockLibro()),
                         item.getCantidad(),
-                        new Precio(
-                                item.getPrecioTotal().getMonto(),
-                                item.getPrecioTotal().getMoneda()
-                        )
+                        item.getPrecioTotal().aDominio()
                 ))
                 .toList();
 
@@ -88,6 +80,6 @@ public class CarritoPersistenceMapper {
                 UUID.fromString(entity.getIdCarrito()),
                 entity.getIdUsuario(),
                 entity.getEstado(),
-                items, entity.getPrecioTotal().toBigInteger().doubleValue());
+                items);
     }
 }
