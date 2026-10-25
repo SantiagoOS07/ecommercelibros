@@ -17,6 +17,5 @@ public interface LibroRepository {
     void guardarLibro(Libro libro);
     List<Libro> listarTodosLosLibros();
     void eliminarLibro(UUID idLibro);
-    Page<Libro> listarPaginado(Pageable pageable);
-
+    Pagina<Libro> buscarLibro(Pageable pageable);
 }
