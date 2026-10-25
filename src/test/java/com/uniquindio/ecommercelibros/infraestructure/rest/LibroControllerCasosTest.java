@@ -74,6 +74,17 @@ class LibroControllerCasosTest {
         verify(registrarLibro, never()).registrarLibro(any());
     }
 
+    @Test
+    @DisplayName("Un cuerpo inválido responde 400 y nunca se llama al caso de uso")
+    void registrarConCuerpoInvalido_responde400_yNoLlamaAlCasoDeUso() throws Exception {
+        mockMvc.perform(post("/api/libros")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{}"))
+                .andExpect(status().isBadRequest());
+
+        verify(registrarLibro, never()).registrarLibro(any());
+    }
+
     private String json() {
         return """
                 {
