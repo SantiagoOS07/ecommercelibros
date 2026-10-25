@@ -1,5 +1,6 @@
 package com.uniquindio.ecommercelibros.aplication.usecase.libro;
 
+import com.uniquindio.ecommercelibros.aplication.dto.request.libro.RegistrarLibroRequest;
 import com.uniquindio.ecommercelibros.domain.entity.Libro;
 import com.uniquindio.ecommercelibros.domain.repository.LibroRepository;
 import com.uniquindio.ecommercelibros.domain.service.VerificadorDeLibro;
@@ -21,9 +22,8 @@ public class RegistrarLibroUseCase {
         this.verificadorDeLibro = verificadorDeLibro;
     }
 
-    public Libro registrarLibro(NombreLibro titulo, String idAutor, ISBN isbn, String descripcion, NumeroPaginas numeroPaginas, Precio precio, Stock stock, String edicion, UUID idEditorial, FechaPublicacion fechaPublicacion, CategoriaLibro categoria, String imagen, EstadoLibro estado) {
-        verificadorDeLibro.verificarQueISBNNoExiste(isbn.isbn());
-        Libro libro = Libro.crear(titulo, idAutor, isbn, descripcion, numeroPaginas, precio, stock, edicion, idEditorial, fechaPublicacion, categoria, imagen, estado);
+    public Libro registrarLibro(Libro libro) {
+        verificadorDeLibro.verificarQueISBNNoExiste(libro.getIsbn().isbn());
         libroRepository.guardarLibro(libro);
         return libro;
     }

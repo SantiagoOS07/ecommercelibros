@@ -34,36 +34,16 @@ public class LibroController {
 
 
     @PostMapping
-    public ResponseEntity<LibroResponse> registrar(
-            @Valid @RequestBody RegistrarLibroRequest request) {
-
-        Libro libroRequest = mapper.toDomain(request);
-
-        Libro libro = registrarLibro.registrarLibro(
-                libroRequest.getTitulo(),
-                libroRequest.getIdAutor(),
-                libroRequest.getIsbn(),
-                libroRequest.getDescripcion(),
-                libroRequest.getNumeroPaginas(),
-                libroRequest.getPrecio(),
-                libroRequest.getStock(),
-                libroRequest.getEdicion(),
-                libroRequest.getIdEditorial(),
-                libroRequest.getFechaPublicacion(),
-                libroRequest.getCategoria(),
-                libroRequest.getImagen(),
-                libroRequest.getEstado()
-        );
-
-        LibroResponse response = mapper.toResponse(libro);
+    public ResponseEntity<LibroResponse> registrar(@Valid @RequestBody RegistrarLibroRequest request) {
+        Libro libro = registrarLibro.registrarLibro(mapper.toDomain(request));
 
         URI location = ServletUriComponentsBuilder
-                .fromCurrentRequest()
+                .fromCurrentRequestUri()
                 .path("/{id}")
                 .buildAndExpand(libro.getIdLibro())
                 .toUri();
 
-        return ResponseEntity.created(location).body(response);
+        return ResponseEntity.created(location).body(mapper.toResponse(libro));
     }
 
 
