@@ -10,7 +10,7 @@ import java.util.List;
 /** GET /ventas/{idVenta}, GET /ventas?idUsuario={idUsuario} */
 public record VentaResponse(
         String idVenta,
-        List<ItemVenta> items,
+        List<ItemVentaResponse> items,
         EstadoPedido estadoPedido,
         LocalDate fecha,
         double precio,

@@ -9,4 +9,9 @@ public enum Moneda {
     Moneda(double equivalencia){
         this.equivalencia = equivalencia;
     }
+
+    @Override
+    public String toString() {
+        return name();
+    }
 }
