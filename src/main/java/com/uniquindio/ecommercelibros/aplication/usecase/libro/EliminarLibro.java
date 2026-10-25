@@ -1,6 +1,7 @@
 package com.uniquindio.ecommercelibros.aplication.usecase.libro;
 
 import com.uniquindio.ecommercelibros.domain.repository.LibroRepository;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.UUID;
 
@@ -12,6 +13,7 @@ public class EliminarLibro {
         this.libroRepository = libroRepository;
     }
 
+    @Transactional
     public void eliminar(UUID idLibro) {
 
         libroRepository.buscarPorIdLibro(idLibro)

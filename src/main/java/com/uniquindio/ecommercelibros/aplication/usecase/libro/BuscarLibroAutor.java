@@ -5,6 +5,7 @@ import com.uniquindio.ecommercelibros.domain.entity.Autor;
 import com.uniquindio.ecommercelibros.domain.entity.Libro;
 import com.uniquindio.ecommercelibros.domain.repository.AutorRepository;
 import com.uniquindio.ecommercelibros.domain.repository.LibroRepository;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
@@ -22,6 +23,7 @@ public class BuscarLibroAutor {
         this.autorRepository = autorRepository;
     }
 
+    @Transactional(readOnly = true)
     public List<Libro> buscar(String nombreAutor) {
 
         Optional<Autor> autor = autorRepository.buscarPorNombre(nombreAutor);
