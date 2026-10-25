@@ -97,7 +97,7 @@ class LibroRepositoryIntegracionTest {
                 new ISBN(isbn),
                 "Descripción de prueba",
                 new NumeroPaginas(320),
-                new Precio(45000.50, "COP"),
+                new Precio(45000.50, Moneda.COP),
                 new Stock(12),
                 "Primera edición",
                 UUID.randomUUID(),
