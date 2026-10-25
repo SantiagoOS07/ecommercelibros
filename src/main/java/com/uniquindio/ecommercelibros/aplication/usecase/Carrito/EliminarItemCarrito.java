@@ -5,6 +5,7 @@ import com.uniquindio.ecommercelibros.domain.exception.ReglaDominioException;
 import com.uniquindio.ecommercelibros.domain.repository.CarritoRepository;
 import com.uniquindio.ecommercelibros.domain.valueObject.ISBN;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.UUID;
 
@@ -17,6 +18,7 @@ public class EliminarItemCarrito {
         this.carritoRepository = carritoRepository;
     }
 
+    @Transactional
     public void ejecutar(UUID idCarrito, ISBN isbnLibro) {
 
         Carrito carrito = carritoRepository.buscarPorIdCarrito(idCarrito)

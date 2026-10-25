@@ -2,6 +2,7 @@ package com.uniquindio.ecommercelibros.aplication.usecase.Carrito;
 
 import com.uniquindio.ecommercelibros.domain.entity.Carrito;
 import com.uniquindio.ecommercelibros.domain.repository.CarritoRepository;
+import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
 import java.util.UUID;
@@ -15,6 +16,7 @@ public class CancelarConfirmacionCarrito {
         this.carritoRepository = carritoRepository;
     }
 
+    @Transactional
     public void ejecutar(UUID idCarrito) {
 
         Carrito carrito = carritoRepository.buscarPorIdCarrito(idCarrito)
