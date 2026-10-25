@@ -10,6 +10,8 @@ import java.util.Optional;
 import java.util.UUID;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -73,5 +75,12 @@ public class LibroRepositoryJpa implements LibroRepository {
     public void eliminarLibro(UUID idLibro) {
         dataRepository.deleteById(idLibro.toString());
     }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Page<Libro> listarPaginado(Pageable pageable) {
+        return dataRepository.findAll(pageable).map(mapper::toDomain);
+    }
 }
+
 
