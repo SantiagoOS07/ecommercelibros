@@ -1,10 +1,4 @@
-package com.uniquindio.ecommercelibros.aplication.usecase.autor;
-
-import com.uniquindio.ecommercelibros.domain.entity.Autor;
-import com.uniquindio.ecommercelibros.domain.repository.AutorRepository;
-
-import java.util.Optional;
-
+@Service
 public class ConsultarAutorID {
 
     private final AutorRepository autorRepository;
@@ -13,6 +7,7 @@ public class ConsultarAutorID {
         this.autorRepository = autorRepository;
     }
 
+    @Transactional(readOnly = true)
     public Optional<Autor> consultar(String idAutor) {
         return autorRepository.buscarPorIdAutor(idAutor);
     }
