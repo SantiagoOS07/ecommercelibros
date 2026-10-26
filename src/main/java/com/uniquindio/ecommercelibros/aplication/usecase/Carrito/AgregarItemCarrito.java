@@ -1,7 +1,7 @@
-
 package com.uniquindio.ecommercelibros.aplication.usecase.Carrito;
 
 import com.uniquindio.ecommercelibros.domain.entity.Carrito;
+import com.uniquindio.ecommercelibros.domain.exception.RecursoNoEncontradoException;
 import com.uniquindio.ecommercelibros.domain.repository.CarritoRepository;
 import com.uniquindio.ecommercelibros.domain.valueObject.ISBN;
 import com.uniquindio.ecommercelibros.domain.valueObject.Precio;
@@ -31,10 +31,7 @@ public class AgregarItemCarrito {
 
         Carrito carrito = carritoRepository
                 .buscarPorIdCarrito(idCarrito)
-                .orElseThrow(() ->
-                        new IllegalArgumentException(
-                                "El carrito no existe."
-                        ));
+                .orElseThrow(() -> new RecursoNoEncontradoException("El carrito no existe."));
 
         carrito.agregarItem(
                 isbnLibro,

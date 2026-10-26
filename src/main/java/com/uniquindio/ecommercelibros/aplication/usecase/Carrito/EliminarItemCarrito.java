@@ -25,7 +25,7 @@ public class EliminarItemCarrito {
                 .orElseThrow(() ->
                         new IllegalArgumentException("El carrito no existe."));
 
-        if(!carrito.getItems().contains(isbnLibro)) {
+        if (!carrito.contieneLibro(isbnLibro)) {
             throw new ReglaDominioException("El carrito no contiene este libro");
         }
         carrito.eliminarItem(isbnLibro);

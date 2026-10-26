@@ -282,12 +282,13 @@ class CarritoTest {
     }
 
     @Test
-    void actualizarPrecioDeItemInexistenteNoDebeAlterarLaListaDeItems() {
+    void actualizarPrecioDeItemInexistenteDebeLanzarExcepcionYNoAlterarLosItems() {
         Carrito carrito = crearCarrito();
         ISBN isbn = new ISBN("9783161484100");
         carrito.agregarItem(isbn, 2, new Precio(20000, Moneda.COP), new Stock(10));
 
-        carrito.actualizarItemPrecio(new ISBN("9789587580188"), new Precio(99999, Moneda.COP));
+        assertThrows(ReglaDominioException.class, () ->
+                carrito.actualizarItemPrecio(new ISBN("9789587580188"), new Precio(99999, Moneda.COP)));
 
         assertEquals(new Precio(40000, Moneda.COP), carrito.getItems().getFirst().getPrecioTotal());
     }
