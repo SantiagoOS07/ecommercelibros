@@ -1,9 +1,14 @@
 package com.uniquindio.ecommercelibros.aplication.usecase.autor;
 
 import com.uniquindio.ecommercelibros.domain.entity.Autor;
+import com.uniquindio.ecommercelibros.domain.exception.RecursoNoEncontradoException;
 import com.uniquindio.ecommercelibros.domain.repository.AutorRepository;
 import com.uniquindio.ecommercelibros.domain.valueObject.Nacionalidad;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+@Service
+@Transactional
 public class ActualizarAutor {
 
     private final AutorRepository autorRepository;
@@ -47,6 +52,6 @@ public class ActualizarAutor {
     private Autor obtenerAutor(String idAutor) {
         return autorRepository.buscarPorIdAutor(idAutor)
                 .orElseThrow(() ->
-                        new IllegalArgumentException("El autor no existe"));
+                        new RecursoNoEncontradoException("El autor no existe"));
     }
 }
