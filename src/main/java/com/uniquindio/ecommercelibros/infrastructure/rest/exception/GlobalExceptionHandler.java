@@ -17,14 +17,13 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
     private static final Logger log = LoggerFactory.getLogger(GlobalExceptionHandler.class);
 
-    // --- Dominio ---
+    // Dominio
 
     @ExceptionHandler(RecursoNoEncontradoException.class)
     public ResponseEntity<Map<String, Object>> manejarRecursoNoEncontrado(RecursoNoEncontradoException ex) {
@@ -32,11 +31,6 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(ReglaDominioException.class)
-    public ResponseEntity<Map<String, Object>> manejarConflicto(ReglaDominioException ex) {
-        return construirRespuesta(HttpStatus.CONFLICT, ex.getMessage());
-    }
-
-    @ExceptionHandler(ReglaDominioException.class) // ReglaDominioException y futuras
     public ResponseEntity<Map<String, Object>> manejarDominio(ReglaDominioException ex) {
         return construirRespuesta(HttpStatus.BAD_REQUEST, ex.getMessage());
     }
@@ -46,7 +40,7 @@ public class GlobalExceptionHandler {
         return construirRespuesta(HttpStatus.NOT_FOUND, ex.getMessage());
     }
 
-    // --- Validación / request mal formado ---
+    // Validación / request mal formado
 
     @ExceptionHandler(IllegalArgumentException.class) // value objects que validan en el constructor
     public ResponseEntity<Map<String, Object>> manejarArgumentoInvalido(IllegalArgumentException ex) {
@@ -75,7 +69,7 @@ public class GlobalExceptionHandler {
                 "El parámetro '" + ex.getName() + "' tiene un formato inválido");
     }
 
-    // --- Persistencia y fallback ---
+    // Persistencia y fallback
 
     @ExceptionHandler(DataIntegrityViolationException.class)
     public ResponseEntity<Map<String, Object>> manejarIntegridad(DataIntegrityViolationException ex) {
@@ -90,7 +84,7 @@ public class GlobalExceptionHandler {
         return construirRespuesta(HttpStatus.INTERNAL_SERVER_ERROR, "Ocurrió un error interno");
     }
 
-    // --- Utilidades ---
+    // Utilidades
 
     private ResponseEntity<Map<String, Object>> construirRespuesta(HttpStatus status, String mensaje) {
         return ResponseEntity.status(status).body(cuerpoBase(status, mensaje));

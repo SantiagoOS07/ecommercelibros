@@ -36,7 +36,9 @@ public class CarritoMapper {
 
         return new CarritoResponse(
                 carrito.getIdCarrito(),
+                carrito.getIdUsuario(),
                 items,
+                carrito.getEstado(),
                 carrito.getPrecioTotal().monto()
         );
     }

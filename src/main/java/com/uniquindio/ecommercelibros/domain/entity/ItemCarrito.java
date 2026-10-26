@@ -1,6 +1,5 @@
 package com.uniquindio.ecommercelibros.domain.entity;
 
-import com.uniquindio.ecommercelibros.aplication.usecase.libro.BuscarLibroISBN;
 import com.uniquindio.ecommercelibros.domain.exception.ReglaDominioException;
 import com.uniquindio.ecommercelibros.domain.valueObject.ISBN;
 import com.uniquindio.ecommercelibros.domain.valueObject.Precio;

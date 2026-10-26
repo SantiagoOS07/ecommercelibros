@@ -26,9 +26,11 @@ public interface LibroJpaDataRepository
     List<LibroEntity> findByEstado(EstadoLibro estado);
 
     @Query("""
-            SELECT l FROM LibroEntity l WHERE l.eliminado = false\s
-                        AND LOWER(l.titulo) LIKE LOWER(CONCAT('%',:palabraTitulo,'%'))\s
-                                    AND l.estado = :estado
-           \s""")
-    Page<LibroEntity> listarLibros(@Param("titulo") String palabraTitulo, @Param("estado") EstadoLibro estado, Pageable pageable);
+        SELECT l FROM LibroEntity l
+        WHERE LOWER(l.titulo) LIKE LOWER(CONCAT('%', :palabraTitulo, '%'))
+        AND l.estado = :estado
+        """)
+    Page<LibroEntity> listarLibros(@Param("palabraTitulo") String palabraTitulo,
+                                   @Param("estado") EstadoLibro estado,
+                                   Pageable pageable);
 }
