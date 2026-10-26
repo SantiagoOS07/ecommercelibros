@@ -64,9 +64,12 @@ public class Venta {
             this.estadoPedido = EstadoPedido.REEMBOLSADO;
         }
         else if (estadoPedido.fueEntregado()) {
-            if (fecha.isBefore(LocalDate.now().minusDays(DIAS_MAXIMOS_REEMBOLSO))) {
+            LocalDate limiteReembolso = LocalDate.now().minusDays(DIAS_MAXIMOS_REEMBOLSO);
+            LocalDate limiteGracia30Dias = limiteReembolso.minusDays(30);
+            if (fecha.isBefore(limiteReembolso) && (fecha.isAfter(limiteGracia30Dias) ||
+                    fecha.isEqual(limiteGracia30Dias))) {
                 this.estadoPedido = EstadoPedido.REEMBOLSADO;
-            } else {
+            } else if (fecha.isBefore(limiteGracia30Dias)) {
                 throw new ReglaDominioException("El tiempo maximo de reembolso ha expirado. El reembolso ya no está disponible.");
             }
         }
@@ -89,7 +92,7 @@ public class Venta {
         if (this.estadoPedido.estaEnProceso()) {
             this.estadoPedido = EstadoPedido.ENVIADO;
         }
-        if (this.estadoPedido.fueEnviado()) {
+        else if (this.estadoPedido.fueEnviado()) {
             this.estadoPedido = EstadoPedido.ENTREGADO;
         }
     }

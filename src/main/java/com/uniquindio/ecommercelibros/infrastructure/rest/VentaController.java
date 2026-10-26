@@ -24,9 +24,9 @@ public class VentaController {
     private final SolicitarReembolsoVentaUseCase solicitarReembolsoVentaUseCase;
     private final VentaMapper mapper;
 
-    @GetMapping("{idVenta}")
-    public VentaResponse consultarVenta(@PathVariable("idVenta") String idVenta) {
-        return mapper.toResponseVenta(consultarVentaUseCase.ejecutar(UUID.fromString(idVenta)));
+    @GetMapping("/{idVenta}")
+    public VentaResponse consultarVenta(@PathVariable("idVenta") UUID idVenta) {
+        return mapper.toResponseVenta(consultarVentaUseCase.ejecutar(idVenta));
     }
 
     @GetMapping
@@ -34,22 +34,22 @@ public class VentaController {
         return mapper.toResponseVentas(consultarVentasPorUsuarioUseCase.ejecutar(idUsuario));
     }
 
-    @PutMapping("{idVenta}/estado")
-    public ResponseEntity<Void> actualizarEstadoVenta(@PathVariable UUID idVenta) {
+    @PutMapping("/{idVenta}/estado")
+    public ResponseEntity<Void> actualizarEstadoVenta(@PathVariable("idVenta") UUID idVenta) {
         actualizarEstadoVentaUseCase.ejecutar(idVenta);
-        return ResponseEntity.ok().build();
+        return ResponseEntity.noContent().build();
     }
 
-    @PutMapping("{idVenta}/cancelar")
-    public ResponseEntity<Void> cancelarVenta(@PathVariable("idVenta") String idVenta) {
-        cancelarVentaUseCase.ejecutar(UUID.fromString(idVenta));
-        return ResponseEntity.ok().build();
+    @PutMapping("/{idVenta}/cancelar")
+    public ResponseEntity<Void> cancelarVenta(@PathVariable("idVenta") UUID idVenta) {
+        cancelarVentaUseCase.ejecutar(idVenta);
+        return ResponseEntity.noContent().build();
     }
 
-    @PutMapping("{idVenta}/reembolso")
+    @PutMapping("/{idVenta}/reembolso")
     public ResponseEntity<Void> solicitarReembolsoVenta(@PathVariable("idVenta") UUID idVenta,
                                                         @Valid @RequestBody SolicitarReembolsoVentaRequest request) {
         solicitarReembolsoVentaUseCase.ejecutar(idVenta, request.motivo());
-        return ResponseEntity.ok().build();
+        return ResponseEntity.noContent().build();
     }
 }
