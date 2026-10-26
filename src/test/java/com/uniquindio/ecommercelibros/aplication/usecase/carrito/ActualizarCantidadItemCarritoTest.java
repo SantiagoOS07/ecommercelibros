@@ -5,6 +5,8 @@ import com.uniquindio.ecommercelibros.aplication.usecase.Carrito.ActualizarCanti
 import com.uniquindio.ecommercelibros.domain.entity.Carrito;
 import com.uniquindio.ecommercelibros.domain.repository.CarritoRepository;
 import com.uniquindio.ecommercelibros.domain.valueObject.ISBN;
+import com.uniquindio.ecommercelibros.domain.valueObject.Moneda;
+import com.uniquindio.ecommercelibros.domain.valueObject.Precio;
 import com.uniquindio.ecommercelibros.domain.valueObject.Stock;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -30,19 +32,15 @@ class ActualizarCantidadItemCarritoTest {
     @Test
     void actualizarCantidadCuandoCarritoExiste() {
         UUID idCarrito = UUID.randomUUID();
+        ISBN isbn = new ISBN("9783161484100");
         Carrito carrito = Carrito.crear("usuario-123");
-
-        ISBN isbn = mock(ISBN.class);
-        Stock stock = mock(Stock.class);
-
+        carrito.agregarItem(isbn, 1, new Precio(20000, Moneda.COP), new Stock(10));
         when(carritoRepository.buscarPorIdCarrito(idCarrito))
                 .thenReturn(Optional.of(carrito));
-        assertDoesNotThrow(() ->
-                actualizarCantidad.ejecutar(
-                        idCarrito, isbn, 1, stock
-                )
-        );
 
+        actualizarCantidad.ejecutar(idCarrito, isbn, 3, new Stock(10));
+
+        assertEquals(3, carrito.getItems().getFirst().getCantidad());
         verify(carritoRepository).guardarCarrito(carrito);
     }
 

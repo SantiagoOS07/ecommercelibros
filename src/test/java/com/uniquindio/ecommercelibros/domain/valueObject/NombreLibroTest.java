@@ -42,25 +42,13 @@ class NombreLibroTest {
     }
 
     @Test
-    void debePermitirNombreVacioSegunLaImplementacionActual() {
-        NombreLibro nombre =
-                new NombreLibro("");
-
-        assertEquals(
-                "",
-                nombre.nombreLibro()
-        );
+    void debeRechazarNombreVacio() {
+        assertThrows(CasillaVaciaException.class, () -> new NombreLibro(""));
     }
 
     @Test
-    void debePermitirEspaciosSegunLaImplementacionActual() {
-        NombreLibro nombre =
-                new NombreLibro("   ");
-
-        assertEquals(
-                "   ",
-                nombre.nombreLibro()
-        );
+    void debeRechazarNombreSoloConEspacios() {
+        assertThrows(CasillaVaciaException.class, () -> new NombreLibro("   "));
     }
 
     @Test

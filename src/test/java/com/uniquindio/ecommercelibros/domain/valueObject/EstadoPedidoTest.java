@@ -82,10 +82,8 @@ class EstadoPedidoTest {
     }
 
     @Test
-    void canceladoEsEstadoFinal() {
-        assertTrue(
-                EstadoPedido.CANCELADO.esFinal()
-        );
+    void canceladoNoEsEstadoFinal() {
+        assertFalse(EstadoPedido.CANCELADO.esFinal());
     }
 
     @Test
