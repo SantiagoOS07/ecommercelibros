@@ -18,7 +18,7 @@ public class Venta {
     private final LocalDate fecha;
     private final Precio total;
     private EstadoPedido estadoPedido;
-    private final int DIAS_MAXIMOS_REEMBOLSO = 30;
+    private static final int DIAS_MAXIMOS_REEMBOLSO = 30;
 
     private Venta(UUID idVenta, String idUsuario, List<ItemVenta> items, Precio total, LocalDate fecha, EstadoPedido estadoPedido) {
         this.idVenta = idVenta;
@@ -64,14 +64,11 @@ public class Venta {
             this.estadoPedido = EstadoPedido.REEMBOLSADO;
         }
         else if (estadoPedido.fueEntregado()) {
-            LocalDate limiteReembolso = LocalDate.now().minusDays(DIAS_MAXIMOS_REEMBOLSO);
-            LocalDate limiteGracia30Dias = limiteReembolso.minusDays(30);
-            if (fecha.isBefore(limiteReembolso) && (fecha.isAfter(limiteGracia30Dias) ||
-                    fecha.isEqual(limiteGracia30Dias))) {
-                this.estadoPedido = EstadoPedido.REEMBOLSADO;
-            } else if (fecha.isBefore(limiteGracia30Dias)) {
-                throw new ReglaDominioException("El tiempo maximo de reembolso ha expirado. El reembolso ya no está disponible.");
+            LocalDate limite = LocalDate.now().minusDays(DIAS_MAXIMOS_REEMBOLSO);
+            if (fecha.isBefore(limite)) {
+                throw new ReglaDominioException("El tiempo máximo de reembolso ha expirado. El reembolso ya no está disponible.");
             }
+            this.estadoPedido = EstadoPedido.REEMBOLSADO;
         }
     }
 
