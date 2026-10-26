@@ -1,10 +1,9 @@
-package com.uniquindio.ecommercelibros.infraestructure.rest;
+package com.uniquindio.ecommercelibros.infrastructure.rest;
 
 import com.uniquindio.ecommercelibros.aplication.usecase.libro.ConsultarLibroID;
 import com.uniquindio.ecommercelibros.aplication.usecase.libro.ListarLibros;
 import com.uniquindio.ecommercelibros.aplication.usecase.libro.RegistrarLibroUseCase;
 import com.uniquindio.ecommercelibros.domain.exception.ReglaDominioException;
-import com.uniquindio.ecommercelibros.infrastructure.rest.LibroController;
 import com.uniquindio.ecommercelibros.infrastructure.rest.mapper.LibroMapper;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
