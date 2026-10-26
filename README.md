@@ -95,3 +95,32 @@ otro lado las pruebas de integracion son mucho mas lentas, pero verifican las re
 Lo mejor es usar ambos tipos de pruebas, primero evaluar el comportamiento de las clases de manera aislada, para ver su funcionamiento base. Ya luego de hacr estas pruebas 
 podemos pasar a las pruebas de integracion y verificar su correcta integracion con las demas clases, no solo como llaman o que responden, si no como lo hacen, el proceso que hay detras y si
 realmente se llevan a cabo los procesos esperados y se nos dan las respuestas correctas.
+
+
+
+Parte 4 · Más casos en el controller
+
+
+¿Cómo hacer que un mock lance una excepción?
+
+Con when(mock.metodo.thenThrow(new Excepcion). Así le decimos al mock “cuando te llamen con esto, en vez de devolver algo, lanza este error”. En LibroControllerErroresTest 
+lo hacemos con el caso de uso registrarLibro: lanza una ReglaDominioException y comprobamos cómo responde el controller. Si el método 
+del mock es void, when no sirve y se usa doThrow, que es lo que hacemos en UsuarioControllerTest y AutorControllerTest.
+
+
+¿Cómo convierte nuestro @RestControllerAdvice cada excepción en un código HTTP?
+
+Tenemos un GlobalExceptionHandler donde cada @ExceptionHandler captura un tipo de excepción y arma la respuesta con un código y un mensaje en JSON. Con el @WebMvcTest ese handler sí se 
+carga, porque es un @ControllerAdvice. El mapeo que tenemos es:
+
+- 404: RecursoNoEncontradoException y NoSuchElementException.
+- 400: ReglaDominioException, CasillaVaciaException, IllegalArgumentException, validaciones (MethodArgumentNotValidException), JSON ilegible y UUID mal formado.
+- 409: DataIntegrityViolationException.
+- 500: cualquier otra excepción inesperada.
+
+
+¿Qué hace verify(mock, never()).metodo(...)?
+
+Comprueba que ese método del mock nunca se llamó durante el test. Lo usamos para demostrar que cuando algo falla no se sigue de largo. Por ejemplo, en LibroControllerErroresTest, 
+si mandamos un libro con datos inválidos, esperamos un 400 y verificamos que nunca se llamó a registrarLibro ni al mapper. Así nos aseguramos de que el controller frenó la petición 
+antes de llegar al caso de uso.
