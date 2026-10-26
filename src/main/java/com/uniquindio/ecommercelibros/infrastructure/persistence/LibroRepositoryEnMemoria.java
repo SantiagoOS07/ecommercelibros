@@ -8,6 +8,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 //@Repository
+/**
 public class LibroRepositoryEnMemoria implements LibroRepository {
 
     private final Map<UUID, Libro> libros = new HashMap<>();
@@ -51,3 +52,4 @@ public class LibroRepositoryEnMemoria implements LibroRepository {
         libros.remove(idLibro);
     }
 }
+ */

@@ -1,6 +1,7 @@
 package com.uniquindio.ecommercelibros.domain.repository;
 
 import com.uniquindio.ecommercelibros.domain.entity.Libro;
+import com.uniquindio.ecommercelibros.domain.valueObject.EstadoLibro;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
@@ -15,7 +16,6 @@ public interface LibroRepository {
     List<Libro> buscarPorNombre(String nombre);
     List<Libro> buscarPorAutor(String autor);
     void guardarLibro(Libro libro);
-    List<Libro> listarTodosLosLibros();
     void eliminarLibro(UUID idLibro);
-    Pagina<Libro> buscarLibro(Pageable pageable);
+    Pagina<Libro> buscarLibros(String palabraTitulo, EstadoLibro estado, int pagina, int tamanio);
 }

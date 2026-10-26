@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+/**
 public class AutorRepositoryEnMemoria implements AutorRepository {
 
     private final Map<String, Autor> autores = new HashMap<>();
@@ -40,3 +41,4 @@ public class AutorRepositoryEnMemoria implements AutorRepository {
         autores.remove(idAutor);
     }
 }
+ */

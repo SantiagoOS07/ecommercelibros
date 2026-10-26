@@ -2,6 +2,8 @@ package com.uniquindio.ecommercelibros.infrastructure.persistence.jpa;
 
 import com.uniquindio.ecommercelibros.domain.entity.Libro;
 import com.uniquindio.ecommercelibros.domain.repository.LibroRepository;
+import com.uniquindio.ecommercelibros.domain.repository.Pagina;
+import com.uniquindio.ecommercelibros.domain.valueObject.EstadoLibro;
 import com.uniquindio.ecommercelibros.infrastructure.persistence.jpa.entity.LibroEntity;
 import com.uniquindio.ecommercelibros.infrastructure.persistence.jpa.mapper.LibroPersistenceMapper;
 
@@ -11,7 +13,9 @@ import java.util.UUID;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -62,14 +66,6 @@ public class LibroRepositoryJpa implements LibroRepository {
                 .orElseGet(() -> mapper.toEntity(libro));
         dataRepository.save(entity);
     }
-    @Override
-    @Transactional(readOnly = true)
-    public List<Libro> listarTodosLosLibros() {
-        return dataRepository.findAll()
-                .stream()
-                .map(mapper::toDomain)
-                .toList();
-    }
 
     @Override
     public void eliminarLibro(UUID idLibro) {
@@ -77,9 +73,22 @@ public class LibroRepositoryJpa implements LibroRepository {
     }
 
     @Override
-    @Transactional(readOnly = true)
-    public Page<Libro> listarPaginado(Pageable pageable) {
-        return dataRepository.findAll(pageable).map(mapper::toDomain);
+    public Pagina<Libro> buscarLibros(String palabraTitulo, EstadoLibro estado, int pagina, int tamanio) {
+        String palabra = (palabraTitulo == null) ? "" : palabraTitulo.trim();
+        if (estado == null) {
+            estado = EstadoLibro.DISPONIBLE;
+        }
+        Page<LibroEntity> resultado = dataRepository.listarLibros(palabra, estado,
+                PageRequest.of(pagina, tamanio, Sort.by("titulo")));
+        return new Pagina<>(
+                resultado.getContent().stream()
+                        .map(mapper::toDomain)
+                        .toList(),
+                resultado.getTotalElements(),
+                resultado.getTotalPages(),
+                resultado.getNumber(),
+                resultado.getSize()
+        );
     }
 }
 
