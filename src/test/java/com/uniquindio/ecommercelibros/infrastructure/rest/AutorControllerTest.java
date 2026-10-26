@@ -1,4 +1,4 @@
-package com.uniquindio.ecommercelibros.infraestructure.rest;
+package com.uniquindio.ecommercelibros.infrastructure.rest;
 
 import com.uniquindio.ecommercelibros.aplication.usecase.autor.ActualizarAutor;
 import com.uniquindio.ecommercelibros.aplication.usecase.autor.ConsultarAutorID;
@@ -9,7 +9,6 @@ import com.uniquindio.ecommercelibros.aplication.usecase.autor.RegistrarAutor;
 import com.uniquindio.ecommercelibros.domain.entity.Autor;
 import com.uniquindio.ecommercelibros.domain.exception.ReglaDominioException;
 import com.uniquindio.ecommercelibros.domain.valueObject.Nacionalidad;
-import com.uniquindio.ecommercelibros.infrastructure.rest.AutorController;
 import com.uniquindio.ecommercelibros.infrastructure.rest.mapper.AutorMapper;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;

@@ -1,4 +1,4 @@
-package com.uniquindio.ecommercelibros.infraestructure.rest;
+package com.uniquindio.ecommercelibros.infrastructure.rest;
 
 import com.uniquindio.ecommercelibros.aplication.usecase.usuario.ActualizarUsuario;
 import com.uniquindio.ecommercelibros.aplication.usecase.usuario.ConsultarUsuarioCorreo;
@@ -10,7 +10,6 @@ import com.uniquindio.ecommercelibros.domain.entity.Usuario;
 import com.uniquindio.ecommercelibros.domain.exception.RecursoNoEncontradoException;
 import com.uniquindio.ecommercelibros.domain.exception.ReglaDominioException;
 import com.uniquindio.ecommercelibros.domain.valueObject.*;
-import com.uniquindio.ecommercelibros.infrastructure.rest.UsuarioController;
 import com.uniquindio.ecommercelibros.infrastructure.rest.mapper.UsuarioMapper;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
