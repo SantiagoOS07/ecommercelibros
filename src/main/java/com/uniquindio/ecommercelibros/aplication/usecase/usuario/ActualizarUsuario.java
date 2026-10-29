@@ -11,6 +11,7 @@ import com.uniquindio.ecommercelibros.domain.valueObject.RolUsuario;
 import com.uniquindio.ecommercelibros.domain.valueObject.Telefono;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import com.uniquindio.ecommercelibros.domain.service.EncriptadorContrasenia;
 
 @Service
 @Transactional
@@ -18,10 +19,12 @@ public class ActualizarUsuario {
 
     private final UsuarioRepository usuarioRepository;
     private final VerificadorDeUsuario verificadorDeUsuario;
+    private final EncriptadorContrasenia encriptador;
 
-    public ActualizarUsuario(UsuarioRepository usuarioRepository, VerificadorDeUsuario verificadorDeUsuario) {
+    public ActualizarUsuario(UsuarioRepository usuarioRepository, VerificadorDeUsuario verificadorDeUsuario, EncriptadorContrasenia encriptador) {
         this.usuarioRepository = usuarioRepository;
         this.verificadorDeUsuario = verificadorDeUsuario;
+        this.encriptador = encriptador;
     }
 
     public void actualizarNombre(String idUsuario, String nuevoNombre) {
@@ -62,11 +65,17 @@ public class ActualizarUsuario {
     public void cambiarContrasenia(String idUsuario, String contraseniaActual, String nuevaContrasenia) {
         Usuario usuario = obtenerUsuario(idUsuario);
 
-        if (!usuario.coincideContrasenia(contraseniaActual)) {
+        if (!encriptador.coincide(contraseniaActual, usuario.getContrasenia())) {
             throw new ReglaDominioException("La contraseña actual no es correcta.");
         }
 
-        usuario.cambiarContrasenia(nuevaContrasenia);
+        Usuario.validarFormatoContrasenia(nuevaContrasenia);
+
+        if (encriptador.coincide(nuevaContrasenia, usuario.getContrasenia())) {
+            throw new ReglaDominioException("La nueva contraseña debe ser distinta de la actual.");
+        }
+
+        usuario.cambiarContrasenia(encriptador.encriptar(nuevaContrasenia));
         usuarioRepository.guardarUsuario(usuario);
     }
 

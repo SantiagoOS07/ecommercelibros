@@ -64,7 +64,8 @@ class UsuarioControllerTest {
     @Test
     @DisplayName("POST válido responde 201 con Location y nunca expone la contraseña")
     void registrarUsuario_responde201() throws Exception {
-        when(registrarUsuario.registrar(any())).thenAnswer(invocacion -> invocacion.getArgument(0));
+        when(registrarUsuario.registrar(any(), any(), any(), any(), any()))
+                .thenReturn(crearUsuario("user-1"));
 
         mockMvc.perform(post("/api/usuarios")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -80,7 +81,7 @@ class UsuarioControllerTest {
     @Test
     @DisplayName("POST con correo ya registrado responde 400")
     void registrarCorreoDuplicado_responde400() throws Exception {
-        when(registrarUsuario.registrar(any()))
+        when(registrarUsuario.registrar(any(), any(), any(), any(), any()))
                 .thenThrow(new ReglaDominioException("Ya existe un usuario registrado con ese correo"));
 
         mockMvc.perform(post("/api/usuarios")
@@ -99,7 +100,7 @@ class UsuarioControllerTest {
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.errores.correo").exists());
 
-        verify(registrarUsuario, never()).registrar(any());
+        verify(registrarUsuario, never()).registrar(any(), any(), any(), any(), any());
     }
 
     @Test
@@ -109,10 +110,9 @@ class UsuarioControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(json("juan@mail.com", "clavesegura")))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.mensaje")
-                        .value("La contraseña debe tener mínimo 8 caracteres, una mayúscula y un número."));
+                .andExpect(jsonPath("$.errores.contrasenia").exists());
 
-        verify(registrarUsuario, never()).registrar(any());
+        verify(registrarUsuario, never()).registrar(any(), any(), any(), any(), any());
     }
 
     @Test

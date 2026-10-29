@@ -1,8 +1,6 @@
 package com.uniquindio.ecommercelibros.infrastructure.rest;
 
-import com.uniquindio.ecommercelibros.aplication.usecase.libro.ConsultarLibroID;
-import com.uniquindio.ecommercelibros.aplication.usecase.libro.ListarLibros;
-import com.uniquindio.ecommercelibros.aplication.usecase.libro.RegistrarLibroUseCase;
+import com.uniquindio.ecommercelibros.aplication.usecase.libro.*;
 import com.uniquindio.ecommercelibros.domain.exception.ReglaDominioException;
 import com.uniquindio.ecommercelibros.infrastructure.rest.mapper.LibroMapper;
 import org.junit.jupiter.api.Test;
@@ -42,12 +40,27 @@ class LibroControllerErroresTest {
     @MockitoBean
     private LibroMapper mapper;
 
+    @MockitoBean
+    private BuscarLibroISBN buscarLibroISBN;
+
+    @MockitoBean
+    private BuscarLibroNombre buscarLibroNombre;
+
+    @MockitoBean
+    private BuscarLibroAutor buscarLibroAutor;
+
+    @MockitoBean
+    private ActualizarLibro actualizarLibro;
+
+    @MockitoBean
+    private EliminarLibro eliminarLibro;
+
     @Test
     void deberiaResponder404CuandoElLibroNoExiste() throws Exception {
         UUID id = UUID.randomUUID();
         when(consultarLibroID.ConsultarLibroPorID(id)).thenReturn(Optional.empty());
 
-        mockMvc.perform(get("/libros/{id}", id))
+        mockMvc.perform(get("/api/libros/{id}", id))
                 .andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.status").value(404));
 
@@ -61,7 +74,7 @@ class LibroControllerErroresTest {
         when(registrarLibro.registrarLibro(any()))
                 .thenThrow(new ReglaDominioException("Ya existe un libro registrado con ese ISBN"));
 
-        mockMvc.perform(post("/libros")
+        mockMvc.perform(post("/api/libros")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(cuerpoValido()))
                 .andExpect(status().isBadRequest())
@@ -73,7 +86,7 @@ class LibroControllerErroresTest {
 
     @Test
     void noDeberiaLlamarAlCasoDeUsoSiLosDatosSonInvalidos() throws Exception {
-        mockMvc.perform(post("/libros")
+        mockMvc.perform(post("/api/libros")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{}"))
                 .andExpect(status().isBadRequest())
@@ -85,7 +98,7 @@ class LibroControllerErroresTest {
 
     @Test
     void deberiaResponder400CuandoElIdDelLibroNoEsUnUuid() throws Exception {
-        mockMvc.perform(get("/libros/{id}", "no-es-un-uuid"))
+        mockMvc.perform(get("/api/libros/{id}", "no-es-un-uuid"))
                 .andExpect(status().isBadRequest());
 
         verify(consultarLibroID, never()).ConsultarLibroPorID(any());

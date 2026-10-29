@@ -14,7 +14,7 @@ import java.util.List;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/ventas")
+@RequestMapping("/api/ventas")
 @RequiredArgsConstructor
 public class VentaController {
     private final ActualizarEstadoVentaUseCase actualizarEstadoVentaUseCase;

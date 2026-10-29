@@ -1,6 +1,7 @@
 package com.uniquindio.ecommercelibros.domain.entity;
 
 import com.uniquindio.ecommercelibros.domain.exception.CasillaVaciaException;
+import com.uniquindio.ecommercelibros.domain.exception.ReglaDominioException;
 import com.uniquindio.ecommercelibros.domain.valueObject.*;
 import org.junit.jupiter.api.Test;
 
@@ -187,6 +188,20 @@ class UsuarioTest {
 
         assertThrows(CasillaVaciaException.class, () -> usuario.cambiarRol(null));
         assertEquals(rolOriginal, usuario.getRolUsuario());
+    }
+
+    @Test
+    void validarFormatoContraseniaAceptaUnaClaveValida() {
+        assertDoesNotThrow(() -> Usuario.validarFormatoContrasenia("Clave123"));
+    }
+
+    @Test
+    void validarFormatoContraseniaRechazaClavesInseguras() {
+        assertThrows(ReglaDominioException.class, () -> Usuario.validarFormatoContrasenia("clave123"));  // sin mayúscula
+        assertThrows(ReglaDominioException.class, () -> Usuario.validarFormatoContrasenia("ClaveSegura")); // sin número
+        assertThrows(ReglaDominioException.class, () -> Usuario.validarFormatoContrasenia("Cl1"));         // muy corta
+        assertThrows(ReglaDominioException.class, () -> Usuario.validarFormatoContrasenia("A1" + "a".repeat(71))); // > 72
+        assertThrows(CasillaVaciaException.class, () -> Usuario.validarFormatoContrasenia(" "));
     }
 
     private Usuario crearUsuario(String id) {

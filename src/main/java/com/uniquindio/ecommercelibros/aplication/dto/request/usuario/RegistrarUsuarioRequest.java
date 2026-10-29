@@ -1,10 +1,7 @@
 package com.uniquindio.ecommercelibros.aplication.dto.request.usuario;
 
 import com.uniquindio.ecommercelibros.domain.valueObject.RolUsuario;
-import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Size;
+import jakarta.validation.constraints.*;
 
 /** POST /usuarios */
 public record RegistrarUsuarioRequest(
@@ -18,7 +15,10 @@ public record RegistrarUsuarioRequest(
         String correo,
 
         @NotBlank(message = "La contraseña es obligatoria")
-        @Size(min = 8, message = "La contraseña debe tener mínimo 8 caracteres")
+        @Size(min = 8, max = 72, message = "La contraseña debe tener entre 8 y 72 caracteres")
+        @Pattern(
+                regexp = "^(?=.*[A-Z])(?=.*\\d).+$",
+                message = "La contraseña debe tener al menos una mayúscula y un número")
         String contrasenia,
 
         @NotBlank(message = "El teléfono del usuario es obligatorio")
@@ -27,8 +27,11 @@ public record RegistrarUsuarioRequest(
 
         @NotBlank(message = "La dirección del usuario es obligatoria")
         @Size(max = 200, message = "La dirección no puede superar los 200 caracteres")
-        String direccion,
-
-        @NotNull(message = "El rol del usuario es obligatorio")
-        RolUsuario rolUsuario
-) {}
+        String direccion
+) {
+        @Override
+        public String toString() {
+                return "RegistrarUsuarioRequest[nombre=" + nombre + ", correo=" + correo
+                        + ", contrasenia=****, telefono=" + telefono + ", direccion=" + direccion + "]";
+        }
+}

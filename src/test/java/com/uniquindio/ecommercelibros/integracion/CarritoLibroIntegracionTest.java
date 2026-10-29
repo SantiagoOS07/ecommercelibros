@@ -29,7 +29,7 @@ class CarritoLibroIntegracionTest {
     void deberiaRegistrarUnLibroYAgregarloAUnCarritoNuevo() throws Exception {
         String isbn = "9780000000601";
 
-        MvcResult libroCreado = mockMvc.perform(post("/libros")
+        MvcResult libroCreado = mockMvc.perform(post("/api/libros")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(cuerpoLibro(isbn)))
                 .andExpect(status().isCreated())
@@ -63,12 +63,12 @@ class CarritoLibroIntegracionTest {
     @Test
     void deberiaRechazarUnLibroConIsbnRepetido() throws Exception {
         String isbn = "9780000000602";
-        mockMvc.perform(post("/libros")
+        mockMvc.perform(post("/api/libros")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(cuerpoLibro(isbn)))
                 .andExpect(status().isCreated());
 
-        mockMvc.perform(post("/libros")
+        mockMvc.perform(post("api//libros")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(cuerpoLibro(isbn)))
                 .andExpect(status().isBadRequest())

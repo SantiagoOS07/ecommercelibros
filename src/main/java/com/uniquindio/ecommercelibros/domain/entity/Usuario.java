@@ -15,6 +15,7 @@ import java.util.Objects;
 public class Usuario {
 
     private static final String FORMATO_CONTRASENIA = "^(?=.*[A-Z])(?=.*\\d).{8,}$";
+    private static final int LONGITUD_MAXIMA_CONTRASENIA = 72;
 
     private final String idUsuario;
     private String nombre;
@@ -50,7 +51,7 @@ public class Usuario {
         return new Usuario(idUsuario, nombre, correo, contrasenia, telefono, direccion, rolUsuario, estadoUsuario);
     }
 
-    private static void validar(String idUsuario, String nombre, Correo correo, String contrasenia, Telefono telefono,
+    private static void validar(String idUsuario, String nombre, Correo correo, String contraseniaHash, Telefono telefono,
                                 Direccion direccion, RolUsuario rolUsuario) {
         if (idUsuario == null || idUsuario.isEmpty()) {
             throw new CasillaVaciaException("El id del usuario no puede ser nulo o vacío.");
@@ -61,7 +62,7 @@ public class Usuario {
         if (correo == null) {
             throw new CasillaVaciaException("El correo del usuario no puede ser nulo.");
         }
-        if (contrasenia == null || contrasenia.isEmpty()) {
+        if (contraseniaHash == null || contraseniaHash.isEmpty()) {
             throw new CasillaVaciaException("La contraseña del usuario no puede ser nula o vacía.");
         }
         if (telefono == null) {
@@ -73,11 +74,18 @@ public class Usuario {
         if (rolUsuario == null) {
             throw new CasillaVaciaException("El rol del usuario no puede ser nulo.");
         }
-        validarFormatoContrasenia(contrasenia);
+        validarFormatoContrasenia(contraseniaHash);
     }
 
-    private static void validarFormatoContrasenia(String contrasenia) {
-        if (!contrasenia.matches(FORMATO_CONTRASENIA)) {
+    public static void validarFormatoContrasenia(String contraseniaPlana) {
+        if (contraseniaPlana == null || contraseniaPlana.isBlank()) {
+            throw new CasillaVaciaException("La contraseña no puede ser nula o vacía.");
+        }
+        if (contraseniaPlana.length() > LONGITUD_MAXIMA_CONTRASENIA) {
+            throw new ReglaDominioException(
+                    "La contraseña no puede superar los " + LONGITUD_MAXIMA_CONTRASENIA + " caracteres.");
+        }
+        if (!contraseniaPlana.matches(FORMATO_CONTRASENIA)) {
             throw new ReglaDominioException(
                     "La contraseña debe tener mínimo 8 caracteres, una mayúscula y un número.");
         }
@@ -99,13 +107,13 @@ public class Usuario {
         this.correo = nuevoCorreo;
     }
 
-    public void cambiarContrasenia(String nuevaContrasenia) {
+    public void cambiarContrasenia(String nuevaContraseniaHash) {
         verificarQueEsteActivo();
-        if (nuevaContrasenia == null || nuevaContrasenia.isEmpty()) {
+        if (nuevaContraseniaHash == null || nuevaContraseniaHash.isEmpty()) {
             throw new CasillaVaciaException("La nueva contraseña no puede ser nula o vacía.");
         }
-        validarFormatoContrasenia(nuevaContrasenia);
-        this.contrasenia = nuevaContrasenia;
+        validarFormatoContrasenia(nuevaContraseniaHash);
+        this.contrasenia = nuevaContraseniaHash;
     }
 
     public void cambiarTelefono(Telefono nuevoTelefono) {
@@ -131,11 +139,6 @@ public class Usuario {
         }
         this.rolUsuario = nuevoRol;
     }
-
-    public boolean coincideContrasenia(String contrasenia) {
-        return this.contrasenia.equals(contrasenia);
-    }
-
     
     public void desactivar() {
         verificarTransicion(EstadoUsuario.INACTIVO);

@@ -61,7 +61,12 @@ public class UsuarioController {
     @PostMapping
     public ResponseEntity<UsuarioResponse> registrar(@Valid @RequestBody RegistrarUsuarioRequest request) {
 
-        Usuario usuario = registrarUsuario.registrar(mapper.toDomain(request));
+        Usuario usuario = registrarUsuario.registrar(
+                request.nombre(),
+                new Correo(request.correo()),
+                request.contrasenia(),
+                new Telefono(request.telefono()),
+                new Direccion(request.direccion()));
 
         URI location = ServletUriComponentsBuilder
                 .fromCurrentRequestUri()
