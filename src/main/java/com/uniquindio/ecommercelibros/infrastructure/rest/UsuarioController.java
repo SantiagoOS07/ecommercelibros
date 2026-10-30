@@ -146,7 +146,7 @@ public class UsuarioController {
         return ResponseEntity.noContent().build();
     }
 
-    @PreAuthorize("hasAuthority('ADMINISTRADOR') or #idUsuario == authentication.principal.getClaimAsString('uid')")
+    @PreAuthorize("hasAuthority('ADMINISTRADOR')")
     @PutMapping("/{idUsuario}/rol")
     public ResponseEntity<Void> actualizarRol(
             @PathVariable String idUsuario,
@@ -166,7 +166,7 @@ public class UsuarioController {
         return ResponseEntity.noContent().build();
     }
 
-    @PreAuthorize("hasAuthority('ADMINISTRADOR') or #idUsuario == authentication.principal.getClaimAsString('uid')")
+    @PreAuthorize("hasAuthority('ADMINISTRADOR')")
     @PutMapping("/{idUsuario}/reactivar")
     public ResponseEntity<Void> reactivar(@PathVariable String idUsuario) {
 
@@ -174,7 +174,7 @@ public class UsuarioController {
         return ResponseEntity.noContent().build();
     }
 
-    @PreAuthorize("hasAuthority('ADMINISTRADOR') or #idUsuario == authentication.principal.getClaimAsString('uid')")
+    @PreAuthorize("hasAuthority('ADMINISTRADOR')")
     @DeleteMapping("/{idUsuario}")
     public ResponseEntity<Void> eliminar(@PathVariable String idUsuario) {
 

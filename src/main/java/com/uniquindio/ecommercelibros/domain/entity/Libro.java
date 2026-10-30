@@ -2,6 +2,7 @@ package com.uniquindio.ecommercelibros.domain.entity;
 
 import com.uniquindio.ecommercelibros.domain.exception.CasillaVaciaException;
 import com.uniquindio.ecommercelibros.domain.exception.ReglaDominioException;
+import com.uniquindio.ecommercelibros.domain.exception.StockInsuficienteException;
 import com.uniquindio.ecommercelibros.domain.valueObject.*;
 import lombok.Getter;
 
@@ -130,6 +131,8 @@ public class Libro {
             throw new CasillaVaciaException("El stock del libro no puede ser nulo.");
         }
         this.stock = nuevoStock;
+        if (nuevoStock.stock() == 0 && estado == EstadoLibro.DISPONIBLE) estado = EstadoLibro.AGOTADO;
+        else if (nuevoStock.stock() > 0 && estado == EstadoLibro.AGOTADO) estado = EstadoLibro.DISPONIBLE;
     }
 
     public void cambiarEdicion(String nuevaEdicion) {
@@ -201,7 +204,7 @@ public class Libro {
             throw new ReglaDominioException("La cantidad a descontar debe ser mayor a cero.");
         }
         if (cantidad > this.stock.stock()) {
-            throw new ReglaDominioException(
+            throw new StockInsuficienteException(
                     "No hay stock suficiente del libro " + isbn.isbn() + ", disponible: " + this.stock.stock());
         }
         this.stock = new Stock(this.stock.stock() - cantidad);

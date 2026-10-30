@@ -1,6 +1,7 @@
 package com.uniquindio.ecommercelibros.aplication.usecase.libro;
 
 import com.uniquindio.ecommercelibros.domain.entity.Libro;
+import com.uniquindio.ecommercelibros.domain.exception.RecursoDuplicadoException;
 import com.uniquindio.ecommercelibros.domain.exception.ReglaDominioException;
 import com.uniquindio.ecommercelibros.domain.repository.LibroRepository;
 import com.uniquindio.ecommercelibros.domain.service.VerificadorDeLibro;
@@ -56,12 +57,12 @@ class RegistrarLibroUseCaseTest {
     void registrarConIsbnRepetido_lanzaExcepcion_yNoGuarda() {
         // Arrange
         Libro libro = libro();
-        doThrow(new ReglaDominioException("Ya existe un libro con ese ISBN"))
+        doThrow(new RecursoDuplicadoException("Ya existe un libro con ese ISBN"))
                 .when(verificadorDeLibro).verificarQueISBNNoExiste(ISBN_PRUEBA);
 
         // Act + Assert
         assertThatThrownBy(() -> useCase.registrarLibro(libro))
-                .isInstanceOf(ReglaDominioException.class)
+                .isInstanceOf(RecursoDuplicadoException.class)
                 .hasMessage("Ya existe un libro con ese ISBN");
 
         verify(libroRepository, never()).guardarLibro(any());

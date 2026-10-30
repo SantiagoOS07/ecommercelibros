@@ -1,5 +1,6 @@
 package com.uniquindio.ecommercelibros.domain.service;
 
+import com.uniquindio.ecommercelibros.domain.exception.RecursoDuplicadoException;
 import com.uniquindio.ecommercelibros.domain.exception.ReglaDominioException;
 import com.uniquindio.ecommercelibros.domain.repository.CarritoRepository;
 import com.uniquindio.ecommercelibros.domain.valueObject.ISBN;
@@ -21,7 +22,7 @@ public class VerificadorDeCarrito {
                 .isPresent();
 
         if (existeCarrito) {
-            throw new ReglaDominioException(
+            throw new RecursoDuplicadoException(
                     "El usuario ya tiene un carrito activo"
             );
         }

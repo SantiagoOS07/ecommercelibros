@@ -50,7 +50,7 @@ public class CompletarVentaCarrito {
             String isbnLibro = itemCarrito.getIsbnLibro().isbn();
 
             Libro libro = libroRepository.buscarPorISBN(isbnLibro)
-                    .orElseThrow(() -> new ReglaDominioException(
+                    .orElseThrow(() -> new RecursoNoEncontradoException(
                             "El libro con ISBN " + isbnLibro + " ya no existe."
                     ));
             libro.descontarStock(itemCarrito.getCantidad());

@@ -33,10 +33,15 @@ class CarritoLibroIntegracionTest {
         return jwt().authorities(new SimpleGrantedAuthority("ADMINISTRADOR"));
     }
 
+    private static RequestPostProcessor cliente(String uid) {
+        return jwt().authorities(new SimpleGrantedAuthority("CLIENTE"))
+                .jwt(j -> j.claim("uid", uid));
+    }
+
     @Test
     void deberiaRegistrarUnLibroYAgregarloAUnCarritoNuevo() throws Exception {
         String isbn = "9780000000601";
-        jwt().authorities(new SimpleGrantedAuthority("CLIENTE")).jwt(j -> j.claim("uid", "usuario-integracion"));
+        RequestPostProcessor cliente = cliente("usuario-integracion");
 
         MvcResult libroCreado = mockMvc.perform(post("/api/libros")
                         .with(admin())
@@ -49,23 +54,23 @@ class CarritoLibroIntegracionTest {
         String idLibro = JsonPath.read(libroCreado.getResponse().getContentAsString(), "$.idLibro");
 
         MvcResult carritoCreado = mockMvc.perform(post("/api/carritos")
-                        .with(admin())
-                        .param("idUsuario", "usuario-integracion"))
+                        .with(cliente))
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.estado").value("CREADO"))
+                .andExpect(jsonPath("$.idUsuario").value("usuario-integracion"))
                 .andReturn();
         String idCarrito = JsonPath.read(carritoCreado.getResponse().getContentAsString(), "$.idCarrito");
 
         mockMvc.perform(post("/api/carritos/{idCarrito}/items", idCarrito)
-                        .with(admin())
+                        .with(cliente)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("""
-                                { "idLibro": "%s", "cantidad": 2 }
-                                """.formatted(idLibro)))
+                            { "idLibro": "%s", "cantidad": 2 }
+                            """.formatted(idLibro)))
                 .andExpect(status().isNoContent());
 
         mockMvc.perform(get("/api/carritos/{idCarrito}", idCarrito)
-                        .with(admin()))
+                        .with(cliente))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.idUsuario").value("usuario-integracion"))
                 .andExpect(jsonPath("$.items.length()").value(1))

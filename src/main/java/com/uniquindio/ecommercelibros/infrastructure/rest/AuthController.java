@@ -21,9 +21,4 @@ public class AuthController {
     public TokenResponse login(@Valid @RequestBody LoginRequest loginRequest) {
         return autenticationService.login(loginRequest);
     }
-
-    @ResponseStatus(HttpStatus.UNAUTHORIZED)
-    public Map<String, String> credencialesInvalidas() {
-        return Map.of("error", "Usuario o contraseña incorrectos");
-    }
 }

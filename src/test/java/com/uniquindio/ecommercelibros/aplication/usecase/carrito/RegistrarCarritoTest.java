@@ -2,6 +2,7 @@ package com.uniquindio.ecommercelibros.aplication.usecase.carrito;
 
 import com.uniquindio.ecommercelibros.aplication.usecase.Carrito.RegistrarCarrito;
 import com.uniquindio.ecommercelibros.domain.entity.Carrito;
+import com.uniquindio.ecommercelibros.domain.exception.RecursoDuplicadoException;
 import com.uniquindio.ecommercelibros.domain.exception.ReglaDominioException;
 import com.uniquindio.ecommercelibros.domain.repository.CarritoRepository;
 import com.uniquindio.ecommercelibros.domain.service.VerificadorDeCarrito;
@@ -41,7 +42,7 @@ class RegistrarCarritoTest {
     void noDebeRegistrarCarritoSiElUsuarioYaTieneUnoActivo() {
         String idUsuario = "usuario-123";
 
-        doThrow(new ReglaDominioException("El usuario ya tiene un carrito activo"))
+        doThrow(new RecursoDuplicadoException("El usuario ya tiene un carrito activo"))
                 .when(verificadorDeCarrito)
                 .verificarQueUsuarioNoTieneCarrito(idUsuario);
 

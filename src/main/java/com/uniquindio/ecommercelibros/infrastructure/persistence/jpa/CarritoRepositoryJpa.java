@@ -26,8 +26,8 @@ public class CarritoRepositoryJpa implements CarritoRepository {
     @Transactional(readOnly = true)
     public Optional<Carrito> buscarPorIdCarrito(UUID idCarrito) {
 
-        return dataRepository.findById(idCarrito.toString())
-                .map(mapper::toDomain);
+        return dataRepository.findByIdCarritoAndEliminadoFalse(idCarrito.toString()).map(mapper::toDomain);
+
     }
 
     @Override
@@ -43,10 +43,7 @@ public class CarritoRepositoryJpa implements CarritoRepository {
     @Transactional(readOnly = true)
     public List<Carrito> listarTodos() {
 
-        return dataRepository.findAll()
-                .stream()
-                .map(mapper::toDomain)
-                .toList();
+        return dataRepository.findByEliminadoFalse().stream().map(mapper::toDomain).toList();
     }
 
     @Override

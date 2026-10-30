@@ -1,7 +1,6 @@
 package com.uniquindio.ecommercelibros.domain.service;
 
-import com.uniquindio.ecommercelibros.domain.entity.Libro;
-import com.uniquindio.ecommercelibros.domain.exception.ReglaDominioException;
+import com.uniquindio.ecommercelibros.domain.exception.RecursoDuplicadoException;
 import com.uniquindio.ecommercelibros.domain.repository.LibroRepository;
 
 public class VerificadorDeLibro {
@@ -17,7 +16,7 @@ public class VerificadorDeLibro {
         boolean existeLibro = libroRepository.existePorIsbn(isbn);
 
         if (existeLibro) {
-            throw new ReglaDominioException(
+            throw new RecursoDuplicadoException(
                     "Ya existe un libro registrado con ese ISBN"
             );
         }
