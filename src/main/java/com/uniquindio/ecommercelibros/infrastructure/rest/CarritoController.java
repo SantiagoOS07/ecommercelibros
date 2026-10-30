@@ -143,6 +143,7 @@ public class CarritoController {
             @Valid @RequestBody AgregarItemCarritoRequest request) {
 
         Libro libro = obtenerLibro(request.idLibro());
+        libro.verificarDisponibleParaVenta();
 
         agregarItemCarrito.ejecutar(
                 idCarrito,

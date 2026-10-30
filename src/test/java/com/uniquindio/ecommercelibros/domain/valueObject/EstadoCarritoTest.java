@@ -62,8 +62,8 @@ class EstadoCarritoTest {
     }
 
     @Test
-    void procesandoNoPuedeRegresarACreado() {
-        assertFalse(
+    void procesandoPuedeRegresarACreado() {
+        assertTrue(
                 EstadoCarrito.PROCESANDO
                         .puedeTransicionarA(
                                 EstadoCarrito.CREADO

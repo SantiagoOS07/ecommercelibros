@@ -28,6 +28,7 @@ public class CarritoPersistenceMapper {
         entity.setIdUsuario(carrito.getIdUsuario());
         entity.setEstado(carrito.getEstado());
         entity.setPrecioTotal(BigDecimal.valueOf(carrito.getPrecioTotal().monto()));
+        entity.setEliminado(carrito.isEliminado());
 
         List<ItemCarritoEntity> itemsEntity = new ArrayList<>();
 
@@ -80,6 +81,6 @@ public class CarritoPersistenceMapper {
                 UUID.fromString(entity.getIdCarrito()),
                 entity.getIdUsuario(),
                 entity.getEstado(),
-                items);
+                items, entity.isEliminado());
     }
 }

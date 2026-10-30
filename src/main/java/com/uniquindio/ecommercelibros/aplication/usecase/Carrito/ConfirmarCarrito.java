@@ -26,10 +26,6 @@ public class ConfirmarCarrito {
                         new RecursoNoEncontradoException("El carrito no existe."));
 
         carrito.confirmarCarrito();
-        if (carrito.getItems() == null || carrito.getItems().isEmpty()) {
-            throw new ReglaDominioException("El carrito esta vacio");
-        }
-
         carritoRepository.guardarCarrito(carrito);
     }
 }

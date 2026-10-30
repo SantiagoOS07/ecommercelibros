@@ -35,7 +35,7 @@ public class CarritoRepositoryJpa implements CarritoRepository {
     public Optional<Carrito> buscarPorIdUsuario(String idUsuario) {
 
         return dataRepository
-                .findByIdUsuarioAndEstadoNot(idUsuario, EstadoCarrito.VENDIDO)
+                .findByIdUsuarioAndEstadoNotAndEliminadoFalse(idUsuario, EstadoCarrito.VENDIDO)
                 .map(mapper::toDomain);
     }
 
@@ -52,7 +52,7 @@ public class CarritoRepositoryJpa implements CarritoRepository {
     @Override
     @Transactional(readOnly = true)
     public List<Carrito> listarCarritosEnCreado() {
-        return dataRepository.findByEstado(EstadoCarrito.CREADO)
+        return dataRepository.findByEstadoAndEliminadoFalse(EstadoCarrito.CREADO)
                 .stream()
                 .map(mapper::toDomain)
                 .toList();
@@ -66,14 +66,8 @@ public class CarritoRepositoryJpa implements CarritoRepository {
     }
 
     @Override
-    public void eliminarCarrito(UUID idCarrito) {
-
-        dataRepository.deleteById(idCarrito.toString());
-    }
-
-    @Override
     public List<Carrito> listarCarritosEnProcesando() {
-        return dataRepository.findByEstado(EstadoCarrito.PROCESANDO)
+        return dataRepository.findByEstadoAndEliminadoFalse(EstadoCarrito.PROCESANDO)
                 .stream()
                 .map(mapper::toDomain)
                 .toList();

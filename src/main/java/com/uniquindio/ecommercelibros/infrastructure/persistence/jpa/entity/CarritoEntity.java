@@ -38,6 +38,9 @@ public class CarritoEntity {
     @Column(name = "precio_total", nullable = false, precision = 12, scale = 2)
     private BigDecimal precioTotal;
 
+    @Column(nullable = false)
+    private boolean eliminado;
+
     @OneToMany(
             mappedBy = "carrito",
             cascade = CascadeType.ALL,

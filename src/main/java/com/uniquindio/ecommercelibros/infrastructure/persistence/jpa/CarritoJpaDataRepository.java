@@ -12,9 +12,11 @@ import org.springframework.data.jpa.repository.JpaRepository;
 public interface CarritoJpaDataRepository
         extends JpaRepository<CarritoEntity, String> {
 
-    Optional<CarritoEntity> findByIdUsuario(String idUsuario);
+    Optional<CarritoEntity> findByIdCarritoAndEliminadoFalse(String idCarrito);
 
-    List<CarritoEntity> findByEstado(EstadoCarrito estadoCarrito);
+    Optional<CarritoEntity> findByIdUsuarioAndEstadoNotAndEliminadoFalse(String idUsuario, EstadoCarrito estado);
 
-    Optional<CarritoEntity> findByIdUsuarioAndEstadoNot(String idUsuario, EstadoCarrito estadoCarrito);
+    List<CarritoEntity> findByEstadoAndEliminadoFalse(EstadoCarrito estado);
+
+    List<CarritoEntity> findByEliminadoFalse();
 }

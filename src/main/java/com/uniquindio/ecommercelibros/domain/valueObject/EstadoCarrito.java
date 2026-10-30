@@ -8,7 +8,7 @@ public enum EstadoCarrito {
     public boolean puedeTransicionarA(EstadoCarrito siguiente) {
         return switch (this) {
             case CREADO -> siguiente == PROCESANDO;
-            case PROCESANDO -> siguiente == VENDIDO;
+            case PROCESANDO -> siguiente == VENDIDO ||  siguiente == CREADO;
             case VENDIDO -> false;
         };
     }

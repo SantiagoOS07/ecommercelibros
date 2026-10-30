@@ -1,6 +1,7 @@
 package com.uniquindio.ecommercelibros.aplication.usecase.Carrito;
 
 import com.uniquindio.ecommercelibros.domain.entity.Carrito;
+import com.uniquindio.ecommercelibros.domain.exception.RecursoNoEncontradoException;
 import com.uniquindio.ecommercelibros.domain.exception.ReglaDominioException;
 import com.uniquindio.ecommercelibros.domain.repository.CarritoRepository;
 import com.uniquindio.ecommercelibros.domain.valueObject.ISBN;
@@ -23,10 +24,10 @@ public class EliminarItemCarrito {
 
         Carrito carrito = carritoRepository.buscarPorIdCarrito(idCarrito)
                 .orElseThrow(() ->
-                        new IllegalArgumentException("El carrito no existe."));
+                        new RecursoNoEncontradoException("El carrito no existe."));
 
         if (!carrito.contieneLibro(isbnLibro)) {
-            throw new ReglaDominioException("El carrito no contiene este libro");
+            throw new RecursoNoEncontradoException("El carrito no contiene este libro");
         }
         carrito.eliminarItem(isbnLibro);
 

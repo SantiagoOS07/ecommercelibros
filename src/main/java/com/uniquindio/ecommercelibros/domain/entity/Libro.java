@@ -195,6 +195,39 @@ public class Libro {
         }
     }
 
+    public void descontarStock(int cantidad) {
+        verificarNoEliminado();
+        if (cantidad <= 0) {
+            throw new ReglaDominioException("La cantidad a descontar debe ser mayor a cero.");
+        }
+        if (cantidad > this.stock.stock()) {
+            throw new ReglaDominioException(
+                    "No hay stock suficiente del libro " + isbn.isbn() + ", disponible: " + this.stock.stock());
+        }
+        this.stock = new Stock(this.stock.stock() - cantidad);
+        if (this.stock.stock() == 0 && this.estado == EstadoLibro.DISPONIBLE) {
+            this.estado = EstadoLibro.AGOTADO;
+        }
+    }
+
+    public void reponerStock(int cantidad) {
+        verificarNoEliminado();
+        if (cantidad <= 0) {
+            throw new ReglaDominioException("La cantidad a reponer debe ser mayor a cero.");
+        }
+        this.stock = new Stock(this.stock.stock() + cantidad);
+        if (this.estado == EstadoLibro.AGOTADO) {
+            this.estado = EstadoLibro.DISPONIBLE;
+        }
+    }
+
+    public void verificarDisponibleParaVenta() {
+        verificarNoEliminado();
+        if (this.estado != EstadoLibro.DISPONIBLE) {
+            throw new ReglaDominioException("El libro no está disponible para la venta (estado: " + estado + ").");
+        }
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

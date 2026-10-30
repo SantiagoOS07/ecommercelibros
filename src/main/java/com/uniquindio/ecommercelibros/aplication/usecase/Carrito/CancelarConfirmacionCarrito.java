@@ -1,8 +1,9 @@
 package com.uniquindio.ecommercelibros.aplication.usecase.Carrito;
 
 import com.uniquindio.ecommercelibros.domain.entity.Carrito;
+import com.uniquindio.ecommercelibros.domain.exception.RecursoNoEncontradoException;
 import com.uniquindio.ecommercelibros.domain.repository.CarritoRepository;
-import jakarta.transaction.Transactional;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.stereotype.Service;
 
 import java.util.UUID;
@@ -21,7 +22,7 @@ public class CancelarConfirmacionCarrito {
 
         Carrito carrito = carritoRepository.buscarPorIdCarrito(idCarrito)
                 .orElseThrow(() ->
-                        new IllegalArgumentException("El carrito no existe."));
+                        new RecursoNoEncontradoException("El carrito no existe."));
 
         carrito.cancelarConfirmacionCarrito();
 

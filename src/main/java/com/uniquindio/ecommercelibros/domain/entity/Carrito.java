@@ -18,13 +18,15 @@ public class Carrito {
     private EstadoCarrito estado;
     private List<ItemCarrito> items;
     private Precio precioTotal;
+    private boolean eliminado;
 
     private Carrito(String idUsuario) {
         this(
                 UUID.randomUUID(),
                 idUsuario,
                 EstadoCarrito.CREADO,
-                new ArrayList<>()
+                new ArrayList<>(),
+                false
         );
     }
 
@@ -32,7 +34,8 @@ public class Carrito {
             UUID idCarrito,
             String idUsuario,
             EstadoCarrito estado,
-            List<ItemCarrito> items) {
+            List<ItemCarrito> items,
+            boolean eliminado) {
 
         verificar(idUsuario);
 
@@ -51,6 +54,7 @@ public class Carrito {
                         "La lista de artículos es obligatoria."
                 )
         );
+        this.eliminado = eliminado;
 
         this.precioTotal = calcularPrecioTotal();
     }
@@ -64,13 +68,15 @@ public class Carrito {
             UUID idCarrito,
             String idUsuario,
             EstadoCarrito estado,
-            List<ItemCarrito> items) {
+            List<ItemCarrito> items,
+            boolean eliminado) {
 
         return new Carrito(
                 idCarrito,
                 idUsuario,
                 estado,
-                items
+                items,
+                eliminado
         );
     }
 
@@ -84,6 +90,9 @@ public class Carrito {
 
     public void confirmarCarrito() {
         verificarCarritoNoVendido();
+        if (items.isEmpty()) {
+            throw new ReglaDominioException("El carrito no se puede confirmar porque está vacío.");
+        }
         verificarTransaccion(EstadoCarrito.PROCESANDO);
         verificarStockDisponible();
         this.estado = EstadoCarrito.PROCESANDO;
@@ -91,14 +100,7 @@ public class Carrito {
 
     public void cancelarConfirmacionCarrito() {
         verificarCarritoNoVendido();
-
-        if (this.estado != EstadoCarrito.PROCESANDO) {
-            throw new ReglaDominioException(
-                    "El carrito no puede cancelar la confirmación, " +
-                            "ya que no se está procesando."
-            );
-        }
-
+        verificarTransaccion(EstadoCarrito.CREADO);
         this.estado = EstadoCarrito.CREADO;
     }
 
@@ -183,6 +185,7 @@ public class Carrito {
     }
 
     private void verificarCarritoNoVendido() {
+        verificarNoEliminado();
         if (this.estado.esFinal()) {
             throw new ReglaDominioException(
                     "El carrito ya ha sido vendido."
@@ -191,6 +194,7 @@ public class Carrito {
     }
 
     private void verificarCarritoEditable() {
+        verificarNoEliminado();
         if (this.estado != EstadoCarrito.CREADO) {
             throw new ReglaDominioException(
                     "El carrito no se puede modificar " +
@@ -207,19 +211,32 @@ public class Carrito {
 
         verificarCarritoEditable();
 
+        if(contieneLibro(isbnLibro)) {
+            throw new ReglaDominioException("El libro ya se encuentra en el carrito");
+        }
+
         ItemCarrito itemCarrito = ItemCarrito.crear(
                 isbnLibro,
                 cantidad,
                 precioLibro,
                 stock
         );
-
-        if(items.contains(itemCarrito)) {
-            throw new ReglaDominioException("El item ya se encuentra en el carrito");
-        }
-
         this.items.add(itemCarrito);
         actualizarPrecioTotal();
+    }
+
+    public void eliminarLogicamente() {
+        verificarNoEliminado();
+        if (this.estado != EstadoCarrito.CREADO) {
+            throw new ReglaDominioException("Solo se puede eliminar un carrito en estado CREADO.");
+        }
+        this.eliminado = true;
+    }
+
+    private void verificarNoEliminado() {
+        if (eliminado) {
+            throw new ReglaDominioException("El carrito está eliminado y no puede modificarse.");
+        }
     }
 
     public void eliminarItem(ISBN isbnLibro) {
