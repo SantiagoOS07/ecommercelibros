@@ -15,9 +15,10 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.UUID;
 
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.jwt;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -30,7 +31,8 @@ class CarritoLibroIntegracionTest {
     private MockMvc mockMvc;
 
     private static RequestPostProcessor admin() {
-        return jwt().authorities(new SimpleGrantedAuthority("ADMINISTRADOR"));
+        return jwt().authorities(new SimpleGrantedAuthority("ADMINISTRADOR"))
+                .jwt(j -> j.claim("uid", "admin-integracion"));
     }
 
     private static RequestPostProcessor cliente(String uid) {
@@ -40,37 +42,19 @@ class CarritoLibroIntegracionTest {
 
     @Test
     void deberiaRegistrarUnLibroYAgregarloAUnCarritoNuevo() throws Exception {
-        String isbn = "9780000000601";
-        RequestPostProcessor cliente = cliente("usuario-integracion");
-
-        MvcResult libroCreado = mockMvc.perform(post("/api/libros")
-                        .with(admin())
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(cuerpoLibro(isbn)))
-                .andDo(print())
-                .andExpect(status().isCreated())
-                .andExpect(jsonPath("$.isbn").value(isbn))
-                .andReturn();
-        String idLibro = JsonPath.read(libroCreado.getResponse().getContentAsString(), "$.idLibro");
-
-        MvcResult carritoCreado = mockMvc.perform(post("/api/carritos")
-                        .with(cliente))
-                .andExpect(status().isCreated())
-                .andExpect(jsonPath("$.estado").value("CREADO"))
-                .andExpect(jsonPath("$.idUsuario").value("usuario-integracion"))
-                .andReturn();
-        String idCarrito = JsonPath.read(carritoCreado.getResponse().getContentAsString(), "$.idCarrito");
+        String idLibro = crearLibro("9780000000601", "Libro de integracion");
+        String idCarrito = crearCarrito("usuario-integracion");
 
         mockMvc.perform(post("/api/carritos/{idCarrito}/items", idCarrito)
-                        .with(cliente)
+                        .with(cliente("usuario-integracion"))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("""
-                            { "idLibro": "%s", "cantidad": 2 }
-                            """.formatted(idLibro)))
+                                { "idLibro": "%s", "cantidad": 2 }
+                                """.formatted(idLibro)))
                 .andExpect(status().isNoContent());
 
         mockMvc.perform(get("/api/carritos/{idCarrito}", idCarrito)
-                        .with(cliente))
+                        .with(cliente("usuario-integracion")))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.idUsuario").value("usuario-integracion"))
                 .andExpect(jsonPath("$.items.length()").value(1))
@@ -80,27 +64,124 @@ class CarritoLibroIntegracionTest {
     }
 
     @Test
-    void deberiaRechazarUnLibroConIsbnRepetido() throws Exception {
-        String isbn = "9780000000602";
-        mockMvc.perform(post("/api/libros")
-                        .with(admin())
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(cuerpoLibro(isbn)))
-                .andDo(print())
-                .andExpect(status().isCreated());
+    void deberiaRechazarUnLibroConIsbnRepetidoConConflicto() throws Exception { // [M-19]
+        crearLibro("9780000000602", "Libro repetido");
 
         mockMvc.perform(post("/api/libros")
                         .with(admin())
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(cuerpoLibro(isbn)))
-                .andExpect(status().isBadRequest())
+                        .content(cuerpoLibro("9780000000602", "Libro repetido")))
+                .andExpect(status().isConflict())
                 .andExpect(jsonPath("$.mensaje").value("Ya existe un libro registrado con ese ISBN"));
     }
 
-    private static String cuerpoLibro(String isbn) {
+    @Test
+    void libroEliminadoDebeDarNotFoundNoListarseYSeguirOcupandoSuIsbn() throws Exception {
+        String titulo = "Libro para eliminar integracion";
+        String idLibro = crearLibro("9780000000603", titulo);
+
+        mockMvc.perform(get("/api/libros").param("palabra", titulo))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.content.length()").value(1));
+
+        mockMvc.perform(delete("/api/libros/{id}", idLibro).with(admin()))
+                .andExpect(status().isNoContent());
+
+        mockMvc.perform(get("/api/libros/{id}", idLibro))
+                .andExpect(status().isNotFound());
+        mockMvc.perform(get("/api/libros").param("palabra", titulo))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.content.length()").value(0));
+
+        mockMvc.perform(post("/api/libros")
+                        .with(admin())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(cuerpoLibro("9780000000603", titulo)))
+                .andExpect(status().isConflict()); // [M-19]
+    }
+
+    @Test
+    void eliminarUnLibroInexistenteDebeDarNotFound() throws Exception {
+        mockMvc.perform(delete("/api/libros/{id}", UUID.randomUUID()).with(admin()))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    void eliminarUnLibroDebeRetirarloDeLosCarritosCreado() throws Exception {
+        String idLibro = crearLibro("9780000000604", "Libro en carrito creado");
+        String idCarrito = crearCarrito("usuario-retiro");
+        agregarItem(idCarrito, idLibro, "usuario-retiro");
+
+        mockMvc.perform(delete("/api/libros/{id}", idLibro).with(admin()))
+                .andExpect(status().isNoContent());
+
+        mockMvc.perform(get("/api/carritos/{id}", idCarrito).with(cliente("usuario-retiro")))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.items.length()").value(0));
+    }
+
+    @Test
+    void noDebeEliminarUnLibroQueEstaEnUnCarritoProcesando() throws Exception {
+        String idLibro = crearLibro("9780000000605", "Libro en carrito procesando");
+        String idCarrito = crearCarrito("usuario-procesando");
+        agregarItem(idCarrito, idLibro, "usuario-procesando");
+
+        mockMvc.perform(put("/api/carritos/{id}/confirmar", idCarrito)
+                        .with(cliente("usuario-procesando")))
+                .andExpect(status().isNoContent());
+
+        mockMvc.perform(delete("/api/libros/{id}", idLibro).with(admin()))
+                .andExpect(status().isBadRequest());
+        mockMvc.perform(get("/api/libros/{id}", idLibro))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    void carritoEliminadoDebeDarNotFoundYElUsuarioPuedeCrearOtro() throws Exception {
+        String idCarrito = crearCarrito("usuario-recrea");
+
+        mockMvc.perform(delete("/api/carritos/{id}", idCarrito).with(cliente("usuario-recrea")))
+                .andExpect(status().isNoContent());
+        mockMvc.perform(get("/api/carritos/{id}", idCarrito).with(cliente("usuario-recrea")))
+                .andExpect(status().isNotFound());
+
+        mockMvc.perform(post("/api/carritos").with(cliente("usuario-recrea")))
+                .andExpect(status().isCreated());
+    }
+
+    private String crearLibro(String isbn, String titulo) throws Exception {
+        MvcResult r = mockMvc.perform(post("/api/libros")
+                        .with(admin())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(cuerpoLibro(isbn, titulo)))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.isbn").value(isbn))
+                .andReturn();
+        return JsonPath.read(r.getResponse().getContentAsString(), "$.idLibro");
+    }
+
+    private String crearCarrito(String uid) throws Exception {
+        MvcResult r = mockMvc.perform(post("/api/carritos").with(cliente(uid)))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.estado").value("CREADO"))
+                .andReturn();
+        return JsonPath.read(r.getResponse().getContentAsString(), "$.idCarrito");
+    }
+
+    private void agregarItem(String idCarrito, String idLibro, String uid) throws Exception {
+        mockMvc.perform(post("/api/carritos/{idCarrito}/items", idCarrito)
+                        .with(cliente(uid))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                { "idLibro": "%s", "cantidad": 2 }
+                                """.formatted(idLibro)))
+                .andExpect(status().isNoContent());
+    }
+
+    private static String cuerpoLibro(String isbn, String titulo) {
         return """
                 {
-                  "titulo": "Libro de integracion",
+                  "titulo": "%s",
                   "idAutor": "autor-integracion",
                   "isbn": "%s",
                   "descripcion": "Libro para la prueba de integracion",
@@ -115,6 +196,6 @@ class CarritoLibroIntegracionTest {
                   "imagen": "https://imagenes.test/libro.png",
                   "estado": "DISPONIBLE"
                 }
-                """.formatted(isbn, UUID.randomUUID());
+                """.formatted(titulo, isbn, UUID.randomUUID());
     }
 }

@@ -3,7 +3,6 @@ package com.uniquindio.ecommercelibros.aplication.usecase.carrito;
 import com.uniquindio.ecommercelibros.aplication.usecase.Carrito.RegistrarCarrito;
 import com.uniquindio.ecommercelibros.domain.entity.Carrito;
 import com.uniquindio.ecommercelibros.domain.exception.RecursoDuplicadoException;
-import com.uniquindio.ecommercelibros.domain.exception.ReglaDominioException;
 import com.uniquindio.ecommercelibros.domain.repository.CarritoRepository;
 import com.uniquindio.ecommercelibros.domain.service.VerificadorDeCarrito;
 import org.junit.jupiter.api.BeforeEach;
@@ -46,7 +45,7 @@ class RegistrarCarritoTest {
                 .when(verificadorDeCarrito)
                 .verificarQueUsuarioNoTieneCarrito(idUsuario);
 
-        assertThrows(ReglaDominioException.class,
+        assertThrows(RecursoDuplicadoException.class,
                 () -> registrarCarrito.ejecutar(idUsuario));
 
         verify(carritoRepository, never()).guardarCarrito(any());
