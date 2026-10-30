@@ -6,14 +6,18 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.http.MediaType;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
+import org.springframework.test.web.servlet.request.RequestPostProcessor;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.UUID;
 
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.jwt;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -25,19 +29,26 @@ class CarritoLibroIntegracionTest {
     @Autowired
     private MockMvc mockMvc;
 
+    private static RequestPostProcessor admin() {
+        return jwt().authorities(new SimpleGrantedAuthority("ADMINISTRADOR"));
+    }
+
     @Test
     void deberiaRegistrarUnLibroYAgregarloAUnCarritoNuevo() throws Exception {
         String isbn = "9780000000601";
 
         MvcResult libroCreado = mockMvc.perform(post("/api/libros")
+                        .with(admin())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(cuerpoLibro(isbn)))
+                .andDo(print())
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.isbn").value(isbn))
                 .andReturn();
         String idLibro = JsonPath.read(libroCreado.getResponse().getContentAsString(), "$.idLibro");
 
         MvcResult carritoCreado = mockMvc.perform(post("/api/carritos")
+                        .with(admin())
                         .param("idUsuario", "usuario-integracion"))
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.estado").value("CREADO"))
@@ -45,13 +56,15 @@ class CarritoLibroIntegracionTest {
         String idCarrito = JsonPath.read(carritoCreado.getResponse().getContentAsString(), "$.idCarrito");
 
         mockMvc.perform(post("/api/carritos/{idCarrito}/items", idCarrito)
+                        .with(admin())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("""
                                 { "idLibro": "%s", "cantidad": 2 }
                                 """.formatted(idLibro)))
                 .andExpect(status().isNoContent());
 
-        mockMvc.perform(get("/api/carritos/{idCarrito}", idCarrito))
+        mockMvc.perform(get("/api/carritos/{idCarrito}", idCarrito)
+                        .with(admin()))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.idUsuario").value("usuario-integracion"))
                 .andExpect(jsonPath("$.items.length()").value(1))
@@ -64,11 +77,14 @@ class CarritoLibroIntegracionTest {
     void deberiaRechazarUnLibroConIsbnRepetido() throws Exception {
         String isbn = "9780000000602";
         mockMvc.perform(post("/api/libros")
+                        .with(admin())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(cuerpoLibro(isbn)))
+                .andDo(print())
                 .andExpect(status().isCreated());
 
-        mockMvc.perform(post("api//libros")
+        mockMvc.perform(post("/api/libros")
+                        .with(admin())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(cuerpoLibro(isbn)))
                 .andExpect(status().isBadRequest())

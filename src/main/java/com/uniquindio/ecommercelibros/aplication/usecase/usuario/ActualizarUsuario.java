@@ -11,7 +11,7 @@ import com.uniquindio.ecommercelibros.domain.valueObject.RolUsuario;
 import com.uniquindio.ecommercelibros.domain.valueObject.Telefono;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import com.uniquindio.ecommercelibros.domain.service.EncriptadorContrasenia;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 @Service
 @Transactional
@@ -19,12 +19,12 @@ public class ActualizarUsuario {
 
     private final UsuarioRepository usuarioRepository;
     private final VerificadorDeUsuario verificadorDeUsuario;
-    private final EncriptadorContrasenia encriptador;
+    private final PasswordEncoder passwordEncoder;
 
-    public ActualizarUsuario(UsuarioRepository usuarioRepository, VerificadorDeUsuario verificadorDeUsuario, EncriptadorContrasenia encriptador) {
+    public ActualizarUsuario(UsuarioRepository usuarioRepository, VerificadorDeUsuario verificadorDeUsuario, PasswordEncoder passwordEncoder) {
         this.usuarioRepository = usuarioRepository;
         this.verificadorDeUsuario = verificadorDeUsuario;
-        this.encriptador = encriptador;
+        this.passwordEncoder = passwordEncoder;
     }
 
     public void actualizarNombre(String idUsuario, String nuevoNombre) {
@@ -65,17 +65,17 @@ public class ActualizarUsuario {
     public void cambiarContrasenia(String idUsuario, String contraseniaActual, String nuevaContrasenia) {
         Usuario usuario = obtenerUsuario(idUsuario);
 
-        if (!encriptador.coincide(contraseniaActual, usuario.getContrasenia())) {
+        if (!passwordEncoder.matches(contraseniaActual, usuario.getContrasenia())) {
             throw new ReglaDominioException("La contraseña actual no es correcta.");
         }
 
         Usuario.validarFormatoContrasenia(nuevaContrasenia);
 
-        if (encriptador.coincide(nuevaContrasenia, usuario.getContrasenia())) {
+        if (passwordEncoder.matches(nuevaContrasenia, usuario.getContrasenia())) {
             throw new ReglaDominioException("La nueva contraseña debe ser distinta de la actual.");
         }
 
-        usuario.cambiarContrasenia(encriptador.encriptar(nuevaContrasenia));
+        usuario.cambiarContrasenia(passwordEncoder.encode(nuevaContrasenia));
         usuarioRepository.guardarUsuario(usuario);
     }
 

@@ -47,9 +47,6 @@ defecto de Spring Boot, y el test puede dar resultados que no tienen que ver con
 o usar @SpringBootTest con @AutoConfigureMockMvc, como ya hacemos en nuestra prueba de integración, lo que es mas lento pero mas completo.
 
 
-Aclaración: en nuestro proyecto todavía no hemos implementado la seguridad JWT. Esto es lo que investigamos y cómo pensamos probarlo cuando la agreguemos.
-
-
 Parte 2 · @DataJpaTest contra @SpringBootTest
 
 ¿Qué levanta cada una (@DataJpaTest solo la capa de persistencia, @SpringBootTest la aplicación completa)?

@@ -38,14 +38,12 @@ public class Usuario {
         this.estadoUsuario = estadoUsuario;
     }
 
- 
     public static Usuario crear(String idUsuario, String nombre, Correo correo, String contrasenia, Telefono telefono,
                                 Direccion direccion, RolUsuario rolUsuario) {
         validar(idUsuario, nombre, correo, contrasenia, telefono, direccion, rolUsuario);
         return new Usuario(idUsuario, nombre, correo, contrasenia, telefono, direccion, rolUsuario, EstadoUsuario.ACTIVO);
     }
 
-    
     public static Usuario reconstruir(String idUsuario, String nombre, Correo correo, String contrasenia, Telefono telefono,
                                       Direccion direccion, RolUsuario rolUsuario, EstadoUsuario estadoUsuario) {
         return new Usuario(idUsuario, nombre, correo, contrasenia, telefono, direccion, rolUsuario, estadoUsuario);
@@ -74,7 +72,6 @@ public class Usuario {
         if (rolUsuario == null) {
             throw new CasillaVaciaException("El rol del usuario no puede ser nulo.");
         }
-        validarFormatoContrasenia(contraseniaHash);
     }
 
     public static void validarFormatoContrasenia(String contraseniaPlana) {
@@ -112,7 +109,6 @@ public class Usuario {
         if (nuevaContraseniaHash == null || nuevaContraseniaHash.isEmpty()) {
             throw new CasillaVaciaException("La nueva contraseña no puede ser nula o vacía.");
         }
-        validarFormatoContrasenia(nuevaContraseniaHash);
         this.contrasenia = nuevaContraseniaHash;
     }
 
@@ -139,7 +135,7 @@ public class Usuario {
         }
         this.rolUsuario = nuevoRol;
     }
-    
+
     public void desactivar() {
         verificarTransicion(EstadoUsuario.INACTIVO);
         this.estadoUsuario = EstadoUsuario.INACTIVO;

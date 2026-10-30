@@ -3,12 +3,12 @@ package com.uniquindio.ecommercelibros.aplication.usecase.usuario;
 import com.uniquindio.ecommercelibros.domain.entity.Usuario;
 import com.uniquindio.ecommercelibros.domain.exception.ReglaDominioException;
 import com.uniquindio.ecommercelibros.domain.repository.UsuarioRepository;
-import com.uniquindio.ecommercelibros.domain.service.EncriptadorContrasenia;
 import com.uniquindio.ecommercelibros.domain.service.VerificadorDeUsuario;
 import com.uniquindio.ecommercelibros.domain.valueObject.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -17,7 +17,7 @@ class RegistrarUsuarioTest {
 
     private UsuarioRepository usuarioRepository;
     private VerificadorDeUsuario verificadorDeUsuario;
-    private EncriptadorContrasenia encriptador;
+    private PasswordEncoder passwordEncoder;
     private RegistrarUsuario registrarUsuario;
 
     private final Correo correo = new Correo("juan@mail.com");
@@ -28,13 +28,13 @@ class RegistrarUsuarioTest {
     void setUp() {
         usuarioRepository = mock(UsuarioRepository.class);
         verificadorDeUsuario = mock(VerificadorDeUsuario.class);
-        encriptador = mock(EncriptadorContrasenia.class);
-        registrarUsuario = new RegistrarUsuario(usuarioRepository, verificadorDeUsuario, encriptador);
+        passwordEncoder = mock(PasswordEncoder.class);
+        registrarUsuario = new RegistrarUsuario(usuarioRepository, verificadorDeUsuario, passwordEncoder);
     }
 
     @Test
     void registrarUsuarioCorrectamenteComoClienteYGuardaElHash() {
-        when(encriptador.encriptar("Clave123")).thenReturn("{bcrypt}hash");
+        when(passwordEncoder.encode("Clave123")).thenReturn("{bcrypt}hash");
 
         Usuario resultado = registrarUsuario.registrar("Juan Perez", correo, "Clave123", telefono, direccion);
 
@@ -51,7 +51,7 @@ class RegistrarUsuarioTest {
 
     @Test
     void registrarConRolPermiteCrearUnAdministrador() {
-        when(encriptador.encriptar("Clave123")).thenReturn("{bcrypt}hash");
+        when(passwordEncoder.encode("Clave123")).thenReturn("{bcrypt}hash");
 
         Usuario resultado = registrarUsuario.registrarConRol(
                 "Admin", correo, "Clave123", telefono, direccion, RolUsuario.ADMINISTRADOR);
@@ -68,7 +68,7 @@ class RegistrarUsuarioTest {
         assertThrows(ReglaDominioException.class,
                 () -> registrarUsuario.registrar("Juan Perez", correo, "Clave123", telefono, direccion));
 
-        verify(encriptador, never()).encriptar(any());
+        verify(passwordEncoder, never()).encode(any());
         verify(usuarioRepository, never()).guardarUsuario(any());
     }
 
@@ -77,7 +77,7 @@ class RegistrarUsuarioTest {
         assertThrows(ReglaDominioException.class,
                 () -> registrarUsuario.registrar("Juan Perez", correo, "clavesegura", telefono, direccion));
 
-        verify(encriptador, never()).encriptar(any());
+        verify(passwordEncoder, never()).encode(any());
         verify(usuarioRepository, never()).guardarUsuario(any());
     }
 }

@@ -5,6 +5,7 @@ import com.uniquindio.ecommercelibros.aplication.dto.response.libro.LibroRespons
 import com.uniquindio.ecommercelibros.aplication.usecase.libro.ConsultarLibroID;
 import com.uniquindio.ecommercelibros.aplication.usecase.libro.RegistrarLibroUseCase;
 import com.uniquindio.ecommercelibros.domain.entity.Libro;
+import com.uniquindio.ecommercelibros.domain.exception.RecursoNoEncontradoException;
 import com.uniquindio.ecommercelibros.infrastructure.rest.mapper.LibroMapper;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -109,7 +110,7 @@ class LibroControllerTest {
                 .thenReturn(Optional.empty());
 
         assertThrows(
-                java.util.NoSuchElementException.class,
+                RecursoNoEncontradoException.class,
                 () -> controller.consultarPorId(id)
         );
 

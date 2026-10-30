@@ -22,6 +22,7 @@ import com.uniquindio.ecommercelibros.domain.valueObject.Telefono;
 import com.uniquindio.ecommercelibros.infrastructure.rest.mapper.UsuarioMapper;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
@@ -149,6 +150,7 @@ public class UsuarioController {
         return ResponseEntity.noContent().build();
     }
 
+    @PreAuthorize("hasAuthority('ADMINISTRADOR') or #idUsuario == authentication.principal.getClaimAsString('uid')")
     @PutMapping("/{idUsuario}/contrasenia")
     public ResponseEntity<Void> cambiarContrasenia(
             @PathVariable String idUsuario,

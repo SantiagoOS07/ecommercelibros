@@ -1,6 +1,7 @@
 package com.uniquindio.ecommercelibros.aplication.usecase.libro;
 
 import com.uniquindio.ecommercelibros.domain.entity.Libro;
+import com.uniquindio.ecommercelibros.domain.exception.RecursoNoEncontradoException;
 import com.uniquindio.ecommercelibros.domain.repository.LibroRepository;
 import com.uniquindio.ecommercelibros.domain.service.VerificadorDeCarrito;
 import com.uniquindio.ecommercelibros.domain.valueObject.*;
@@ -101,6 +102,6 @@ public class ActualizarLibro {
     private Libro obtenerLibro(UUID idLibro) {
         return libroRepository.buscarPorIdLibro(idLibro)
                 .orElseThrow(() ->
-                        new IllegalArgumentException("El libro no existe"));
+                        new RecursoNoEncontradoException("El libro no existe"));
     }
 }

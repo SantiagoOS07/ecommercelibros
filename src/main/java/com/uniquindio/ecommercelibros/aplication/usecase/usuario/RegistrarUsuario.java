@@ -2,7 +2,6 @@ package com.uniquindio.ecommercelibros.aplication.usecase.usuario;
 
 import com.uniquindio.ecommercelibros.domain.entity.Usuario;
 import com.uniquindio.ecommercelibros.domain.repository.UsuarioRepository;
-import com.uniquindio.ecommercelibros.domain.service.EncriptadorContrasenia;
 import com.uniquindio.ecommercelibros.domain.service.VerificadorDeUsuario;
 import com.uniquindio.ecommercelibros.domain.valueObject.Correo;
 import com.uniquindio.ecommercelibros.domain.valueObject.Direccion;
@@ -10,6 +9,7 @@ import com.uniquindio.ecommercelibros.domain.valueObject.RolUsuario;
 import com.uniquindio.ecommercelibros.domain.valueObject.Telefono;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.util.UUID;
 
@@ -19,14 +19,14 @@ public class RegistrarUsuario {
 
     private final UsuarioRepository usuarioRepository;
     private final VerificadorDeUsuario verificadorDeUsuario;
-    private final EncriptadorContrasenia encriptador;
+    private final PasswordEncoder passwordEncoder;
 
     public RegistrarUsuario(UsuarioRepository usuarioRepository,
                             VerificadorDeUsuario verificadorDeUsuario,
-                            EncriptadorContrasenia encriptador) {
+                            PasswordEncoder passwordEncoder) {
         this.usuarioRepository = usuarioRepository;
         this.verificadorDeUsuario = verificadorDeUsuario;
-        this.encriptador = encriptador;
+        this.passwordEncoder = passwordEncoder;
     }
 
     public Usuario registrar(String nombre, Correo correo, String contraseniaPlana,
@@ -39,7 +39,7 @@ public class RegistrarUsuario {
         Usuario.validarFormatoContrasenia(contraseniaPlana);
         verificadorDeUsuario.verificarQueCorreoNoExiste(correo.correo());
 
-        String hash = encriptador.encriptar(contraseniaPlana);
+        String hash = passwordEncoder.encode(contraseniaPlana);
         Usuario usuario = Usuario.crear(UUID.randomUUID().toString(), nombre, correo, hash,
                 telefono, direccion, rol);
 
