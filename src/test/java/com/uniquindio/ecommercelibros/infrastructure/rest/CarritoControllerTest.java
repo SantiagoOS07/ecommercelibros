@@ -11,6 +11,8 @@ import com.uniquindio.ecommercelibros.aplication.usecase.libro.ConsultarLibroID;
 import com.uniquindio.ecommercelibros.domain.entity.Carrito;
 import com.uniquindio.ecommercelibros.domain.entity.Libro;
 import com.uniquindio.ecommercelibros.infrastructure.rest.mapper.CarritoMapper;
+import org.springframework.security.oauth2.jwt.Jwt;
+
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -69,30 +71,35 @@ class CarritoControllerTest {
     }
 
     @Test
-    void crearCarrito_debeRetornar201() {
-        String idUsuario = "usuario-123";
+    void crearCarrito_deberiaRetornar201() {
+        String uid = "usuario123";
         UUID idCarrito = UUID.randomUUID();
 
-        Carrito carrito = mock(Carrito.class);
-        CarritoResponse carritoResponse = mock(CarritoResponse.class);
+        Jwt jwt = Jwt.withTokenValue("token-falso")
+                .header("alg", "none")
+                .claim("uid", uid)
+                .build();
 
-        when(registrarCarrito.ejecutar(idUsuario)).thenReturn(carrito);
-        when(carrito.getIdCarrito()).thenReturn(idCarrito);
+        Carrito carrito = mock(Carrito.class);
+        CarritoResponse response = mock(CarritoResponse.class);
+
+        when(registrarCarrito.ejecutar(uid))
+                .thenReturn(carrito);
+
+        when(carrito.getIdCarrito())
+                .thenReturn(idCarrito);
 
         when(mapper.toResponse(carrito, Map.of()))
-                .thenReturn(carritoResponse);
+                .thenReturn(response);
 
-        ResponseEntity<?> resultado = controller.crear(idUsuario);
+        ResponseEntity<CarritoResponse> resultado =
+                controller.crear(jwt);
 
         assertEquals(201, resultado.getStatusCode().value());
-        assertSame(carritoResponse, resultado.getBody());
+        assertNotNull(resultado.getHeaders().getLocation());
+        assertEquals(response, resultado.getBody());
 
-        assertEquals(
-                "/api/carritos/" + idCarrito,
-                resultado.getHeaders().getLocation().getPath()
-        );
-
-        verify(registrarCarrito).ejecutar(idUsuario);
+        verify(registrarCarrito).ejecutar(uid);
         verify(mapper).toResponse(carrito, Map.of());
     }
 

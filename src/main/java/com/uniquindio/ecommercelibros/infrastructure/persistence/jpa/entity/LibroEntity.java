@@ -62,7 +62,12 @@
         @Column(nullable = false, length = 30)
         private EstadoLibro estado;
 
+        @Column(nullable = false)
+        private boolean eliminado;
+
         @Version
         private Long version;
+
+
     }
 

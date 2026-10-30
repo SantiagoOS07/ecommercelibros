@@ -70,4 +70,12 @@ public class CarritoRepositoryJpa implements CarritoRepository {
 
         dataRepository.deleteById(idCarrito.toString());
     }
+
+    @Override
+    public List<Carrito> listarCarritosEnProcesando() {
+        return dataRepository.findByEstado(EstadoCarrito.PROCESANDO)
+                .stream()
+                .map(mapper::toDomain)
+                .toList();
+    }
 }

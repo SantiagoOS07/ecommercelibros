@@ -26,8 +26,9 @@ public class Libro {
     private CategoriaLibro categoria;
     private String imagen;
     private EstadoLibro estado;
+    private boolean eliminado;
 
-    private Libro(UUID idLibro, NombreLibro titulo, String idAutor, ISBN isbn, String descripcion, NumeroPaginas numeroPaginas, Precio precio, Stock stock, String edicion, UUID idEditorial, FechaPublicacion fechaPublicacion, CategoriaLibro categoria, String imagen, EstadoLibro estado) {
+    private Libro(UUID idLibro, NombreLibro titulo, String idAutor, ISBN isbn, String descripcion, NumeroPaginas numeroPaginas, Precio precio, Stock stock, String edicion, UUID idEditorial, FechaPublicacion fechaPublicacion, CategoriaLibro categoria, String imagen, EstadoLibro estado,  boolean eliminado) {
         this.idLibro = idLibro;
         this.titulo = titulo;
         this.idAutor = idAutor;
@@ -42,15 +43,16 @@ public class Libro {
         this.categoria = categoria;
         this.imagen = imagen;
         this.estado = estado;
+        this.eliminado = false;
     }
 
-    public static Libro crear(NombreLibro titulo, String idAutor, ISBN isbn, String descripcion, NumeroPaginas numeroPaginas, Precio precio, Stock stock, String edicion, UUID idEditorial, FechaPublicacion fechaPublicacion, CategoriaLibro categoria, String imagen, EstadoLibro estado) {
+    public static Libro crear(NombreLibro titulo, String idAutor, ISBN isbn, String descripcion, NumeroPaginas numeroPaginas, Precio precio, Stock stock, String edicion, UUID idEditorial, FechaPublicacion fechaPublicacion, CategoriaLibro categoria, String imagen, EstadoLibro estado, boolean eliminado) {
         validar(titulo, idAutor, isbn, numeroPaginas, precio, stock,edicion, idEditorial, fechaPublicacion, categoria, estado);
-        return new Libro(UUID.randomUUID(), titulo, idAutor, isbn, descripcion, numeroPaginas, precio, stock, edicion, idEditorial, fechaPublicacion, categoria, imagen, estado);
+        return new Libro(UUID.randomUUID(), titulo, idAutor, isbn, descripcion, numeroPaginas, precio, stock, edicion, idEditorial, fechaPublicacion, categoria, imagen, estado, eliminado);
     }
 
-    public static Libro reconstruir(UUID idLibro, NombreLibro titulo, String idAutor, ISBN isbn, String descripcion, NumeroPaginas numeroPaginas, Precio precio, Stock stock, String edicion, UUID idEditorial, FechaPublicacion fechaPublicacion, CategoriaLibro categoria, String imagen, EstadoLibro estado){
-        return new Libro(idLibro, titulo, idAutor, isbn, descripcion, numeroPaginas, precio, stock, edicion, idEditorial, fechaPublicacion, categoria, imagen, estado);
+    public static Libro reconstruir(UUID idLibro, NombreLibro titulo, String idAutor, ISBN isbn, String descripcion, NumeroPaginas numeroPaginas, Precio precio, Stock stock, String edicion, UUID idEditorial, FechaPublicacion fechaPublicacion, CategoriaLibro categoria, String imagen, EstadoLibro estado, boolean eliminado) {
+        return new Libro(idLibro, titulo, idAutor, isbn, descripcion, numeroPaginas, precio, stock, edicion, idEditorial, fechaPublicacion, categoria, imagen, estado, eliminado);
     }
 
     private static void validar(NombreLibro titulo, String idAutor, ISBN isbn, NumeroPaginas numeroPaginas, Precio precio, Stock stock, String edicion, UUID idEditorial, FechaPublicacion fechaPublicacion, CategoriaLibro categoria, EstadoLibro estado) {
@@ -90,6 +92,7 @@ public class Libro {
     }
 
     public void cambiarTitulo(NombreLibro nuevoTitulo) {
+        verificarNoEliminado();
         if (nuevoTitulo == null) {
             throw new CasillaVaciaException("El título del libro no puede ser nulo.");
         }
@@ -97,10 +100,14 @@ public class Libro {
     }
 
     public void cambiarDescripcion(String nuevaDescripcion) {
+        verificarNoEliminado();
+
         this.descripcion = nuevaDescripcion;
     }
 
     public void cambiarNumeroPaginas(NumeroPaginas nuevoNumeroPaginas) {
+        verificarNoEliminado();
+
         if (nuevoNumeroPaginas == null) {
             throw new CasillaVaciaException("El número de páginas no puede ser nulo.");
         }
@@ -108,6 +115,8 @@ public class Libro {
     }
 
     public void cambiarPrecio(Precio nuevoPrecio) {
+        verificarNoEliminado();
+
         if (nuevoPrecio == null) {
             throw new CasillaVaciaException("El precio del libro no puede ser nulo.");
         }
@@ -115,6 +124,8 @@ public class Libro {
     }
 
     public void actualizarStock(Stock nuevoStock) {
+        verificarNoEliminado();
+
         if (nuevoStock == null) {
             throw new CasillaVaciaException("El stock del libro no puede ser nulo.");
         }
@@ -122,10 +133,14 @@ public class Libro {
     }
 
     public void cambiarEdicion(String nuevaEdicion) {
+        verificarNoEliminado();
+
         this.edicion = nuevaEdicion;
     }
 
     public void cambiarEditorial(UUID nuevoIdEditorial) {
+        verificarNoEliminado();
+
         if (nuevoIdEditorial == null) {
             throw new CasillaVaciaException("El id de la editorial no puede ser nulo.");
         }
@@ -133,6 +148,8 @@ public class Libro {
     }
 
     public void cambiarFechaPublicacion(FechaPublicacion nuevaFechaPublicacion) {
+        verificarNoEliminado();
+
         if (nuevaFechaPublicacion == null) {
             throw new CasillaVaciaException("La fecha de publicación no puede ser nula.");
         }
@@ -140,6 +157,8 @@ public class Libro {
     }
 
     public void cambiarCategoria(CategoriaLibro nuevaCategoria) {
+        verificarNoEliminado();
+
         if (nuevaCategoria == null) {
             throw new CasillaVaciaException("La categoría del libro no puede ser nula.");
         }
@@ -147,10 +166,12 @@ public class Libro {
     }
 
     public void cambiarImagen(String nuevaImagen) {
+        verificarNoEliminado();
         this.imagen = nuevaImagen;
     }
 
     public void cambiarEstado(EstadoLibro nuevoEstado) {
+        verificarNoEliminado();
 
         if (nuevoEstado == null) {
             throw new CasillaVaciaException("El estado del libro no puede ser nulo.");
@@ -161,6 +182,17 @@ public class Libro {
         }
 
         this.estado = nuevoEstado;
+    }
+
+    public void eliminarLogicamente() {
+        verificarNoEliminado();
+        this.eliminado = true;
+    }
+
+    private void verificarNoEliminado() {
+        if (eliminado) {
+            throw new ReglaDominioException("El libro está eliminado y no puede modificarse.");
+        }
     }
 
     @Override

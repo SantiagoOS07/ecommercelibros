@@ -29,8 +29,15 @@ public interface LibroJpaDataRepository
         SELECT l FROM LibroEntity l
         WHERE LOWER(l.titulo) LIKE LOWER(CONCAT('%', :palabraTitulo, '%'))
         AND l.estado = :estado
+        AND l.eliminado = false
         """)
     Page<LibroEntity> listarLibros(@Param("palabraTitulo") String palabraTitulo,
                                    @Param("estado") EstadoLibro estado,
                                    Pageable pageable);
+
+    Optional<LibroEntity> findByIsbnAndEliminadoFalse(String isbn);
+    Optional<LibroEntity> findByIdLibroAndEliminadoFalse(String idLibro);
+    List<LibroEntity> findByTituloContainingIgnoreCaseAndEliminadoFalse(String titulo);
+    List<LibroEntity> findByIdAutorAndEliminadoFalse(String idAutor);
+    boolean existsByIsbn(String isbn);
 }

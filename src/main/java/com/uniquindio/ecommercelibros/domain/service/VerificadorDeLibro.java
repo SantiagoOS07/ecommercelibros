@@ -14,9 +14,7 @@ public class VerificadorDeLibro {
 
     public void verificarQueISBNNoExiste(String isbn) {
 
-        boolean existeLibro = libroRepository
-                .buscarPorISBN(isbn)
-                .isPresent();
+        boolean existeLibro = libroRepository.existePorIsbn(isbn);
 
         if (existeLibro) {
             throw new ReglaDominioException(

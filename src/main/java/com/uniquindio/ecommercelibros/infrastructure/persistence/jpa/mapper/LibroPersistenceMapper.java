@@ -37,6 +37,7 @@ public class LibroPersistenceMapper {
         entity.setCategoria(libro.getCategoria());
         entity.setImagen(libro.getImagen());
         entity.setEstado(libro.getEstado());
+        entity.setEliminado(libro.isEliminado());
         return entity;
     }
 
@@ -56,7 +57,8 @@ public class LibroPersistenceMapper {
                 new FechaPublicacion(entity.getFechaPublicacion()),
                 entity.getCategoria(),
                 entity.getImagen(),
-                entity.getEstado()
+                entity.getEstado(),
+                entity.isEliminado()
         );
     }
 }

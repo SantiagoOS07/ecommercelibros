@@ -30,21 +30,21 @@ public class LibroRepositoryJpa implements LibroRepository {
     @Override
     @Transactional(readOnly = true)
     public Optional<Libro> buscarPorISBN(String isbn) {
-        return dataRepository.findByIsbn(isbn)
+        return dataRepository.findByIsbnAndEliminadoFalse(isbn)
                 .map(mapper::toDomain);
     }
 
     @Override
     @Transactional(readOnly = true)
     public Optional<Libro> buscarPorIdLibro(UUID idLibro) {
-        return dataRepository.findById(idLibro.toString())
+        return dataRepository.findByIdLibroAndEliminadoFalse(idLibro.toString())
                 .map(mapper::toDomain);
     }
 
     @Override
     @Transactional(readOnly = true)
     public List<Libro> buscarPorNombre(String nombre) {
-        return dataRepository.findByTituloContainingIgnoreCase(nombre)
+        return dataRepository.findByTituloContainingIgnoreCaseAndEliminadoFalse(nombre)
                 .stream()
                 .map(mapper::toDomain)
                 .toList();
@@ -53,7 +53,7 @@ public class LibroRepositoryJpa implements LibroRepository {
     @Override
     @Transactional(readOnly = true)
     public List<Libro> buscarPorAutor(String idAutor) {
-        return dataRepository.findByIdAutor(idAutor)
+        return dataRepository.findByIdAutorAndEliminadoFalse(idAutor)
                 .stream()
                 .map(mapper::toDomain)
                 .toList();
@@ -68,8 +68,9 @@ public class LibroRepositoryJpa implements LibroRepository {
     }
 
     @Override
-    public void eliminarLibro(UUID idLibro) {
-        dataRepository.deleteById(idLibro.toString());
+    @Transactional(readOnly = true)
+    public boolean existePorIsbn(String isbn) {
+        return dataRepository.existsByIsbn(isbn);
     }
 
     @Override

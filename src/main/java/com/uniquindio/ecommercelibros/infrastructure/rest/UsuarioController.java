@@ -83,6 +83,7 @@ public class UsuarioController {
         return ResponseEntity.ok(mapper.toResponseList(listarUsuarios.listar()));
     }
 
+    @PreAuthorize("hasAuthority('ADMINISTRADOR') or #idUsuario == authentication.principal.getClaimAsString('uid')")
     @GetMapping("/{idUsuario}")
     public ResponseEntity<UsuarioResponse> consultarPorId(@PathVariable String idUsuario) {
 
@@ -105,6 +106,7 @@ public class UsuarioController {
         return ResponseEntity.ok(mapper.toResponse(usuario));
     }
 
+    @PreAuthorize("hasAuthority('ADMINISTRADOR') or #idUsuario == authentication.principal.getClaimAsString('uid')")
     @PutMapping("/{idUsuario}/nombre")
     public ResponseEntity<Void> actualizarNombre(
             @PathVariable String idUsuario,
@@ -114,6 +116,7 @@ public class UsuarioController {
         return ResponseEntity.noContent().build();
     }
 
+    @PreAuthorize("hasAuthority('ADMINISTRADOR') or #idUsuario == authentication.principal.getClaimAsString('uid')")
     @PutMapping("/{idUsuario}/correo")
     public ResponseEntity<Void> actualizarCorreo(
             @PathVariable String idUsuario,
@@ -123,6 +126,7 @@ public class UsuarioController {
         return ResponseEntity.noContent().build();
     }
 
+    @PreAuthorize("hasAuthority('ADMINISTRADOR') or #idUsuario == authentication.principal.getClaimAsString('uid')")
     @PutMapping("/{idUsuario}/telefono")
     public ResponseEntity<Void> actualizarTelefono(
             @PathVariable String idUsuario,
@@ -132,6 +136,7 @@ public class UsuarioController {
         return ResponseEntity.noContent().build();
     }
 
+    @PreAuthorize("hasAuthority('ADMINISTRADOR') or #idUsuario == authentication.principal.getClaimAsString('uid')")
     @PutMapping("/{idUsuario}/direccion")
     public ResponseEntity<Void> actualizarDireccion(
             @PathVariable String idUsuario,
@@ -141,6 +146,7 @@ public class UsuarioController {
         return ResponseEntity.noContent().build();
     }
 
+    @PreAuthorize("hasAuthority('ADMINISTRADOR') or #idUsuario == authentication.principal.getClaimAsString('uid')")
     @PutMapping("/{idUsuario}/rol")
     public ResponseEntity<Void> actualizarRol(
             @PathVariable String idUsuario,
@@ -160,6 +166,7 @@ public class UsuarioController {
         return ResponseEntity.noContent().build();
     }
 
+    @PreAuthorize("hasAuthority('ADMINISTRADOR') or #idUsuario == authentication.principal.getClaimAsString('uid')")
     @PutMapping("/{idUsuario}/reactivar")
     public ResponseEntity<Void> reactivar(@PathVariable String idUsuario) {
 
@@ -167,6 +174,7 @@ public class UsuarioController {
         return ResponseEntity.noContent().build();
     }
 
+    @PreAuthorize("hasAuthority('ADMINISTRADOR') or #idUsuario == authentication.principal.getClaimAsString('uid')")
     @DeleteMapping("/{idUsuario}")
     public ResponseEntity<Void> eliminar(@PathVariable String idUsuario) {
 

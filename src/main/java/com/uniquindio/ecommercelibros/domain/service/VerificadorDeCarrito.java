@@ -52,4 +52,24 @@ public class VerificadorDeCarrito {
                     carritoRepository.guardarCarrito(carrito);
                 });
     }
+
+    public void verificarQueLibroNoEstaEnCarritoProcesando(String isbn) {
+        ISBN isbnLibro = new ISBN(isbn);
+        boolean enProceso = carritoRepository.listarCarritosEnProcesando().stream()
+                .anyMatch(c -> c.contieneLibro(isbnLibro));
+        if (enProceso) {
+            throw new ReglaDominioException(
+                    "No se puede eliminar el libro: está en un carrito que se está procesando");
+        }
+    }
+
+    public void retirarLibroDeCarritosCreado(String isbn) {
+        ISBN isbnLibro = new ISBN(isbn);
+        carritoRepository.listarCarritosEnCreado().stream()
+                .filter(c -> c.contieneLibro(isbnLibro))
+                .forEach(c -> {
+                    c.eliminarItem(isbnLibro);
+                    carritoRepository.guardarCarrito(c);
+                });
+    }
 }

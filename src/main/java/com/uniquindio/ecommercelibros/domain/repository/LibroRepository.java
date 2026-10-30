@@ -16,6 +16,6 @@ public interface LibroRepository {
     List<Libro> buscarPorNombre(String nombre);
     List<Libro> buscarPorAutor(String autor);
     void guardarLibro(Libro libro);
-    void eliminarLibro(UUID idLibro);
+    boolean existePorIsbn(String isbn);
     Pagina<Libro> buscarLibros(String palabraTitulo, EstadoLibro estado, int pagina, int tamanio);
 }

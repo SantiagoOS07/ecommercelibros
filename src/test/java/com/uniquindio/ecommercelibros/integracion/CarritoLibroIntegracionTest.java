@@ -36,6 +36,7 @@ class CarritoLibroIntegracionTest {
     @Test
     void deberiaRegistrarUnLibroYAgregarloAUnCarritoNuevo() throws Exception {
         String isbn = "9780000000601";
+        jwt().authorities(new SimpleGrantedAuthority("CLIENTE")).jwt(j -> j.claim("uid", "usuario-integracion"));
 
         MvcResult libroCreado = mockMvc.perform(post("/api/libros")
                         .with(admin())

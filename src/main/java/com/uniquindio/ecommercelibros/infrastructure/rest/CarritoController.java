@@ -20,9 +20,10 @@ import com.uniquindio.ecommercelibros.domain.entity.Libro;
 import com.uniquindio.ecommercelibros.domain.exception.RecursoNoEncontradoException;
 import com.uniquindio.ecommercelibros.infrastructure.rest.mapper.CarritoMapper;
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Size;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
@@ -84,10 +85,9 @@ public class CarritoController {
     }
 
     @PostMapping
-    public ResponseEntity<CarritoResponse> crear(
-            @RequestParam @NotBlank @Size(max = 36) String idUsuario) {
+    public ResponseEntity<CarritoResponse> crear(@AuthenticationPrincipal Jwt jwt) {
 
-        Carrito carrito = registrarCarrito.ejecutar(idUsuario);
+        Carrito carrito = registrarCarrito.ejecutar(jwt.getClaimAsString("uid"));
 
         URI location = ServletUriComponentsBuilder
                 .fromCurrentRequestUri()
@@ -99,6 +99,7 @@ public class CarritoController {
                 .body(mapper.toResponse(carrito, Map.of()));
     }
 
+    @PreAuthorize("hasAuthority('ADMINISTRADOR') or @seguridad.esDuenoDeCarrito(#idCarrito, authentication)")
     @GetMapping("/{idCarrito}")
     public ResponseEntity<CarritoResponse> consultarPorId(
             @PathVariable UUID idCarrito) {
@@ -111,7 +112,7 @@ public class CarritoController {
         return ResponseEntity.ok(mapper.toResponse(carrito, titulosDe(carrito)));
     }
 
-    @GetMapping(params = "idUsuario")
+    @PreAuthorize("hasAuthority('ADMINISTRADOR') or #idUsuario == authentication.principal.getClaimAsString('uid')")    @GetMapping(params = "idUsuario")
     public ResponseEntity<CarritoResponse> consultarPorUsuario(
             @RequestParam String idUsuario) {
 
@@ -134,6 +135,7 @@ public class CarritoController {
         return ResponseEntity.ok(respuesta);
     }
 
+    @PreAuthorize("hasAuthority('ADMINISTRADOR') or @seguridad.esDuenoDeCarrito(#idCarrito, authentication)")
     @PostMapping("/{idCarrito}/items")
     public ResponseEntity<Void> agregarItem(
             @PathVariable UUID idCarrito,
@@ -152,6 +154,7 @@ public class CarritoController {
         return ResponseEntity.noContent().build();
     }
 
+    @PreAuthorize("hasAuthority('ADMINISTRADOR') or @seguridad.esDuenoDeCarrito(#idCarrito, authentication)")
     @PutMapping("/{idCarrito}/items/{idLibro}")
     public ResponseEntity<Void> actualizarCantidad(
             @PathVariable UUID idCarrito,
@@ -170,6 +173,7 @@ public class CarritoController {
         return ResponseEntity.noContent().build();
     }
 
+    @PreAuthorize("hasAuthority('ADMINISTRADOR') or @seguridad.esDuenoDeCarrito(#idCarrito, authentication)")
     @DeleteMapping("/{idCarrito}/items/{idLibro}")
     public ResponseEntity<Void> eliminarItem(
             @PathVariable UUID idCarrito,
@@ -185,6 +189,7 @@ public class CarritoController {
         return ResponseEntity.noContent().build();
     }
 
+    @PreAuthorize("hasAuthority('ADMINISTRADOR') or @seguridad.esDuenoDeCarrito(#idCarrito, authentication)")
     @PutMapping("/{idCarrito}/confirmar")
     public ResponseEntity<Void> confirmar(
             @PathVariable UUID idCarrito) {
@@ -194,6 +199,7 @@ public class CarritoController {
         return ResponseEntity.noContent().build();
     }
 
+    @PreAuthorize("hasAuthority('ADMINISTRADOR') or @seguridad.esDuenoDeCarrito(#idCarrito, authentication)")
     @PutMapping("/{idCarrito}/cancelar-confirmacion")
     public ResponseEntity<Void> cancelarConfirmacion(
             @PathVariable UUID idCarrito) {
@@ -203,6 +209,7 @@ public class CarritoController {
         return ResponseEntity.noContent().build();
     }
 
+    @PreAuthorize("hasAuthority('ADMINISTRADOR') or @seguridad.esDuenoDeCarrito(#idCarrito, authentication)")
     @PutMapping("/{idCarrito}/completar-venta")
     public ResponseEntity<Void> completarVenta(
             @PathVariable UUID idCarrito) {
@@ -212,6 +219,7 @@ public class CarritoController {
         return ResponseEntity.noContent().build();
     }
 
+    @PreAuthorize("hasAuthority('ADMINISTRADOR') or @seguridad.esDuenoDeCarrito(#idCarrito, authentication)")
     @DeleteMapping("/{idCarrito}")
     public ResponseEntity<Void> eliminar(
             @PathVariable UUID idCarrito) {
