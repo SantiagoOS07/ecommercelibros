@@ -63,9 +63,5 @@ public record RegistrarLibroRequest(
         String imagen,
 
         @NotNull(message = "El estado del libro es obligatorio")
-        EstadoLibro estado,
-
-        @NotNull(message = "El obligatorio que el libro no este eliminado")
-        boolean eliminado
-
+        EstadoLibro estado      
 ) {}

@@ -39,12 +39,12 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http, @Qualifier("handlerExceptionResolver") HandlerExceptionResolver resolver) throws Exception {
-            AuthenticationEntryPoint entryPoint = (req, res, ex) -> resolver.resolveException(req, res, null, ex);
-            AccessDeniedHandler deniedHandler  = (req, res, ex) -> resolver.resolveException(req, res, null, ex);
+        AuthenticationEntryPoint entryPoint = (req, res, ex) -> resolver.resolveException(req, res, null, ex);
+        AccessDeniedHandler deniedHandler = (req, res, ex) -> resolver.resolveException(req, res, null, ex);
         return http
-                .csrf(AbstractHttpConfigurer::disable)                 // API stateless con token: no hay cookie de sesión
+                .csrf(AbstractHttpConfigurer::disable)
                 .cors(Customizer.withDefaults())
-                .headers(h -> h.frameOptions(f -> f.sameOrigin()))     // para la consola H2
+                .headers(h -> h.frameOptions(f -> f.sameOrigin()))
                 .sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/api/auth/login", "/error",
@@ -52,8 +52,9 @@ public class SecurityConfig {
                                 "/h2-console/**").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/usuarios").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/libros/**", "/api/autores/**").permitAll()
-                        .requestMatchers("/api/libros/**", "/api/autores/**").hasAnyAuthority(ADMIN, PROVEEDOR)
+                        // Reglas específicas SIEMPRE antes de la general
                         .requestMatchers(HttpMethod.DELETE, "/api/autores/*").hasAuthority(ADMIN)
+                        .requestMatchers("/api/libros/**", "/api/autores/**").hasAnyAuthority(ADMIN, PROVEEDOR)
                         .requestMatchers(HttpMethod.GET, "/api/usuarios", "/api/usuarios/correo/*").hasAuthority(ADMIN)
                         .requestMatchers(HttpMethod.PUT, "/api/usuarios/*/rol", "/api/usuarios/*/reactivar").hasAuthority(ADMIN)
                         .requestMatchers(HttpMethod.DELETE, "/api/usuarios/*").hasAuthority(ADMIN)
@@ -66,7 +67,6 @@ public class SecurityConfig {
                         .accessDeniedHandler(deniedHandler)
                         .jwt(jwt -> jwt.decoder(jwtDecoder).jwtAuthenticationConverter(jwtAuthenticationConverter)))
                 .build();
-
     }
 
     @Bean

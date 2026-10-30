@@ -47,8 +47,7 @@ public class LibroMapper {
                 new FechaPublicacion(request.fechaPublicacion()),
                 request.categoria(),
                 request.imagen(),
-                request.estado(),
-                request.eliminado()
+                request.estado()
         );
     }
 

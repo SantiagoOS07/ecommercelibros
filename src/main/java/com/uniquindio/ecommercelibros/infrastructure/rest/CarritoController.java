@@ -124,6 +124,7 @@ public class CarritoController {
         return ResponseEntity.ok(mapper.toResponse(carrito, titulosDe(carrito)));
     }
 
+    @PreAuthorize("hasAuthority('ADMINISTRADOR')")
     @GetMapping
     public ResponseEntity<List<CarritoResponse>> listar() {
 

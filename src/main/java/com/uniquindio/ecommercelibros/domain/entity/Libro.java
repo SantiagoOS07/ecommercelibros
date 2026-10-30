@@ -43,12 +43,12 @@ public class Libro {
         this.categoria = categoria;
         this.imagen = imagen;
         this.estado = estado;
-        this.eliminado = false;
+        this.eliminado = eliminado;
     }
 
-    public static Libro crear(NombreLibro titulo, String idAutor, ISBN isbn, String descripcion, NumeroPaginas numeroPaginas, Precio precio, Stock stock, String edicion, UUID idEditorial, FechaPublicacion fechaPublicacion, CategoriaLibro categoria, String imagen, EstadoLibro estado, boolean eliminado) {
+    public static Libro crear(NombreLibro titulo, String idAutor, ISBN isbn, String descripcion, NumeroPaginas numeroPaginas, Precio precio, Stock stock, String edicion, UUID idEditorial, FechaPublicacion fechaPublicacion, CategoriaLibro categoria, String imagen, EstadoLibro estado) {
         validar(titulo, idAutor, isbn, numeroPaginas, precio, stock,edicion, idEditorial, fechaPublicacion, categoria, estado);
-        return new Libro(UUID.randomUUID(), titulo, idAutor, isbn, descripcion, numeroPaginas, precio, stock, edicion, idEditorial, fechaPublicacion, categoria, imagen, estado, eliminado);
+        return new Libro(UUID.randomUUID(), titulo, idAutor, isbn, descripcion, numeroPaginas, precio, stock, edicion, idEditorial, fechaPublicacion, categoria, imagen, estado, false);
     }
 
     public static Libro reconstruir(UUID idLibro, NombreLibro titulo, String idAutor, ISBN isbn, String descripcion, NumeroPaginas numeroPaginas, Precio precio, Stock stock, String edicion, UUID idEditorial, FechaPublicacion fechaPublicacion, CategoriaLibro categoria, String imagen, EstadoLibro estado, boolean eliminado) {
