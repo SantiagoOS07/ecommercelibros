@@ -18,4 +18,5 @@ public interface LibroRepository {
     void guardarLibro(Libro libro);
     boolean existePorIsbn(String isbn);
     Pagina<Libro> buscarLibros(String palabraTitulo, EstadoLibro estado, int pagina, int tamanio);
+    List<LibroVentas> buscarLibrosMasVendidos(int limite);
 }

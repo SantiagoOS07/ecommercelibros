@@ -37,6 +37,7 @@ public class VentaController {
         return mapper.toResponseVentas(consultarVentasPorUsuarioUseCase.ejecutar(idUsuario));
     }
 
+    @PreAuthorize("hasAnyAuthority('ADMINISTRADOR','PROVEEDOR')")
     @PutMapping("/{idVenta}/estado")
     public ResponseEntity<Void> actualizarEstadoVenta(@PathVariable("idVenta") UUID idVenta) {
         actualizarEstadoVentaUseCase.ejecutar(idVenta);

@@ -2,8 +2,10 @@ package com.uniquindio.ecommercelibros.infrastructure.persistence.jpa;
 
 import com.uniquindio.ecommercelibros.domain.entity.Libro;
 import com.uniquindio.ecommercelibros.domain.repository.LibroRepository;
+import com.uniquindio.ecommercelibros.domain.repository.LibroVentas;
 import com.uniquindio.ecommercelibros.domain.repository.Pagina;
 import com.uniquindio.ecommercelibros.domain.valueObject.EstadoLibro;
+import com.uniquindio.ecommercelibros.domain.valueObject.EstadoPedido;
 import com.uniquindio.ecommercelibros.infrastructure.persistence.jpa.entity.LibroEntity;
 import com.uniquindio.ecommercelibros.infrastructure.persistence.jpa.mapper.LibroPersistenceMapper;
 
@@ -90,6 +92,11 @@ public class LibroRepositoryJpa implements LibroRepository {
                 resultado.getNumber(),
                 resultado.getSize()
         );
+    }
+
+    @Override
+    public List<LibroVentas> buscarLibrosMasVendidos(int limite) {
+        return dataRepository.buscarLibrosMasVendidos(EstadoPedido.ENTREGADO,limite);
     }
 }
 

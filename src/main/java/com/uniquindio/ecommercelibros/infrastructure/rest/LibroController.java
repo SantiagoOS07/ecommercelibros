@@ -4,14 +4,8 @@ import com.uniquindio.ecommercelibros.aplication.dto.request.libro.*;
 import com.uniquindio.ecommercelibros.aplication.dto.response.PaginaResponse;
 import com.uniquindio.ecommercelibros.aplication.dto.response.libro.LibroDetalleResponse;
 import com.uniquindio.ecommercelibros.aplication.dto.response.libro.LibroResponse;
-import com.uniquindio.ecommercelibros.aplication.usecase.libro.ActualizarLibro;
-import com.uniquindio.ecommercelibros.aplication.usecase.libro.BuscarLibroAutor;
-import com.uniquindio.ecommercelibros.aplication.usecase.libro.BuscarLibroISBN;
-import com.uniquindio.ecommercelibros.aplication.usecase.libro.BuscarLibroNombre;
-import com.uniquindio.ecommercelibros.aplication.usecase.libro.ConsultarLibroID;
-import com.uniquindio.ecommercelibros.aplication.usecase.libro.EliminarLibro;
-import com.uniquindio.ecommercelibros.aplication.usecase.libro.ListarLibros;
-import com.uniquindio.ecommercelibros.aplication.usecase.libro.RegistrarLibroUseCase;
+import com.uniquindio.ecommercelibros.aplication.dto.response.libro.MasVendidoResponse;
+import com.uniquindio.ecommercelibros.aplication.usecase.libro.*;
 import com.uniquindio.ecommercelibros.domain.entity.Libro;
 import com.uniquindio.ecommercelibros.domain.exception.RecursoNoEncontradoException;
 import com.uniquindio.ecommercelibros.domain.valueObject.EstadoLibro;
@@ -45,6 +39,7 @@ public class LibroController {
     private final ActualizarLibro actualizarLibro;
     private final EliminarLibro eliminarLibro;
     private final LibroMapper mapper;
+    private final ListarLibrosMasVendidosUseCase listarLibrosMasVendidos;
 
     @GetMapping
     public PaginaResponse<LibroDetalleResponse> listarLibros(
@@ -54,6 +49,13 @@ public class LibroController {
             @RequestParam(name = "tamanio", defaultValue = "10") int tamanio) {
         return PaginaResponse.desde(listarLibros.ejecutar(palabra, estado, pagina, tamanio),
                 LibroDetalleResponse::desde);
+    }
+
+    @GetMapping("/masVendidos")
+    public List<MasVendidoResponse> listarLibrosMasVendidos(@RequestParam(name = "limite", defaultValue = "5") int limite) {
+        return listarLibrosMasVendidos.ejecutar(limite).stream()
+                .map(MasVendidoResponse::desde)
+                .toList();
     }
 
     @GetMapping("/{idLibro}")

@@ -64,8 +64,8 @@ public class Venta {
             this.estadoPedido = EstadoPedido.REEMBOLSADO;
         }
         else if (estadoPedido.fueEntregado()) {
-            LocalDate limite = LocalDate.now().minusDays(DIAS_MAXIMOS_REEMBOLSO);
-            if (fecha.isBefore(limite)) {
+            LocalDate limite = fecha.plusDays(DIAS_MAXIMOS_REEMBOLSO);
+            if (LocalDate.now().isAfter(limite)) {
                 throw new ReglaDominioException("El tiempo máximo de reembolso ha expirado. El reembolso ya no está disponible.");
             }
             this.estadoPedido = EstadoPedido.REEMBOLSADO;
