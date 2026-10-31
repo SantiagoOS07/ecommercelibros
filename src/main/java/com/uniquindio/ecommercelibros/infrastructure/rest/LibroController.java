@@ -67,11 +67,6 @@ public class LibroController {
                 LibroDetalleResponse::desde);
     }
 
-    @Operation(summary = "Consultar libro por id")
-    @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "Libro encontrado"),
-            @ApiResponse(responseCode = "404", description = "El libro no existe", content = @Content)
-    })
     @GetMapping("/{idLibro}")
     public ResponseEntity<LibroResponse> consultarPorId(@PathVariable UUID idLibro) {
         Libro libro = consultarLibroID.ConsultarLibroPorID(idLibro)

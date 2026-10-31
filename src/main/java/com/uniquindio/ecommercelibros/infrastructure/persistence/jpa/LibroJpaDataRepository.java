@@ -1,6 +1,8 @@
 package com.uniquindio.ecommercelibros.infrastructure.persistence.jpa;
 
+import com.uniquindio.ecommercelibros.domain.repository.LibroVentas;
 import com.uniquindio.ecommercelibros.domain.valueObject.EstadoLibro;
+import com.uniquindio.ecommercelibros.domain.valueObject.EstadoPedido;
 import com.uniquindio.ecommercelibros.infrastructure.persistence.jpa.entity.LibroEntity;
 
 import java.util.Collection;
@@ -28,13 +30,23 @@ public interface LibroJpaDataRepository
 
     @Query("""
         SELECT l FROM LibroEntity l
-        WHERE LOWER(l.titulo) LIKE LOWER(CONCAT('%', :palabraTitulo, '%'))
+        WHERE l.eliminado = false AND LOWER(l.titulo) LIKE LOWER(CONCAT('%', :palabraTitulo, '%'))
         AND l.estado = :estado
         AND l.eliminado = false
         """)
     Page<LibroEntity> listarLibros(@Param("palabraTitulo") String palabraTitulo,
                                    @Param("estado") EstadoLibro estado,
                                    Pageable pageable);
+
+    @Query("""
+        SELECT new com.uniquindio.ecommercelibros.domain.repository.LibroVentas(l.idLibro, l.titulo, COUNT(iv))
+        FROM LibroEntity l
+        JOIN VentaEntity v ON v.estadoVenta = :estado
+        JOIN v.items iv ON l.idLibro = iv.isbn.isbn
+        GROUP BY l.idLibro, l.titulo
+        ORDER BY COUNT(iv) DESC, l.titulo ASC
+        """)
+    List<LibroVentas> buscarLibrosMasVendidos(@Param("estado") EstadoPedido estado, int limite);
 
     Optional<LibroEntity> findByIsbnAndEliminadoFalse(String isbn);
     Optional<LibroEntity> findByIdLibroAndEliminadoFalse(String idLibro);
