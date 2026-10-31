@@ -7,9 +7,8 @@ import com.uniquindio.ecommercelibros.domain.valueObject.EstadoLibro;
 import com.uniquindio.ecommercelibros.infrastructure.persistence.jpa.entity.LibroEntity;
 import com.uniquindio.ecommercelibros.infrastructure.persistence.jpa.mapper.LibroPersistenceMapper;
 
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
+import java.util.stream.Collectors;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -90,6 +89,19 @@ public class LibroRepositoryJpa implements LibroRepository {
                 resultado.getNumber(),
                 resultado.getSize()
         );
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Map<String, String> buscarTitulosPorIsbn(Collection<String> isbns) {
+        if (isbns == null || isbns.isEmpty()) {
+            return Map.of();
+        }
+        return dataRepository.findByIsbnInAndEliminadoFalse(isbns).stream()
+                .collect(Collectors.toMap(
+                        LibroEntity::getIsbn,
+                        LibroEntity::getTitulo,
+                        (a, b) -> a));
     }
 }
 

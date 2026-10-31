@@ -10,7 +10,6 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
-import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import lombok.Getter;
@@ -34,9 +33,6 @@ public class CarritoEntity {
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 30)
     private EstadoCarrito estado;
-
-    @Column(name = "precio_total", nullable = false, precision = 12, scale = 2)
-    private BigDecimal precioTotal;
 
     @Column(nullable = false)
     private boolean eliminado;

@@ -118,15 +118,15 @@ VALUES
 
 -- ---------------------------------------------------------------------
 -- CARRITO en estado CREADO del Cliente 1 (un solo carrito activo por usuario)
--- precio_total = suma de los totales de los items (todo en USD):
+-- El total se calcula en el dominio a partir de los items (todo en USD):
 --   2 x 45.00 = 90.00  +  1 x 18.50 = 18.50  =>  108.50
 -- ---------------------------------------------------------------------
 INSERT INTO carritos
-(id_carrito, id_usuario, estado, precio_total, eliminado)
+(id_carrito, id_usuario, estado, eliminado)
 VALUES
     ('ca000000-0000-0000-0000-000000000001',
      'c0000000-0000-0000-0000-000000000001',
-     'CREADO', 108.50, FALSE);
+     'CREADO', FALSE);
 
 -- stock_libro = stock actual del libro; cantidad <= stock_libro
 INSERT INTO items_carrito

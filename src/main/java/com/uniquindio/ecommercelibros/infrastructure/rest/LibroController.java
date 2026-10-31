@@ -21,6 +21,12 @@ import com.uniquindio.ecommercelibros.domain.valueObject.NumeroPaginas;
 import com.uniquindio.ecommercelibros.domain.valueObject.Precio;
 import com.uniquindio.ecommercelibros.domain.valueObject.Stock;
 import com.uniquindio.ecommercelibros.infrastructure.rest.mapper.LibroMapper;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -34,6 +40,8 @@ import java.util.UUID;
 @RestController
 @RequestMapping("/api/libros")
 @RequiredArgsConstructor
+@Tag(name = "Libros",
+        description = "Catálogo de libros. Las consultas (GET) son públicas; registrar, actualizar y eliminar requieren rol ADMINISTRADOR o PROVEEDOR.")
 public class LibroController {
 
     private final RegistrarLibroUseCase registrarLibro;
@@ -46,16 +54,24 @@ public class LibroController {
     private final EliminarLibro eliminarLibro;
     private final LibroMapper mapper;
 
+    @Operation(summary = "Listar libros (paginado)",
+            description = "Filtra por palabra en el título y por estado (por defecto DISPONIBLE). Excluye los libros eliminados.")
+    @ApiResponse(responseCode = "200", description = "Página de libros")
     @GetMapping
     public PaginaResponse<LibroDetalleResponse> listarLibros(
-            @RequestParam(name = "palabra", required = false) String palabra,
-            @RequestParam(name = "estado", required = false) EstadoLibro estado,
-            @RequestParam(name = "pagina", defaultValue = "0") int pagina,
-            @RequestParam(name = "tamanio", defaultValue = "10") int tamanio) {
+            @Parameter(description = "Palabra a buscar en el título") @RequestParam(name = "palabra", required = false) String palabra,
+            @Parameter(description = "Estado del libro (por defecto DISPONIBLE)") @RequestParam(name = "estado", required = false) EstadoLibro estado,
+            @Parameter(description = "Número de página, desde 0") @RequestParam(name = "pagina", defaultValue = "0") int pagina,
+            @Parameter(description = "Tamaño de página") @RequestParam(name = "tamanio", defaultValue = "10") int tamanio) {
         return PaginaResponse.desde(listarLibros.ejecutar(palabra, estado, pagina, tamanio),
                 LibroDetalleResponse::desde);
     }
 
+    @Operation(summary = "Consultar libro por id")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Libro encontrado"),
+            @ApiResponse(responseCode = "404", description = "El libro no existe", content = @Content)
+    })
     @GetMapping("/{idLibro}")
     public ResponseEntity<LibroResponse> consultarPorId(@PathVariable UUID idLibro) {
         Libro libro = consultarLibroID.ConsultarLibroPorID(idLibro)
@@ -65,6 +81,11 @@ public class LibroController {
         return ResponseEntity.ok(mapper.toResponse(libro));
     }
 
+    @Operation(summary = "Buscar libro por ISBN")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Libro encontrado"),
+            @ApiResponse(responseCode = "404", description = "No hay un libro con ese ISBN", content = @Content)
+    })
     @GetMapping("/isbn/{isbn}")
     public ResponseEntity<LibroResponse> buscarPorIsbn(@PathVariable String isbn) {
         Libro libro = buscarLibroISBN.buscar(isbn)
@@ -74,6 +95,8 @@ public class LibroController {
         return ResponseEntity.ok(mapper.toResponse(libro));
     }
 
+    @Operation(summary = "Buscar libros por nombre", description = "Coincidencia parcial, sin distinguir mayúsculas.")
+    @ApiResponse(responseCode = "200", description = "Libros que coinciden (lista vacía si no hay)")
     @GetMapping("/nombre/{nombre}")
     public ResponseEntity<List<LibroResponse>> buscarPorNombre(@PathVariable String nombre) {
         List<LibroResponse> libros = buscarLibroNombre.buscar(nombre).stream()
@@ -83,6 +106,8 @@ public class LibroController {
         return ResponseEntity.ok(libros);
     }
 
+    @Operation(summary = "Buscar libros por autor")
+    @ApiResponse(responseCode = "200", description = "Libros del autor (lista vacía si no hay)")
     @GetMapping("/autor/{nombreAutor}")
     public ResponseEntity<List<LibroResponse>> buscarPorAutor(@PathVariable String nombreAutor) {
         List<LibroResponse> libros = buscarLibroAutor.buscar(nombreAutor).stream()
@@ -92,6 +117,13 @@ public class LibroController {
         return ResponseEntity.ok(libros);
     }
 
+    @Operation(summary = "Registrar libro", description = "Requiere ADMINISTRADOR o PROVEEDOR. El ISBN debe ser único (también frente a libros eliminados).")
+    @ApiResponses({
+            @ApiResponse(responseCode = "201", description = "Libro creado"),
+            @ApiResponse(responseCode = "400", description = "Datos inválidos", content = @Content),
+            @ApiResponse(responseCode = "403", description = "Sin permisos", content = @Content),
+            @ApiResponse(responseCode = "409", description = "Ya existe un libro con ese ISBN", content = @Content)
+    })
     @PostMapping
     public ResponseEntity<LibroResponse> registrar(@Valid @RequestBody RegistrarLibroRequest request) {
         Libro libro = registrarLibro.registrarLibro(mapper.toDomain(request));
@@ -105,6 +137,13 @@ public class LibroController {
         return ResponseEntity.created(location).body(mapper.toResponse(libro));
     }
 
+    @Operation(summary = "Actualizar título")
+    @ApiResponses({
+            @ApiResponse(responseCode = "204", description = "Título actualizado"),
+            @ApiResponse(responseCode = "400", description = "Título inválido", content = @Content),
+            @ApiResponse(responseCode = "403", description = "Sin permisos", content = @Content),
+            @ApiResponse(responseCode = "404", description = "El libro no existe", content = @Content)
+    })
     @PutMapping("/{idLibro}/titulo")
     public ResponseEntity<Void> actualizarTitulo(
             @PathVariable UUID idLibro,
@@ -114,6 +153,13 @@ public class LibroController {
         return ResponseEntity.noContent().build();
     }
 
+    @Operation(summary = "Actualizar descripción")
+    @ApiResponses({
+            @ApiResponse(responseCode = "204", description = "Descripción actualizada"),
+            @ApiResponse(responseCode = "400", description = "Descripción inválida", content = @Content),
+            @ApiResponse(responseCode = "403", description = "Sin permisos", content = @Content),
+            @ApiResponse(responseCode = "404", description = "El libro no existe", content = @Content)
+    })
     @PutMapping("/{idLibro}/descripcion")
     public ResponseEntity<Void> actualizarDescripcion(
             @PathVariable UUID idLibro,
@@ -123,6 +169,13 @@ public class LibroController {
         return ResponseEntity.noContent().build();
     }
 
+    @Operation(summary = "Actualizar número de páginas")
+    @ApiResponses({
+            @ApiResponse(responseCode = "204", description = "Número de páginas actualizado"),
+            @ApiResponse(responseCode = "400", description = "Valor inválido", content = @Content),
+            @ApiResponse(responseCode = "403", description = "Sin permisos", content = @Content),
+            @ApiResponse(responseCode = "404", description = "El libro no existe", content = @Content)
+    })
     @PutMapping("/{idLibro}/numero-paginas")
     public ResponseEntity<Void> actualizarNumeroPaginas(
             @PathVariable UUID idLibro,
@@ -132,6 +185,13 @@ public class LibroController {
         return ResponseEntity.noContent().build();
     }
 
+    @Operation(summary = "Actualizar precio")
+    @ApiResponses({
+            @ApiResponse(responseCode = "204", description = "Precio actualizado"),
+            @ApiResponse(responseCode = "400", description = "Precio o moneda inválidos", content = @Content),
+            @ApiResponse(responseCode = "403", description = "Sin permisos", content = @Content),
+            @ApiResponse(responseCode = "404", description = "El libro no existe", content = @Content)
+    })
     @PutMapping("/{idLibro}/precio")
     public ResponseEntity<Void> actualizarPrecio(
             @PathVariable UUID idLibro,
@@ -141,6 +201,13 @@ public class LibroController {
         return ResponseEntity.noContent().build();
     }
 
+    @Operation(summary = "Actualizar stock")
+    @ApiResponses({
+            @ApiResponse(responseCode = "204", description = "Stock actualizado"),
+            @ApiResponse(responseCode = "400", description = "Stock inválido", content = @Content),
+            @ApiResponse(responseCode = "403", description = "Sin permisos", content = @Content),
+            @ApiResponse(responseCode = "404", description = "El libro no existe", content = @Content)
+    })
     @PutMapping("/{idLibro}/stock")
     public ResponseEntity<Void> actualizarStock(
             @PathVariable UUID idLibro,
@@ -150,6 +217,13 @@ public class LibroController {
         return ResponseEntity.noContent().build();
     }
 
+    @Operation(summary = "Actualizar edición")
+    @ApiResponses({
+            @ApiResponse(responseCode = "204", description = "Edición actualizada"),
+            @ApiResponse(responseCode = "400", description = "Edición inválida", content = @Content),
+            @ApiResponse(responseCode = "403", description = "Sin permisos", content = @Content),
+            @ApiResponse(responseCode = "404", description = "El libro no existe", content = @Content)
+    })
     @PutMapping("/{idLibro}/edicion")
     public ResponseEntity<Void> actualizarEdicion(
             @PathVariable UUID idLibro,
@@ -159,6 +233,13 @@ public class LibroController {
         return ResponseEntity.noContent().build();
     }
 
+    @Operation(summary = "Actualizar editorial")
+    @ApiResponses({
+            @ApiResponse(responseCode = "204", description = "Editorial actualizada"),
+            @ApiResponse(responseCode = "400", description = "Datos inválidos", content = @Content),
+            @ApiResponse(responseCode = "403", description = "Sin permisos", content = @Content),
+            @ApiResponse(responseCode = "404", description = "El libro no existe", content = @Content)
+    })
     @PutMapping("/{idLibro}/editorial")
     public ResponseEntity<Void> actualizarEditorial(
             @PathVariable UUID idLibro,
@@ -168,6 +249,13 @@ public class LibroController {
         return ResponseEntity.noContent().build();
     }
 
+    @Operation(summary = "Actualizar fecha de publicación")
+    @ApiResponses({
+            @ApiResponse(responseCode = "204", description = "Fecha actualizada"),
+            @ApiResponse(responseCode = "400", description = "Fecha inválida", content = @Content),
+            @ApiResponse(responseCode = "403", description = "Sin permisos", content = @Content),
+            @ApiResponse(responseCode = "404", description = "El libro no existe", content = @Content)
+    })
     @PutMapping("/{idLibro}/fecha-publicacion")
     public ResponseEntity<Void> actualizarFechaPublicacion(
             @PathVariable UUID idLibro,
@@ -177,6 +265,13 @@ public class LibroController {
         return ResponseEntity.noContent().build();
     }
 
+    @Operation(summary = "Actualizar categoría")
+    @ApiResponses({
+            @ApiResponse(responseCode = "204", description = "Categoría actualizada"),
+            @ApiResponse(responseCode = "400", description = "Categoría inválida", content = @Content),
+            @ApiResponse(responseCode = "403", description = "Sin permisos", content = @Content),
+            @ApiResponse(responseCode = "404", description = "El libro no existe", content = @Content)
+    })
     @PutMapping("/{idLibro}/categoria")
     public ResponseEntity<Void> actualizarCategoria(
             @PathVariable UUID idLibro,
@@ -186,6 +281,13 @@ public class LibroController {
         return ResponseEntity.noContent().build();
     }
 
+    @Operation(summary = "Actualizar imagen")
+    @ApiResponses({
+            @ApiResponse(responseCode = "204", description = "Imagen actualizada"),
+            @ApiResponse(responseCode = "400", description = "Imagen inválida", content = @Content),
+            @ApiResponse(responseCode = "403", description = "Sin permisos", content = @Content),
+            @ApiResponse(responseCode = "404", description = "El libro no existe", content = @Content)
+    })
     @PutMapping("/{idLibro}/imagen")
     public ResponseEntity<Void> actualizarImagen(
             @PathVariable UUID idLibro,
@@ -195,24 +297,48 @@ public class LibroController {
         return ResponseEntity.noContent().build();
     }
 
+    @Operation(summary = "Marcar libro como AGOTADO")
+    @ApiResponses({
+            @ApiResponse(responseCode = "204", description = "Estado actualizado"),
+            @ApiResponse(responseCode = "403", description = "Sin permisos", content = @Content),
+            @ApiResponse(responseCode = "404", description = "El libro no existe", content = @Content)
+    })
     @PutMapping("/{idLibro}/agotar")
     public ResponseEntity<Void> agotar(@PathVariable UUID idLibro) {
         actualizarLibro.actualizarEstado(idLibro, EstadoLibro.AGOTADO);
         return ResponseEntity.noContent().build();
     }
 
+    @Operation(summary = "Reactivar libro (DISPONIBLE)")
+    @ApiResponses({
+            @ApiResponse(responseCode = "204", description = "Estado actualizado"),
+            @ApiResponse(responseCode = "403", description = "Sin permisos", content = @Content),
+            @ApiResponse(responseCode = "404", description = "El libro no existe", content = @Content)
+    })
     @PutMapping("/{idLibro}/reactivar")
     public ResponseEntity<Void> reactivar(@PathVariable UUID idLibro) {
         actualizarLibro.actualizarEstado(idLibro, EstadoLibro.DISPONIBLE);
         return ResponseEntity.noContent().build();
     }
 
+    @Operation(summary = "Descontinuar libro")
+    @ApiResponses({
+            @ApiResponse(responseCode = "204", description = "Estado actualizado"),
+            @ApiResponse(responseCode = "403", description = "Sin permisos", content = @Content),
+            @ApiResponse(responseCode = "404", description = "El libro no existe", content = @Content)
+    })
     @PutMapping("/{idLibro}/descontinuar")
     public ResponseEntity<Void> descontinuar(@PathVariable UUID idLibro) {
         actualizarLibro.actualizarEstado(idLibro, EstadoLibro.DESCONTINUADO);
         return ResponseEntity.noContent().build();
     }
 
+    @Operation(summary = "Eliminar libro", description = "Eliminación lógica: deja de listarse y consultarse, pero su ISBN sigue ocupado.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "204", description = "Libro eliminado"),
+            @ApiResponse(responseCode = "403", description = "Sin permisos", content = @Content),
+            @ApiResponse(responseCode = "404", description = "El libro no existe", content = @Content)
+    })
     @DeleteMapping("/{idLibro}")
     public ResponseEntity<Void> eliminar(@PathVariable UUID idLibro) {
         eliminarLibro.eliminar(idLibro);

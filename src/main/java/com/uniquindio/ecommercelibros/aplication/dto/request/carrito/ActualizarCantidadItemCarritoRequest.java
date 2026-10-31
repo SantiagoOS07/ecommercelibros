@@ -1,26 +1,14 @@
 package com.uniquindio.ecommercelibros.aplication.dto.request.carrito;
 
-import com.uniquindio.ecommercelibros.domain.valueObject.ISBN;
-import com.uniquindio.ecommercelibros.domain.valueObject.Stock;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Positive;
+import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.PositiveOrZero;
 
-import java.util.UUID;
+/** PUT /carritos/{idCarrito}/items/{idLibro} */
+public record ActualizarCantidadItemCarritoRequest(
 
-//PUT/Carrito
-public record ActualizarCantidadItemCarritoRequest (
-
-        @NotBlank(message = "El id del carrito no puede ser vacio")
-        UUID idCarrito,
-
-        @NotBlank(message = "El isbn del libro es obligatorio")
-        ISBN isbn,
-
-        @NotBlank(message = "La cantidad es obligatoria")
-        @Positive(message = "La cantidad debe ser positiva")
-        int cantidadLibro,
-
-        @NotBlank(message = "El stock no puede ser vacio")
-        Stock stockLibro
-)
-{}
+        @Schema(description = "Nueva cantidad del libro en el carrito (0 elimina el ítem)", example = "3")
+        @NotNull(message = "La cantidad es obligatoria")
+        @PositiveOrZero(message = "La cantidad no puede ser negativa")
+        Integer cantidad
+) {}

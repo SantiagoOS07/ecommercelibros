@@ -5,9 +5,7 @@ import com.uniquindio.ecommercelibros.domain.valueObject.EstadoLibro;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 
 public interface LibroRepository {
 
@@ -18,4 +16,6 @@ public interface LibroRepository {
     void guardarLibro(Libro libro);
     boolean existePorIsbn(String isbn);
     Pagina<Libro> buscarLibros(String palabraTitulo, EstadoLibro estado, int pagina, int tamanio);
+    Map<String, String> buscarTitulosPorIsbn(Collection<String> isbns);
+
 }

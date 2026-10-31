@@ -3,6 +3,7 @@ package com.uniquindio.ecommercelibros.infrastructure.persistence.jpa;
 import com.uniquindio.ecommercelibros.domain.valueObject.EstadoLibro;
 import com.uniquindio.ecommercelibros.infrastructure.persistence.jpa.entity.LibroEntity;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
@@ -39,5 +40,6 @@ public interface LibroJpaDataRepository
     Optional<LibroEntity> findByIdLibroAndEliminadoFalse(String idLibro);
     List<LibroEntity> findByTituloContainingIgnoreCaseAndEliminadoFalse(String titulo);
     List<LibroEntity> findByIdAutorAndEliminadoFalse(String idAutor);
+    List<LibroEntity> findByIsbnInAndEliminadoFalse(Collection<String> isbns);
     boolean existsByIsbn(String isbn);
 }
