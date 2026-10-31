@@ -3,6 +3,7 @@ package com.uniquindio.ecommercelibros.infrastructure.rest;
 import com.uniquindio.ecommercelibros.aplication.dto.request.carrito.ActualizarCantidadItemCarritoRequest;
 import com.uniquindio.ecommercelibros.aplication.dto.request.carrito.AgregarItemCarritoRequest;
 import com.uniquindio.ecommercelibros.aplication.dto.response.carrito.CarritoResponse;
+import com.uniquindio.ecommercelibros.aplication.dto.response.venta.VentaResponse;
 import com.uniquindio.ecommercelibros.aplication.usecase.Carrito.ActualizarCantidadItemCarrito;
 import com.uniquindio.ecommercelibros.aplication.usecase.Carrito.AgregarItemCarrito;
 import com.uniquindio.ecommercelibros.aplication.usecase.Carrito.CancelarConfirmacionCarrito;
@@ -16,14 +17,17 @@ import com.uniquindio.ecommercelibros.aplication.usecase.Carrito.ListarCarritos;
 import com.uniquindio.ecommercelibros.aplication.usecase.Carrito.ObtenerTitulosCarritos;
 import com.uniquindio.ecommercelibros.aplication.usecase.Carrito.RegistrarCarrito;
 import com.uniquindio.ecommercelibros.domain.entity.Carrito;
+import com.uniquindio.ecommercelibros.domain.entity.Venta;
 import com.uniquindio.ecommercelibros.domain.exception.RecursoNoEncontradoException;
 import com.uniquindio.ecommercelibros.infrastructure.rest.mapper.CarritoMapper;
+import com.uniquindio.ecommercelibros.infrastructure.rest.mapper.VentaMapper;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -36,6 +40,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+@RequiredArgsConstructor
 @RestController
 @RequestMapping("/api/carritos")
 @Tag(name = "Carritos",
@@ -55,36 +60,7 @@ public class CarritoController {
     private final EliminarCarrito eliminarCarrito;
     private final ObtenerTitulosCarritos obtenerTitulosCarritos;
     private final CarritoMapper mapper;
-
-    public CarritoController(
-            RegistrarCarrito registrarCarrito,
-            AgregarItemCarrito agregarItemCarrito,
-            ActualizarCantidadItemCarrito actualizarCantidadItemCarrito,
-            EliminarItemCarrito eliminarItemCarrito,
-            ConfirmarCarrito confirmarCarrito,
-            CancelarConfirmacionCarrito cancelarConfirmacionCarrito,
-            CompletarVentaCarrito completarVentaCarrito,
-            ConsultarCarritoPorID consultarCarritoPorID,
-            ConsultarCarritoPorUsuario consultarCarritoPorUsuario,
-            ListarCarritos listarCarritos,
-            EliminarCarrito eliminarCarrito,
-            ObtenerTitulosCarritos obtenerTitulosCarritos,
-            CarritoMapper mapper) {
-
-        this.registrarCarrito = registrarCarrito;
-        this.agregarItemCarrito = agregarItemCarrito;
-        this.actualizarCantidadItemCarrito = actualizarCantidadItemCarrito;
-        this.eliminarItemCarrito = eliminarItemCarrito;
-        this.confirmarCarrito = confirmarCarrito;
-        this.cancelarConfirmacionCarrito = cancelarConfirmacionCarrito;
-        this.completarVentaCarrito = completarVentaCarrito;
-        this.consultarCarritoPorID = consultarCarritoPorID;
-        this.consultarCarritoPorUsuario = consultarCarritoPorUsuario;
-        this.listarCarritos = listarCarritos;
-        this.eliminarCarrito = eliminarCarrito;
-        this.obtenerTitulosCarritos = obtenerTitulosCarritos;
-        this.mapper = mapper;
-    }
+    private final VentaMapper ventaMapper;
 
     @Operation(summary = "Crear carrito",
             description = "Crea el carrito del usuario autenticado (el uid sale del JWT). Un usuario solo puede tener un carrito activo.")
@@ -253,9 +229,9 @@ public class CarritoController {
     })
     @PreAuthorize("hasAuthority('ADMINISTRADOR') or @seguridad.esDuenoDeCarrito(#idCarrito, authentication)")
     @PutMapping("/{idCarrito}/completar-venta")
-    public ResponseEntity<Void> completarVenta(@PathVariable UUID idCarrito) {
-        completarVentaCarrito.ejecutar(idCarrito);
-        return ResponseEntity.noContent().build();
+    public ResponseEntity<VentaResponse> completarVenta(@PathVariable UUID idCarrito) {
+        Venta venta = completarVentaCarrito.ejecutar(idCarrito);
+        return ResponseEntity.ok(ventaMapper.toResponseVenta(venta));
     }
 
     @Operation(summary = "Eliminar carrito", description = "Eliminación lógica. Solo carritos en estado CREADO.")

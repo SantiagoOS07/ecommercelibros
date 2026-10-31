@@ -35,7 +35,7 @@ public class CompletarVentaCarrito {
     }
 
     @Transactional
-    public void ejecutar(UUID idCarrito) {
+    public Venta ejecutar(UUID idCarrito) {
 
         Carrito carrito = carritoRepository
                 .buscarPorIdCarrito(idCarrito)
@@ -60,5 +60,6 @@ public class CompletarVentaCarrito {
 
         ventaRepository.guardarVenta(venta);
         carritoRepository.guardarCarrito(carrito);
+        return venta;
     }
 }

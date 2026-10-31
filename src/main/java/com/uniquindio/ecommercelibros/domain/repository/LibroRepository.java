@@ -2,8 +2,6 @@ package com.uniquindio.ecommercelibros.domain.repository;
 
 import com.uniquindio.ecommercelibros.domain.entity.Libro;
 import com.uniquindio.ecommercelibros.domain.valueObject.EstadoLibro;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 
 import java.util.*;
 
