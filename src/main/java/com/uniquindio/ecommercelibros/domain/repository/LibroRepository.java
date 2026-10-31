@@ -17,5 +17,5 @@ public interface LibroRepository {
     boolean existePorIsbn(String isbn);
     Pagina<Libro> buscarLibros(String palabraTitulo, EstadoLibro estado, int pagina, int tamanio);
     Map<String, String> buscarTitulosPorIsbn(Collection<String> isbns);
-
+    List<LibroVentas> buscarLibrosMasVendidos(int limite);
 }

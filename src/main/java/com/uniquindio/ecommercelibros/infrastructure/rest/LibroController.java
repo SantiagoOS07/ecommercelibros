@@ -4,16 +4,11 @@ import com.uniquindio.ecommercelibros.aplication.dto.request.libro.*;
 import com.uniquindio.ecommercelibros.aplication.dto.response.PaginaResponse;
 import com.uniquindio.ecommercelibros.aplication.dto.response.libro.LibroDetalleResponse;
 import com.uniquindio.ecommercelibros.aplication.dto.response.libro.LibroResponse;
-import com.uniquindio.ecommercelibros.aplication.usecase.libro.ActualizarLibro;
-import com.uniquindio.ecommercelibros.aplication.usecase.libro.BuscarLibroAutor;
-import com.uniquindio.ecommercelibros.aplication.usecase.libro.BuscarLibroISBN;
-import com.uniquindio.ecommercelibros.aplication.usecase.libro.BuscarLibroNombre;
-import com.uniquindio.ecommercelibros.aplication.usecase.libro.ConsultarLibroID;
-import com.uniquindio.ecommercelibros.aplication.usecase.libro.EliminarLibro;
-import com.uniquindio.ecommercelibros.aplication.usecase.libro.ListarLibros;
-import com.uniquindio.ecommercelibros.aplication.usecase.libro.RegistrarLibroUseCase;
+import com.uniquindio.ecommercelibros.aplication.dto.response.libro.MasVendidoResponse;
+import com.uniquindio.ecommercelibros.aplication.usecase.libro.*;
 import com.uniquindio.ecommercelibros.domain.entity.Libro;
 import com.uniquindio.ecommercelibros.domain.exception.RecursoNoEncontradoException;
+import com.uniquindio.ecommercelibros.domain.repository.LibroVentas;
 import com.uniquindio.ecommercelibros.domain.valueObject.EstadoLibro;
 import com.uniquindio.ecommercelibros.domain.valueObject.FechaPublicacion;
 import com.uniquindio.ecommercelibros.domain.valueObject.NombreLibro;
@@ -52,6 +47,7 @@ public class LibroController {
     private final BuscarLibroAutor buscarLibroAutor;
     private final ActualizarLibro actualizarLibro;
     private final EliminarLibro eliminarLibro;
+    private final ListarLibrosMasVendidosUseCase listarLibrosMasVendidosUseCase;
     private final LibroMapper mapper;
 
     @Operation(summary = "Listar libros (paginado)",
@@ -67,6 +63,17 @@ public class LibroController {
                 LibroDetalleResponse::desde);
     }
 
+    @GetMapping("/mas-vendidos")
+    public ResponseEntity<List<MasVendidoResponse>> listarLibrosMasVendidos(@RequestParam(name = "limite", defaultValue = "5") int limite) {
+        List<LibroVentas> libros = listarLibrosMasVendidosUseCase.ejecutar(limite);
+        return ResponseEntity.ok(libros.stream().map(MasVendidoResponse::desde).toList());
+    }
+
+    @Operation(summary = "Consultar libro por id")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Libro encontrado"),
+            @ApiResponse(responseCode = "404", description = "El libro no existe", content = @Content)
+    })
     @GetMapping("/{idLibro}")
     public ResponseEntity<LibroResponse> consultarPorId(@PathVariable UUID idLibro) {
         Libro libro = consultarLibroID.ConsultarLibroPorID(idLibro)
