@@ -1,4 +1,101 @@
 package com.uniquindio.ecommercelibros.aplication.usecase.venta;
 
-public class CancelarVentaUseCaseTest {
+import com.uniquindio.ecommercelibros.domain.entity.ItemVenta;
+import com.uniquindio.ecommercelibros.domain.entity.Venta;
+import com.uniquindio.ecommercelibros.domain.exception.ReglaDominioException;
+import com.uniquindio.ecommercelibros.domain.repository.VentaRepository;
+import com.uniquindio.ecommercelibros.domain.valueObject.EstadoPedido;
+import com.uniquindio.ecommercelibros.domain.valueObject.ISBN;
+import com.uniquindio.ecommercelibros.domain.valueObject.Moneda;
+import com.uniquindio.ecommercelibros.domain.valueObject.Precio;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InOrder;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+
+import java.util.List;
+import java.util.NoSuchElementException;
+import java.util.Optional;
+import java.util.UUID;
+
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
+
+@ExtendWith(MockitoExtension.class)
+class CancelarVentaUseCaseTest {
+
+    @Mock
+    private VentaRepository ventaRepository;
+
+    @InjectMocks
+    private CancelarVentaUseCase useCase;
+
+    @Test
+    void deberiaCancelarYGuardarCuandoLaVentaExiste() {
+        // Arrange
+        UUID idVenta = UUID.randomUUID();
+        Venta venta = mock(Venta.class);
+        when(ventaRepository.buscarVentaPorId(idVenta)).thenReturn(Optional.of(venta));
+
+        // Act
+        useCase.ejecutar(idVenta);
+
+        // Assert
+        InOrder orden = inOrder(venta, ventaRepository);
+        orden.verify(venta).cancelarVenta();
+        orden.verify(ventaRepository).guardarVenta(venta);
+    }
+
+    @Test
+    void deberiaPasarLaVentaRealAEstadoCancelado() {
+        // Arrange: aqui se usa una Venta real para probar el efecto en el dominio
+        Venta venta = crearVentaReal();
+        when(ventaRepository.buscarVentaPorId(venta.getIdVenta())).thenReturn(Optional.of(venta));
+
+        // Act
+        useCase.ejecutar(venta.getIdVenta());
+
+        // Assert
+        assertEquals(EstadoPedido.CANCELADO, venta.getEstadoPedido());
+        verify(ventaRepository).guardarVenta(venta);
+    }
+
+    @Test
+    void deberiaLanzarExcepcionCuandoLaVentaNoExiste() {
+        // Arrange
+        UUID idVenta = UUID.randomUUID();
+        when(ventaRepository.buscarVentaPorId(idVenta)).thenReturn(Optional.empty());
+
+        // Act & Assert
+        assertThrows(NoSuchElementException.class, () -> useCase.ejecutar(idVenta));
+
+        verify(ventaRepository, never()).guardarVenta(any());
+    }
+
+    @Test
+    void noDeberiaGuardarCuandoElDominioNoPermiteCancelar() {
+        // Arrange
+        UUID idVenta = UUID.randomUUID();
+        Venta venta = mock(Venta.class);
+        when(ventaRepository.buscarVentaPorId(idVenta)).thenReturn(Optional.of(venta));
+        doThrow(new ReglaDominioException("No se puede cancelar"))
+                .when(venta).cancelarVenta();
+
+        // Act & Assert
+        assertThrows(ReglaDominioException.class, () -> useCase.ejecutar(idVenta));
+
+        verify(ventaRepository, never()).guardarVenta(any());
+    }
+
+    private Venta crearVentaReal() {
+        ItemVenta item = ItemVenta.crear(
+                new ISBN("9783161484100"),
+                2,
+                new Precio(25000, Moneda.COP),
+                new Precio(50000, Moneda.COP)
+        );
+        return Venta.crear("usuario-1", List.of(item), new Precio(50000, Moneda.COP));
+    }
 }

@@ -3,6 +3,7 @@ package com.uniquindio.ecommercelibros.infrastructure.rest;
 import com.uniquindio.ecommercelibros.aplication.dto.request.carrito.ActualizarCantidadItemCarritoRequest;
 import com.uniquindio.ecommercelibros.aplication.dto.request.carrito.AgregarItemCarritoRequest;
 import com.uniquindio.ecommercelibros.aplication.dto.response.carrito.CarritoResponse;
+import com.uniquindio.ecommercelibros.aplication.dto.response.venta.VentaResponse;
 import com.uniquindio.ecommercelibros.aplication.usecase.Carrito.ActualizarCantidadItemCarrito;
 import com.uniquindio.ecommercelibros.aplication.usecase.Carrito.AgregarItemCarrito;
 import com.uniquindio.ecommercelibros.aplication.usecase.Carrito.CompletarVentaCarrito;
@@ -139,7 +140,7 @@ class CarritoControllerTest {
     void completarVenta_debeRetornar204() {
         UUID idCarrito = UUID.randomUUID();
 
-        ResponseEntity<Void> resultado = controller.completarVenta(idCarrito);
+        ResponseEntity<VentaResponse> resultado = controller.completarVenta(idCarrito);
 
         assertEquals(204, resultado.getStatusCode().value());
         verify(completarVentaCarrito).ejecutar(idCarrito);

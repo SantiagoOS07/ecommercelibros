@@ -108,7 +108,7 @@ public class LibroRepositoryJpa implements LibroRepository {
 
     @Override
     public List<LibroVentas> buscarLibrosMasVendidos(int limite) {
-        return dataRepository.buscarLibrosMasVendidos(EstadoPedido.ENTREGADO,limite);
+        return dataRepository.buscarLibrosMasVendidos(EstadoPedido.ENTREGADO, PageRequest.of(0, limite));
     }
 }
 

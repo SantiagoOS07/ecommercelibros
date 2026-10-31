@@ -57,6 +57,9 @@ class LibroControllerErroresTest {
     @MockitoBean
     private EliminarLibro eliminarLibro;
 
+    @MockitoBean
+    private ListarLibrosMasVendidosUseCase listarLibrosMasVendidosUseCase;
+
     @Test
     void deberiaResponder404CuandoElLibroNoExiste() throws Exception {
         UUID id = UUID.randomUUID();

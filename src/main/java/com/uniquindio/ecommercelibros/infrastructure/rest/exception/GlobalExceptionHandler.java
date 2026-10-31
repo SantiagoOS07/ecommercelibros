@@ -1,9 +1,6 @@
 package com.uniquindio.ecommercelibros.infrastructure.rest.exception;
 
-import com.uniquindio.ecommercelibros.domain.exception.CasillaVaciaException;
-import com.uniquindio.ecommercelibros.domain.exception.RecursoNoEncontradoException;
-import com.uniquindio.ecommercelibros.domain.exception.ReglaDominioException;
-import com.uniquindio.ecommercelibros.domain.exception.StockInsuficienteException;
+import com.uniquindio.ecommercelibros.domain.exception.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -57,6 +54,11 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(NoSuchElementException.class)
     public ResponseEntity<Map<String, Object>> manejarNoEncontrado(NoSuchElementException ex) {
         return construirRespuesta(HttpStatus.NOT_FOUND, ex.getMessage());
+    }
+
+    @ExceptionHandler(RecursoDuplicadoException.class)
+    public ResponseEntity<Map<String, Object>> manejarRecursoDuplicado(RecursoDuplicadoException ex) {
+        return construirRespuesta(HttpStatus.CONFLICT, ex.getMessage());
     }
 
     // --- Seguridad (JWT) ---

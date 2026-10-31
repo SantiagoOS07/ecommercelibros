@@ -42,11 +42,11 @@ public interface LibroJpaDataRepository
         SELECT new com.uniquindio.ecommercelibros.domain.repository.LibroVentas(l.idLibro, l.titulo, COUNT(iv))
         FROM LibroEntity l
         JOIN VentaEntity v ON v.estadoVenta = :estado
-        JOIN v.items iv ON l.idLibro = iv.isbn.isbn
+        JOIN v.items iv ON l.isbn = iv.isbn.isbn
         GROUP BY l.idLibro, l.titulo
         ORDER BY COUNT(iv) DESC, l.titulo ASC
         """)
-    List<LibroVentas> buscarLibrosMasVendidos(@Param("estado") EstadoPedido estado, int limite);
+    List<LibroVentas> buscarLibrosMasVendidos(@Param("estado") EstadoPedido estado, Pageable pageable);
 
     Optional<LibroEntity> findByIsbnAndEliminadoFalse(String isbn);
     Optional<LibroEntity> findByIdLibroAndEliminadoFalse(String idLibro);
