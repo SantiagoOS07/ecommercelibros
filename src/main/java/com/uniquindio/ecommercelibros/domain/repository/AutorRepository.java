@@ -5,6 +5,7 @@ import com.uniquindio.ecommercelibros.domain.entity.Autor;
 import java.util.List;
 import java.util.Optional;
 
+
 public interface AutorRepository {
 
     Optional<Autor> buscarPorIdAutor(String idAutor);
@@ -15,5 +16,7 @@ public interface AutorRepository {
 
     void guardarAutor(Autor autor);
 
-    void eliminarAutor(String idAutor);
+
+   
+    boolean existePorId(String idAutor);
 }
