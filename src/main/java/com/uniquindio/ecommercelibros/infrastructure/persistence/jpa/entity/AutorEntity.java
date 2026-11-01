@@ -43,4 +43,7 @@ public class AutorEntity {
     @Enumerated(EnumType.STRING)
     @Column(name = "nacionalidad", nullable = false, length = 30)
     private List<Nacionalidad> nacionalidades = new ArrayList<>();
+
+    @Column(nullable = false)
+    private boolean eliminado;
 }
