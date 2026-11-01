@@ -1,6 +1,7 @@
 package com.uniquindio.ecommercelibros.aplication.usecase.usuario;
 
 import com.uniquindio.ecommercelibros.domain.entity.Usuario;
+import com.uniquindio.ecommercelibros.domain.exception.RecursoDuplicadoException;
 import com.uniquindio.ecommercelibros.domain.exception.ReglaDominioException;
 import com.uniquindio.ecommercelibros.domain.repository.UsuarioRepository;
 import com.uniquindio.ecommercelibros.domain.service.VerificadorDeUsuario;
@@ -61,11 +62,11 @@ class RegistrarUsuarioTest {
 
     @Test
     void noDebeRegistrarUsuarioSiElCorreoYaExiste() {
-        doThrow(new ReglaDominioException("Ya existe un usuario registrado con ese correo"))
+        doThrow(new RecursoDuplicadoException("Ya existe un usuario registrado con ese correo"))
                 .when(verificadorDeUsuario)
                 .verificarQueCorreoNoExiste("juan@mail.com");
 
-        assertThrows(ReglaDominioException.class,
+        assertThrows(RecursoDuplicadoException.class,
                 () -> registrarUsuario.registrar("Juan Perez", correo, "Clave123", telefono, direccion));
 
         verify(passwordEncoder, never()).encode(any());
