@@ -7,6 +7,7 @@ import com.uniquindio.ecommercelibros.aplication.usecase.usuario.EliminarUsuario
 import com.uniquindio.ecommercelibros.aplication.usecase.usuario.ListarUsuarios;
 import com.uniquindio.ecommercelibros.aplication.usecase.usuario.RegistrarUsuario;
 import com.uniquindio.ecommercelibros.domain.entity.Usuario;
+import com.uniquindio.ecommercelibros.domain.exception.RecursoDuplicadoException;
 import com.uniquindio.ecommercelibros.domain.exception.RecursoNoEncontradoException;
 import com.uniquindio.ecommercelibros.domain.exception.ReglaDominioException;
 import com.uniquindio.ecommercelibros.domain.valueObject.*;
@@ -14,6 +15,7 @@ import com.uniquindio.ecommercelibros.infrastructure.rest.mapper.UsuarioMapper;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
@@ -24,6 +26,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -36,7 +39,9 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+
 @WebMvcTest(UsuarioController.class)
+@AutoConfigureMockMvc(addFilters = false)
 @Import(UsuarioMapper.class)
 class UsuarioControllerTest {
 
@@ -79,16 +84,31 @@ class UsuarioControllerTest {
     }
 
     @Test
-    @DisplayName("POST con correo ya registrado responde 400")
-    void registrarCorreoDuplicado_responde400() throws Exception {
+    @DisplayName("POST con correo ya registrado responde 409")
+    void registrarCorreoDuplicado_responde409() throws Exception {
         when(registrarUsuario.registrar(any(), any(), any(), any(), any()))
-                .thenThrow(new ReglaDominioException("Ya existe un usuario registrado con ese correo"));
+                .thenThrow(new RecursoDuplicadoException("Ya existe un usuario registrado con ese correo"));
 
         mockMvc.perform(post("/api/usuarios")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(json("juan@mail.com", "Clave123")))
-                .andExpect(status().isBadRequest())
+                .andExpect(status().isConflict())
                 .andExpect(jsonPath("$.mensaje").value("Ya existe un usuario registrado con ese correo"));
+    }
+
+    @Test
+    @DisplayName("POST normaliza el correo a minúsculas antes de llegar al caso de uso")
+    void registrarCorreoConMayusculas_llegaNormalizado() throws Exception {
+        when(registrarUsuario.registrar(any(), any(), any(), any(), any()))
+                .thenReturn(crearUsuario("user-1"));
+
+        mockMvc.perform(post("/api/usuarios")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(json("Juan@Mail.COM", "Clave123")))
+                .andExpect(status().isCreated());
+
+        verify(registrarUsuario).registrar(eq("Juan Perez"), eq(new Correo("juan@mail.com")), eq("Clave123"),
+                eq(new Telefono("3001234567")), eq(new Direccion("Calle 1")));
     }
 
     @Test
