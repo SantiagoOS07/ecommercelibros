@@ -9,6 +9,9 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class UsuarioTest {
 
+    
+    private static final String HASH = "{bcrypt}hash-de-prueba";
+
     @Test
     void dosUsuariosConMismoIdDebenSerIgualesAunqueSusDatosCambien() {
         Usuario usuario1 = crearUsuario("user-1");
@@ -33,21 +36,21 @@ class UsuarioTest {
     @Test
     void noDebePermitirCrearUsuarioSinId() {
         assertThrows(CasillaVaciaException.class, () ->
-                Usuario.crear(null, "Juan Perez", new Correo("juan@mail.com"), "clave123",
+                Usuario.crear(null, "Juan Perez", new Correo("juan@mail.com"), HASH,
                         new Telefono("3001234567"), new Direccion("Calle 1"), RolUsuario.CLIENTE));
     }
 
     @Test
     void noDebePermitirCrearUsuarioSinNombre() {
         assertThrows(CasillaVaciaException.class, () ->
-                Usuario.crear("user-1", "", new Correo("juan@mail.com"), "clave123",
+                Usuario.crear("user-1", "", new Correo("juan@mail.com"), HASH,
                         new Telefono("3001234567"), new Direccion("Calle 1"), RolUsuario.CLIENTE));
     }
 
     @Test
     void noDebePermitirCrearUsuarioSinCorreo() {
         assertThrows(CasillaVaciaException.class, () ->
-                Usuario.crear("user-1", "Juan Perez", null, "clave123",
+                Usuario.crear("user-1", "Juan Perez", null, HASH,
                         new Telefono("3001234567"), new Direccion("Calle 1"), RolUsuario.CLIENTE));
     }
 
@@ -61,21 +64,21 @@ class UsuarioTest {
     @Test
     void noDebePermitirCrearUsuarioSinRol() {
         assertThrows(CasillaVaciaException.class, () ->
-                Usuario.crear("user-1", "Juan Perez", new Correo("juan@mail.com"), "clave123",
+                Usuario.crear("user-1", "Juan Perez", new Correo("juan@mail.com"), HASH,
                         new Telefono("3001234567"), new Direccion("Calle 1"), null));
     }
 
     @Test
     void noDebePermitirCrearUsuarioSinDireccion() {
         assertThrows(CasillaVaciaException.class, () ->
-                Usuario.crear("user-1", "Juan Perez", new Correo("juan@mail.com"), "clave123",
+                Usuario.crear("user-1", "Juan Perez", new Correo("juan@mail.com"), HASH,
                         new Telefono("3001234567"), null, RolUsuario.CLIENTE));
     }
 
     @Test
     void noDebePermitirCrearUsuarioSinTelefono() {
         assertThrows(CasillaVaciaException.class, () ->
-                Usuario.crear("user-1", "Juan Perez", new Correo("juan@mail.com"), "clave123",
+                Usuario.crear("user-1", "Juan Perez", new Correo("juan@mail.com"), HASH,
                         null, new Direccion("Calle 1"), RolUsuario.CLIENTE));
     }
 
@@ -197,15 +200,15 @@ class UsuarioTest {
 
     @Test
     void validarFormatoContraseniaRechazaClavesInseguras() {
-        assertThrows(ReglaDominioException.class, () -> Usuario.validarFormatoContrasenia("clave123"));  // sin mayúscula
-        assertThrows(ReglaDominioException.class, () -> Usuario.validarFormatoContrasenia("ClaveSegura")); // sin número
-        assertThrows(ReglaDominioException.class, () -> Usuario.validarFormatoContrasenia("Cl1"));         // muy corta
-        assertThrows(ReglaDominioException.class, () -> Usuario.validarFormatoContrasenia("A1" + "a".repeat(71))); // > 72
+        assertThrows(ReglaDominioException.class, () -> Usuario.validarFormatoContrasenia("clave123")); 
+        assertThrows(ReglaDominioException.class, () -> Usuario.validarFormatoContrasenia("ClaveSegura")); 
+        assertThrows(ReglaDominioException.class, () -> Usuario.validarFormatoContrasenia("Cl1"));        
+        assertThrows(ReglaDominioException.class, () -> Usuario.validarFormatoContrasenia("A1" + "a".repeat(71))); 
         assertThrows(CasillaVaciaException.class, () -> Usuario.validarFormatoContrasenia(" "));
     }
 
     private Usuario crearUsuario(String id) {
-        return Usuario.crear(id, "Juan Perez", new Correo("juan@mail.com"), "clave123",
+        return Usuario.crear(id, "Juan Perez", new Correo("juan@mail.com"), HASH,
                 new Telefono("3001234567"), new Direccion("Calle 1"), RolUsuario.CLIENTE);
     }
 }
