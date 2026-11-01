@@ -51,16 +51,16 @@ public class Usuario {
 
     private static void validar(String idUsuario, String nombre, Correo correo, String contraseniaHash, Telefono telefono,
                                 Direccion direccion, RolUsuario rolUsuario) {
-        if (idUsuario == null || idUsuario.isEmpty()) {
+        if (idUsuario == null || idUsuario.isBlank()) {
             throw new CasillaVaciaException("El id del usuario no puede ser nulo o vacío.");
         }
-        if (nombre == null || nombre.isEmpty()) {
+        if (nombre == null || nombre.isBlank()) {
             throw new CasillaVaciaException("El nombre del usuario no puede ser nulo o vacío.");
         }
         if (correo == null) {
             throw new CasillaVaciaException("El correo del usuario no puede ser nulo.");
         }
-        if (contraseniaHash == null || contraseniaHash.isEmpty()) {
+        if (contraseniaHash == null || contraseniaHash.isBlank()) {
             throw new CasillaVaciaException("La contraseña del usuario no puede ser nula o vacía.");
         }
         if (telefono == null) {
@@ -90,7 +90,7 @@ public class Usuario {
 
     public void cambiarNombre(String nuevoNombre) {
         verificarQueEsteActivo();
-        if (nuevoNombre == null || nuevoNombre.isEmpty()) {
+        if (nuevoNombre == null || nuevoNombre.isBlank()) {
             throw new CasillaVaciaException("El nuevo nombre del usuario no puede ser nulo o vacío.");
         }
         this.nombre = nuevoNombre;
@@ -106,7 +106,7 @@ public class Usuario {
 
     public void cambiarContrasenia(String nuevaContraseniaHash) {
         verificarQueEsteActivo();
-        if (nuevaContraseniaHash == null || nuevaContraseniaHash.isEmpty()) {
+        if (nuevaContraseniaHash == null || nuevaContraseniaHash.isBlank()) {
             throw new CasillaVaciaException("La nueva contraseña no puede ser nula o vacía.");
         }
         this.contrasenia = nuevaContraseniaHash;

@@ -13,31 +13,35 @@ public class Autor {
 
     private final String idAutor;
     private String nombreAutor;
-    private String biografia; // La biografia del autor puede ser nula o vacia
+    private String biografia; 
     private final List<Nacionalidad> nacionalidades;
+    private boolean eliminado;
 
-    private Autor(String idAutor, String nombreAutor, String biografia, List<Nacionalidad> nacionalidades) {
+    private Autor(String idAutor, String nombreAutor, String biografia,
+                  List<Nacionalidad> nacionalidades, boolean eliminado) {
         this.idAutor = idAutor;
         this.nombreAutor = nombreAutor;
         this.biografia = biografia;
         this.nacionalidades = new ArrayList<>(nacionalidades);
+        this.eliminado = eliminado;
     }
 
     public static Autor crear(String idAutor, String nombreAutor, String biografia, Nacionalidad nacionalidad) {
         validar(idAutor, nombreAutor, nacionalidad);
-        return new Autor(idAutor, nombreAutor, biografia, List.of(nacionalidad));
+        return new Autor(idAutor, nombreAutor, biografia, List.of(nacionalidad), false);
     }
 
-    // Solo para el adaptador de persistencia: los datos ya fueron validados cuando el autor se creó
-    public static Autor reconstruir(String idAutor, String nombreAutor, String biografia, List<Nacionalidad> nacionalidades) {
-        return new Autor(idAutor, nombreAutor, biografia, nacionalidades);
+    
+    public static Autor reconstruir(String idAutor, String nombreAutor, String biografia,
+                                    List<Nacionalidad> nacionalidades, boolean eliminado) {
+        return new Autor(idAutor, nombreAutor, biografia, nacionalidades, eliminado);
     }
 
     private static void validar(String idAutor, String nombreAutor, Nacionalidad nacionalidad) {
-        if (idAutor == null || idAutor.isEmpty()) {
+        if (idAutor == null || idAutor.isBlank()) {
             throw new ReglaDominioException("El id del autor no puede ser nulo o vacío.");
         }
-        if (nombreAutor == null || nombreAutor.isEmpty()) {
+        if (nombreAutor == null || nombreAutor.isBlank()) {
             throw new ReglaDominioException("El nombre del autor no puede ser nulo o vacío.");
         }
         if (nacionalidad == null) {
@@ -46,17 +50,20 @@ public class Autor {
     }
 
     public void cambiarNombre(String nuevoNombre) {
-        if (nuevoNombre == null || nuevoNombre.isEmpty()) {
+        verificarQueNoEsteEliminado();
+        if (nuevoNombre == null || nuevoNombre.isBlank()) {
             throw new ReglaDominioException("El nuevo nombre del autor no puede ser nulo o vacío.");
         }
         this.nombreAutor = nuevoNombre;
     }
 
     public void cambiarBiografia(String nuevaBiografia) {
+        verificarQueNoEsteEliminado();
         this.biografia = nuevaBiografia;
     }
 
     public void agregarNacionalidad(Nacionalidad nuevaNacionalidad) {
+        verificarQueNoEsteEliminado();
         if (nuevaNacionalidad == null) {
             throw new ReglaDominioException("La nacionalidad del autor no puede ser nula.");
         }
@@ -67,6 +74,7 @@ public class Autor {
     }
 
     public void eliminarNacionalidad(Nacionalidad nacionalidad) {
+        verificarQueNoEsteEliminado();
         if (!this.nacionalidades.contains(nacionalidad)) {
             throw new ReglaDominioException("La nacionalidad seleccionada no se puede eliminar.");
         }
@@ -76,7 +84,21 @@ public class Autor {
         this.nacionalidades.remove(nacionalidad);
     }
 
-    // Copia de solo lectura: las nacionalidades solo cambian por agregar/eliminarNacionalidad
+    
+    public void eliminarLogicamente() {
+        if (this.eliminado) {
+            throw new ReglaDominioException("El autor ya está eliminado.");
+        }
+        this.eliminado = true;
+    }
+
+    private void verificarQueNoEsteEliminado() {
+        if (this.eliminado) {
+            throw new ReglaDominioException("El autor está eliminado y no puede modificarse.");
+        }
+    }
+
+
     public List<Nacionalidad> getNacionalidades() {
         return List.copyOf(nacionalidades);
     }

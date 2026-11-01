@@ -13,10 +13,10 @@ public class Editorial {
     private final UUID idEditorial;
     private String nombreEditorial;
     private final Pais paisOrigen;
-    private String descripcionEditorial; // La descripción de la editorial puede ser nula o vacia
+    private String descripcionEditorial; 
 
-    private Editorial(String nombreEditorial, Pais paisOrigen, String descripcionEditorial) {
-        this.idEditorial = UUID.randomUUID();
+    private Editorial(UUID idEditorial, String nombreEditorial, Pais paisOrigen, String descripcionEditorial) {
+        this.idEditorial = idEditorial;
         this.nombreEditorial = nombreEditorial;
         this.paisOrigen = paisOrigen;
         this.descripcionEditorial = descripcionEditorial;
@@ -24,11 +24,17 @@ public class Editorial {
 
     public static Editorial crear(String nombreEditorial, Pais paisOrigen, String descripcionEditorial) {
         validar(nombreEditorial, paisOrigen);
-        return new Editorial(nombreEditorial, paisOrigen, descripcionEditorial);
+        return new Editorial(UUID.randomUUID(), nombreEditorial, paisOrigen, descripcionEditorial);
+    }
+
+    
+    public static Editorial reconstruir(UUID idEditorial, String nombreEditorial, Pais paisOrigen,
+                                        String descripcionEditorial) {
+        return new Editorial(idEditorial, nombreEditorial, paisOrigen, descripcionEditorial);
     }
 
     private static void validar(String nombreEditorial, Pais paisOrigen) {
-        if (nombreEditorial == null || nombreEditorial.isEmpty()) {
+        if (nombreEditorial == null || nombreEditorial.isBlank()) {
             throw new ReglaDominioException("El nombre de la editorial no puede ser nulo o vacío");
         }
         if (paisOrigen == null) {
@@ -37,7 +43,7 @@ public class Editorial {
     }
 
     public void cambiarNombre(String nuevoNombre) {
-        if (nuevoNombre == null || nuevoNombre.isEmpty()) {
+        if (nuevoNombre == null || nuevoNombre.isBlank()) {
             throw new ReglaDominioException("El nuevo nombre de la editorial no puede ser nulo o vacío");
         }
         this.nombreEditorial = nuevoNombre;
