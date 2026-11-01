@@ -15,6 +15,7 @@ public class AutorPersistenceMapper {
         entity.setNombreAutor(autor.getNombreAutor());
         entity.setBiografia(autor.getBiografia());
         entity.setNacionalidades(new ArrayList<>(autor.getNacionalidades()));
+        entity.setEliminado(autor.isEliminado());
         return entity;
     }
 
@@ -23,7 +24,8 @@ public class AutorPersistenceMapper {
                 entity.getIdAutor(),
                 entity.getNombreAutor(),
                 entity.getBiografia(),
-                entity.getNacionalidades()
+                entity.getNacionalidades(),
+                entity.isEliminado()
         );
     }
 }
