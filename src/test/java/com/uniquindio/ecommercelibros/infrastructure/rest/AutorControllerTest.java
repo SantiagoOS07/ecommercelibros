@@ -6,13 +6,18 @@ import com.uniquindio.ecommercelibros.aplication.usecase.autor.ConsultarAutorNom
 import com.uniquindio.ecommercelibros.aplication.usecase.autor.EliminarAutor;
 import com.uniquindio.ecommercelibros.aplication.usecase.autor.ListarAutores;
 import com.uniquindio.ecommercelibros.aplication.usecase.autor.RegistrarAutor;
+import com.uniquindio.ecommercelibros.aplication.usecase.libro.BuscarLibroAutor;
 import com.uniquindio.ecommercelibros.domain.entity.Autor;
+import com.uniquindio.ecommercelibros.domain.exception.RecursoDuplicadoException;
+import com.uniquindio.ecommercelibros.domain.exception.RecursoNoEncontradoException;
 import com.uniquindio.ecommercelibros.domain.exception.ReglaDominioException;
 import com.uniquindio.ecommercelibros.domain.valueObject.Nacionalidad;
 import com.uniquindio.ecommercelibros.infrastructure.rest.mapper.AutorMapper;
+import com.uniquindio.ecommercelibros.infrastructure.rest.mapper.LibroMapper;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
@@ -35,8 +40,10 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+
 @WebMvcTest(AutorController.class)
-@Import(AutorMapper.class)
+@AutoConfigureMockMvc(addFilters = false)
+@Import({AutorMapper.class, LibroMapper.class})
 class AutorControllerTest {
 
     @Autowired
@@ -60,6 +67,9 @@ class AutorControllerTest {
     @MockitoBean
     private EliminarAutor eliminarAutor;
 
+    @MockitoBean
+    private BuscarLibroAutor buscarLibroAutor;
+
     @Test
     @DisplayName("POST válido responde 201 con Location y el autor registrado")
     void registrarAutor_responde201() throws Exception {
@@ -76,16 +86,28 @@ class AutorControllerTest {
     }
 
     @Test
-    @DisplayName("POST con un id ya registrado responde 400")
-    void registrarAutorRepetido_responde400() throws Exception {
+    @DisplayName("POST con un id ya registrado responde 409")
+    void registrarAutorRepetido_responde409() throws Exception {
         when(registrarAutor.registrar(any(), any(), any(), any()))
-                .thenThrow(new ReglaDominioException("Ya existe un autor registrado con ese id"));
+                .thenThrow(new RecursoDuplicadoException("Ya existe un autor registrado con ese id"));
 
         mockMvc.perform(post("/api/autores")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(json("autor-1", "Gabriel Garcia Marquez")))
-                .andExpect(status().isBadRequest())
+                .andExpect(status().isConflict())
                 .andExpect(jsonPath("$.mensaje").value("Ya existe un autor registrado con ese id"));
+    }
+
+    @Test
+    @DisplayName("POST con un id de más de 36 caracteres responde 400 y no llega al caso de uso")
+    void registrarAutorIdDemasiadoLargo_responde400() throws Exception {
+        mockMvc.perform(post("/api/autores")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(json("x".repeat(37), "Gabriel Garcia Marquez")))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.errores.idAutor").exists());
+
+        verify(registrarAutor, never()).registrar(any(), any(), any(), any());
     }
 
     @Test
@@ -193,6 +215,38 @@ class AutorControllerTest {
                 .andExpect(status().isNoContent());
 
         verify(eliminarAutor).eliminar("autor-1");
+    }
+
+    @Test
+    @DisplayName("DELETE de un autor inexistente o ya eliminado responde 404")
+    void eliminarAutorInexistente_responde404() throws Exception {
+        doThrow(new RecursoNoEncontradoException("El autor no existe"))
+                .when(eliminarAutor)
+                .eliminar("no-existe");
+
+        mockMvc.perform(delete("/api/autores/{idAutor}", "no-existe"))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.mensaje").value("El autor no existe"));
+    }
+
+    @Test
+    @DisplayName("GET de los libros de un autor responde 200 con la lista")
+    void listarLibrosDeAutor_responde200() throws Exception {
+        when(buscarLibroAutor.buscarPorIdAutor("autor-1")).thenReturn(List.of());
+
+        mockMvc.perform(get("/api/autores/{idAutor}/libros", "autor-1"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.length()").value(0));
+    }
+
+    @Test
+    @DisplayName("GET de los libros de un autor inexistente responde 404")
+    void listarLibrosDeAutorInexistente_responde404() throws Exception {
+        when(buscarLibroAutor.buscarPorIdAutor("no-existe"))
+                .thenThrow(new RecursoNoEncontradoException("No se encontró el autor con ID: no-existe"));
+
+        mockMvc.perform(get("/api/autores/{idAutor}/libros", "no-existe"))
+                .andExpect(status().isNotFound());
     }
 
     private Autor crearAutor(String id) {
