@@ -1,10 +1,13 @@
 package com.uniquindio.ecommercelibros.infrastructure.persistence.jpa;
 
 import com.uniquindio.ecommercelibros.domain.repository.LibroVentas;
+import com.uniquindio.ecommercelibros.domain.valueObject.CategoriaLibro;
 import com.uniquindio.ecommercelibros.domain.valueObject.EstadoLibro;
 import com.uniquindio.ecommercelibros.domain.valueObject.EstadoPedido;
+import com.uniquindio.ecommercelibros.domain.valueObject.Moneda;
 import com.uniquindio.ecommercelibros.infrastructure.persistence.jpa.entity.LibroEntity;
 
+import java.math.BigDecimal;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
@@ -28,14 +31,26 @@ public interface LibroJpaDataRepository
 
     List<LibroEntity> findByEstado(EstadoLibro estado);
 
+        /**
+     * Listado paginado. Nunca devuelve libros eliminados.
+     * Los filtros opcionales llegan siempre con valor (todas las categorías/monedas, rango 0..máximo)
+     * para no depender de "(:param IS NULL OR ...)", que H2 rechaza con parámetros sin tipo.
+     */
     @Query("""
         SELECT l FROM LibroEntity l
-        WHERE l.eliminado = false AND LOWER(l.titulo) LIKE LOWER(CONCAT('%', :palabraTitulo, '%'))
+        WHERE l.eliminado = false
+        AND LOWER(l.titulo) LIKE LOWER(CONCAT('%', :palabraTitulo, '%'))
         AND l.estado = :estado
-        AND l.eliminado = false
+        AND l.categoria IN :categorias
+        AND l.precio.moneda IN :monedas
+        AND l.precio.monto BETWEEN :precioMinimo AND :precioMaximo
         """)
     Page<LibroEntity> listarLibros(@Param("palabraTitulo") String palabraTitulo,
                                    @Param("estado") EstadoLibro estado,
+                                   @Param("categorias") Collection<CategoriaLibro> categorias,
+                                   @Param("monedas") Collection<Moneda> monedas,
+                                   @Param("precioMinimo") BigDecimal precioMinimo,
+                                   @Param("precioMaximo") BigDecimal precioMaximo,
                                    Pageable pageable);
 
     @Query("""
