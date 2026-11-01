@@ -28,6 +28,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
+import com.uniquindio.ecommercelibros.domain.valueObject.CategoriaLibro;
+import com.uniquindio.ecommercelibros.domain.valueObject.Moneda;
+
+
 import java.net.URI;
 import java.util.List;
 import java.util.UUID;
@@ -50,16 +54,25 @@ public class LibroController {
     private final ListarLibrosMasVendidosUseCase listarLibrosMasVendidosUseCase;
     private final LibroMapper mapper;
 
-    @Operation(summary = "Listar libros (paginado)",
-            description = "Filtra por palabra en el título y por estado (por defecto DISPONIBLE). Excluye los libros eliminados.")
-    @ApiResponse(responseCode = "200", description = "Página de libros")
+@Operation(summary = "Listar libros (paginado)",
+            description = "Filtra por palabra en el título, estado (por defecto DISPONIBLE), categoría y rango de precio. "
+                    + "Para filtrar por precio se debe indicar la moneda. Excluye los libros eliminados.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Página de libros"),
+            @ApiResponse(responseCode = "400", description = "Página, tamaño, categoría o rango de precio inválidos", content = @Content)
+    })
     @GetMapping
     public PaginaResponse<LibroDetalleResponse> listarLibros(
             @Parameter(description = "Palabra a buscar en el título") @RequestParam(name = "palabra", required = false) String palabra,
             @Parameter(description = "Estado del libro (por defecto DISPONIBLE)") @RequestParam(name = "estado", required = false) EstadoLibro estado,
+            @Parameter(description = "Categoría del libro") @RequestParam(name = "categoria", required = false) CategoriaLibro categoria,
+            @Parameter(description = "Precio mínimo (incluido)") @RequestParam(name = "precioMin", required = false) Double precioMin,
+            @Parameter(description = "Precio máximo (incluido)") @RequestParam(name = "precioMax", required = false) Double precioMax,
+            @Parameter(description = "Moneda del rango de precio (obligatoria si se envía precioMin o precioMax)") @RequestParam(name = "moneda", required = false) Moneda moneda,
             @Parameter(description = "Número de página, desde 0") @RequestParam(name = "pagina", defaultValue = "0") int pagina,
             @Parameter(description = "Tamaño de página") @RequestParam(name = "tamanio", defaultValue = "10") int tamanio) {
-        return PaginaResponse.desde(listarLibros.ejecutar(palabra, estado, pagina, tamanio),
+        return PaginaResponse.desde(
+                listarLibros.ejecutar(palabra, estado, categoria, precioMin, precioMax, moneda, pagina, tamanio),
                 LibroDetalleResponse::desde);
     }
 
