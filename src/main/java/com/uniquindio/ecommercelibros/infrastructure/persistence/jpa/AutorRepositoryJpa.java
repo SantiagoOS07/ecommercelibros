@@ -22,21 +22,21 @@ public class AutorRepositoryJpa implements AutorRepository {
     @Override
     @Transactional(readOnly = true)
     public Optional<Autor> buscarPorIdAutor(String idAutor) {
-        return dataRepository.findById(idAutor)
+        return dataRepository.findByIdAutorAndEliminadoFalse(idAutor)
                 .map(mapper::toDomain);
     }
 
     @Override
     @Transactional(readOnly = true)
     public Optional<Autor> buscarPorNombre(String nombreAutor) {
-        return dataRepository.findFirstByNombreAutorIgnoreCase(nombreAutor)
+        return dataRepository.findFirstByNombreAutorIgnoreCaseAndEliminadoFalse(nombreAutor)
                 .map(mapper::toDomain);
     }
 
     @Override
     @Transactional(readOnly = true)
     public List<Autor> listarTodos() {
-        return dataRepository.findAll()
+        return dataRepository.findByEliminadoFalseOrderByNombreAutorAsc()
                 .stream()
                 .map(mapper::toDomain)
                 .toList();
@@ -48,7 +48,8 @@ public class AutorRepositoryJpa implements AutorRepository {
     }
 
     @Override
-    public void eliminarAutor(String idAutor) {
-        dataRepository.deleteById(idAutor);
+    @Transactional(readOnly = true)
+    public boolean existePorId(String idAutor) {
+        return dataRepository.existsById(idAutor);
     }
 }
