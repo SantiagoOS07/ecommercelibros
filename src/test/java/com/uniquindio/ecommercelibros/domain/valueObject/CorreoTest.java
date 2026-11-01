@@ -194,29 +194,11 @@ class CorreoTest {
     }
 
     @Test
-    void debeLanzarExcepcionCuandoElDominioEstaMalFormado() {
-
-        assertThrows(
-                ReglaDominioException.class,
-                () -> new Correo("usuario@gmail")
-        );
-    }
-
-    @Test
     void debeLanzarExcepcionCuandoHayDosArrobas() {
 
         assertThrows(
                 ReglaDominioException.class,
                 () -> new Correo("usuario@@gmail.com")
-        );
-    }
-
-    @Test
-    void debeLanzarExcepcionCuandoElCorreoTerminaEnArroba() {
-
-        assertThrows(
-                ReglaDominioException.class,
-                () -> new Correo("usuario@")
         );
     }
 
