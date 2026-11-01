@@ -9,7 +9,7 @@ public enum Nacionalidad {
     AUSTRIACA,
     BELGA,
     BOLIVIANA,
-    BRASILEÑA,
+    BRASILENIA,
     BRITANICA,
     BULGARA,
     CANADIENSE,
