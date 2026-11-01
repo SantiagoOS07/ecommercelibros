@@ -1,6 +1,6 @@
 package com.uniquindio.ecommercelibros.aplication.dto.request.usuario;
 
-import com.uniquindio.ecommercelibros.domain.valueObject.RolUsuario;
+
 import jakarta.validation.constraints.*;
 
 /** POST /usuarios */
