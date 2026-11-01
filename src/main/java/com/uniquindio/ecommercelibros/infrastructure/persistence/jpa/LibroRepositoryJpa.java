@@ -27,11 +27,12 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 @Transactional
 public class LibroRepositoryJpa implements LibroRepository {
-    
+
+   
+    private static final BigDecimal PRECIO_MAXIMO_COLUMNA = new BigDecimal("9999999999.99");
 
     private final LibroJpaDataRepository dataRepository;
     private final LibroPersistenceMapper mapper;
-    private static final BigDecimal PRECIO_MAXIMO_COLUMNA = new BigDecimal("9999999999.99");
 
     @Override
     @Transactional(readOnly = true)
@@ -126,5 +127,3 @@ public class LibroRepositoryJpa implements LibroRepository {
         return dataRepository.buscarLibrosMasVendidos(EstadoPedido.ENTREGADO, PageRequest.of(0, limite));
     }
 }
-
-

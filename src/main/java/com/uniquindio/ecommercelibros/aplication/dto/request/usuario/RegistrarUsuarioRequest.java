@@ -1,9 +1,11 @@
 package com.uniquindio.ecommercelibros.aplication.dto.request.usuario;
 
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Pattern;
+import jakarta.validation.constraints.Size;
 
-import jakarta.validation.constraints.*;
-
-/** POST /usuarios */
+/** POST /api/usuarios (registro público; el rol siempre es CLIENTE) */
 public record RegistrarUsuarioRequest(
         @NotBlank(message = "El nombre del usuario es obligatorio")
         @Size(max = 100, message = "El nombre no puede superar los 100 caracteres")

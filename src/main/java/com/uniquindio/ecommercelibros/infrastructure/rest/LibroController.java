@@ -9,8 +9,10 @@ import com.uniquindio.ecommercelibros.aplication.usecase.libro.*;
 import com.uniquindio.ecommercelibros.domain.entity.Libro;
 import com.uniquindio.ecommercelibros.domain.exception.RecursoNoEncontradoException;
 import com.uniquindio.ecommercelibros.domain.repository.LibroVentas;
+import com.uniquindio.ecommercelibros.domain.valueObject.CategoriaLibro;
 import com.uniquindio.ecommercelibros.domain.valueObject.EstadoLibro;
 import com.uniquindio.ecommercelibros.domain.valueObject.FechaPublicacion;
+import com.uniquindio.ecommercelibros.domain.valueObject.Moneda;
 import com.uniquindio.ecommercelibros.domain.valueObject.NombreLibro;
 import com.uniquindio.ecommercelibros.domain.valueObject.NumeroPaginas;
 import com.uniquindio.ecommercelibros.domain.valueObject.Precio;
@@ -27,10 +29,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
-
-import com.uniquindio.ecommercelibros.domain.valueObject.CategoriaLibro;
-import com.uniquindio.ecommercelibros.domain.valueObject.Moneda;
-
 
 import java.net.URI;
 import java.util.List;
@@ -54,7 +52,7 @@ public class LibroController {
     private final ListarLibrosMasVendidosUseCase listarLibrosMasVendidosUseCase;
     private final LibroMapper mapper;
 
-@Operation(summary = "Listar libros (paginado)",
+    @Operation(summary = "Listar libros (paginado)",
             description = "Filtra por palabra en el título, estado (por defecto DISPONIBLE), categoría y rango de precio. "
                     + "Para filtrar por precio se debe indicar la moneda. Excluye los libros eliminados.")
     @ApiResponses({

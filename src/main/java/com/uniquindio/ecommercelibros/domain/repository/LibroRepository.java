@@ -13,14 +13,12 @@ public interface LibroRepository {
     List<Libro> buscarPorAutor(String autor);
     void guardarLibro(Libro libro);
     boolean existePorIsbn(String isbn);
+    Pagina<Libro> buscarLibros(FiltroLibros filtro, int pagina, int tamanio);
+
 
     default Pagina<Libro> buscarLibros(String palabraTitulo, EstadoLibro estado, int pagina, int tamanio) {
         return buscarLibros(FiltroLibros.porTituloYEstado(palabraTitulo, estado), pagina, tamanio);
     }
     Map<String, String> buscarTitulosPorIsbn(Collection<String> isbns);
     List<LibroVentas> buscarLibrosMasVendidos(int limite);
-
-        Pagina<Libro> buscarLibros(FiltroLibros filtro, int pagina, int tamanio);
-
-    
 }

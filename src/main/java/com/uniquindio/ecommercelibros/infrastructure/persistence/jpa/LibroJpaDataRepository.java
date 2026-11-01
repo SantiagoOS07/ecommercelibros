@@ -27,11 +27,11 @@ public interface LibroJpaDataRepository
 
     List<LibroEntity> findByIdAutor(String idAutor);
 
-    List<LibroEntity> findByCategoria(com.uniquindio.ecommercelibros.domain.valueObject.CategoriaLibro categoria);
+    List<LibroEntity> findByCategoria(CategoriaLibro categoria);
 
     List<LibroEntity> findByEstado(EstadoLibro estado);
 
-        /**
+    /**
      * Listado paginado. Nunca devuelve libros eliminados.
      * Los filtros opcionales llegan siempre con valor (todas las categorías/monedas, rango 0..máximo)
      * para no depender de "(:param IS NULL OR ...)", que H2 rechaza con parámetros sin tipo.

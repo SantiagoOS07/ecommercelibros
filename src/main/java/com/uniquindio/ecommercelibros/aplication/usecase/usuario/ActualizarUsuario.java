@@ -36,6 +36,7 @@ public class ActualizarUsuario {
     public void actualizarCorreo(String idUsuario, Correo nuevoCorreo) {
         Usuario usuario = obtenerUsuario(idUsuario);
 
+        
         if (!usuario.getCorreo().correo().equalsIgnoreCase(nuevoCorreo.correo())) {
             verificadorDeUsuario.verificarQueCorreoNoExiste(nuevoCorreo.correo());
         }
