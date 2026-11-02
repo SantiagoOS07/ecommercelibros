@@ -1,5 +1,11 @@
 # ECOMMERCE LIBROS
 
+## Correcciones de la Entrega 1
+
+| Observación que me dieron | Qué cambiamos | Dónde se ve (archivo o rama) |
+| --- | --- | --- |
+| Al completar la venta del carrito no se verificaba que hubiera stock disponible. | (1) El ítem del carrito guarda el stock conocido del libro y `Carrito` lo valida con `verificarStockDisponible()` tanto en `confirmarCarrito()` como en `completarVentaCarrito()` (regla rota → 422). (2) `VerificadorDeCarrito.actualizarStockItemsCarritoCreado` mantiene sincronizado ese stock en los carritos CREADO cuando cambia el stock del libro (`ActualizarLibro.actualizarStock`) o se completa una venta. (3) Al completar la venta, `CompletarVentaCarrito` llama a `Libro.descontarStock`, que valida contra el stock real y lanza `StockInsuficienteException` (409); como el caso de uso es `@Transactional`, nada se guarda a medias. | `Carrito.java`, `ItemCarrito.java`, `VerificadorDeCarrito.java`, `Libro.java`, `CompletarVentaCarrito.java`, `ActualizarLibro.java`|
+
 # Pruebas Avanzadas
 
 Parte 0 · Pruebas del repositorio
@@ -111,8 +117,10 @@ Tenemos un GlobalExceptionHandler donde cada @ExceptionHandler captura un tipo d
 carga, porque es un @ControllerAdvice. El mapeo que tenemos es:
 
 - 404: RecursoNoEncontradoException y NoSuchElementException.
-- 400: ReglaDominioException, CasillaVaciaException, IllegalArgumentException, validaciones (MethodArgumentNotValidException), JSON ilegible y UUID mal formado.
-- 409: DataIntegrityViolationException.
+- 400: CasillaVaciaException, IllegalArgumentException, validaciones (MethodArgumentNotValidException), JSON ilegible, UUID mal formado y parámetro faltante.
+- 422: ReglaDominioException (regla de negocio rota).
+- 409: RecursoDuplicadoException, StockInsuficienteException y DataIntegrityViolationException.
+- 401 / 403: errores de autenticación y de permisos.
 - 500: cualquier otra excepción inesperada.
 
 

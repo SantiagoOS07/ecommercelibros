@@ -122,6 +122,7 @@ public class Carrito {
         }
 
         verificarTransaccion(EstadoCarrito.VENDIDO);
+        verificarStockDisponible();
         Precio totalVenta = calcularPrecioTotal();
         List<ItemVenta> itemsVenta = procesarItemsCarrito();
 

@@ -54,7 +54,7 @@ public interface LibroJpaDataRepository
                                    Pageable pageable);
 
     @Query("""
-        SELECT new com.uniquindio.ecommercelibros.domain.repository.LibroVentas(l.idLibro, l.titulo, COUNT(iv))
+        SELECT new com.uniquindio.ecommercelibros.domain.repository.LibroVentas(l.isbn, l.titulo, COUNT(iv))
         FROM LibroEntity l
         JOIN VentaEntity v ON v.estadoVenta = :estado
         JOIN v.items iv ON l.isbn = iv.isbn.isbn
