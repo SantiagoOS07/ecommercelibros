@@ -1,131 +1,136 @@
 # ECOMMERCE LIBROS
 
+**Nicho:** ecommerce de libros. Los proveedores publican libros en el catálogo y los clientes los compran mediante un carrito, con ventas, entregas y reembolsos.
+
+**Integrantes:** Santiago Ospina Sanchez, Sharif Giraldo Obando, Juan Sebastian Hernandez
+
+**Materia:** Programación Avanzada · Universidad del Quindío
+
+## Tecnologías
+
+Java 21, Spring Boot 4, Spring Security con JWT, Spring Data JPA, H2 en memoria, Swagger (springdoc), JUnit 5 y Mockito. Arquitectura hexagonal: `domain`, `aplication`, `infrastructure`.
+
+## Cómo ejecutar
+
+1. Clonar el repositorio y entrar a la carpeta del proyecto.
+2. Ejecutar el archivo para iniciar la aplicación: `EcommercelibrosApplication.java`
+3. Abrir Swagger: `http://localhost:8080/swagger-ui.html`
+4. Consola de H2: `http://localhost:8080/h2-console` (JDBC URL `jdbc:h2:mem:ecommercedb`, usuario `sa`, contraseña vacía).
+5. Ejecutar las pruebas:
+
+```
+./gradlew test
+```
+
+Al arrancar se cargan datos de prueba desde `src/main/resources/data/` (`usuarios-autores.sql`, `libros-carritos.sql`, `ventas.sql`). La clave del JWT se toma de la variable `JWT_SECRET` (hay un valor por defecto en `application.properties`) y la duración del token está en `jwt.expiry` (60 minutos).
+
+Para usar el token en Swagger: hacer `POST /api/auth/login`, copiar el valor de `token`, pulsar **Authorize** y pegarlo.
+
+## Usuarios de prueba
+
+| Rol | Correo | Contraseña |
+| --- | --- | --- |
+| ADMINISTRADOR | admin@libros.com | Admin12345 |
+| PROVEEDOR (vendedor) | proveedor@libros.com | Proveedor123 |
+| CLIENTE (comprador) | cliente1@libros.com | Cliente123 |
+| CLIENTE (comprador) | cliente2@libros.com | Cliente123 |
+| CLIENTE inactivo (no puede iniciar sesión) | inactivo@libros.com | Inactivo123 |
+
+`cliente1@libros.com` es dueño de un carrito de prueba en estado CREADO.
+
+## Endpoints principales
+
+Todos los endpoints cuelgan de `/api`. Sin token responde 401 y con un rol sin permiso responde 403.
+
+| Recurso | Endpoint | Quién puede |
+| --- | --- | --- |
+| Auth | `POST /auth/login` | Público |
+| Usuarios | `POST /usuarios` (registro como CLIENTE) | Público |
+| | `GET /usuarios/{id}`, `PUT /usuarios/{id}/nombre`, `/correo`, `/telefono`, `/direccion`, `/contrasenia` | El propio usuario o ADMINISTRADOR |
+| | `GET /usuarios`, `GET /usuarios/correo/{correo}`, `PUT /usuarios/{id}/rol`, `PUT /usuarios/{id}/reactivar`, `DELETE /usuarios/{id}` | ADMINISTRADOR |
+| Libros | `GET /libros` (paginado con filtros), `GET /libros/{id}`, `/isbn/{isbn}`, `/nombre/{nombre}`, `/autor/{nombreAutor}`, `/mas-vendidos` | Público |
+| | `POST /libros`, `PUT /libros/{id}/titulo`, `/descripcion`, `/numero-paginas`, `/precio`, `/stock`, `/edicion`, `/editorial`, `/fecha-publicacion`, `/categoria`, `/imagen`, `/agotar`, `/reactivar`, `/descontinuar`, `DELETE /libros/{id}` | PROVEEDOR o ADMINISTRADOR |
+| Autores | `GET /autores`, `/autores/{id}`, `/autores/nombre/{nombre}`, `/autores/{id}/libros` | Público |
+| | `POST /autores`, `PUT /autores/{id}/nombre`, `/biografia`, `POST /autores/{id}/nacionalidades`, `DELETE /autores/{id}/nacionalidades/{nacionalidad}` | PROVEEDOR o ADMINISTRADOR |
+| | `DELETE /autores/{id}` | ADMINISTRADOR |
+| Editoriales | `GET /editoriales`, `GET /editoriales/{id}` | Autenticado |
+| | `POST /editoriales` | PROVEEDOR o ADMINISTRADOR |
+| Carritos | `POST /carritos`, `GET /carritos/{id}`, `GET /carritos?idUsuario=`, `POST /carritos/{id}/items`, `PUT /carritos/{id}/items/{idLibro}`, `DELETE /carritos/{id}/items/{idLibro}`, `PUT /carritos/{id}/confirmar`, `/cancelar-confirmacion`, `/completar-venta`, `DELETE /carritos/{id}` | Dueño del carrito o ADMINISTRADOR |
+| | `GET /carritos` (todos) | ADMINISTRADOR |
+| Ventas | `GET /ventas/{id}`, `GET /ventas?idUsuario=`, `PUT /ventas/{id}/cancelar`, `PUT /ventas/{id}/reembolso` | Dueño de la venta o ADMINISTRADOR |
+| | `PUT /ventas/{id}/estado` (PREPARANDO → ENVIADO → ENTREGADO) | PROVEEDOR o ADMINISTRADOR |
+
+**Flujo de punta a punta:** login como PROVEEDOR → `POST /libros` → login como CLIENTE → `POST /carritos` → `POST /carritos/{id}/items` → `PUT /carritos/{id}/confirmar` → `PUT /carritos/{id}/completar-venta` → login como PROVEEDOR → `PUT /ventas/{id}/estado` (dos veces hasta ENTREGADO) → login como CLIENTE → `PUT /ventas/{id}/reembolso`.
+
+## Códigos de error
+
+- **400:** datos inválidos o vacíos (`@Valid`, `CasillaVaciaException`, JSON ilegible, UUID mal formado, parámetro faltante).
+- **401 / 403:** sin token o con rol sin permiso.
+- **404:** el recurso no existe (`RecursoNoEncontradoException`, `NoSuchElementException`).
+- **409:** `RecursoDuplicadoException`, `StockInsuficienteException` y `DataIntegrityViolationException`.
+- **422:** regla de negocio rota (`ReglaDominioException`).
+- **500:** error inesperado.
+
 ## Correcciones de la Entrega 1
 
 | Observación que me dieron | Qué cambiamos | Dónde se ve (archivo o rama) |
 | --- | --- | --- |
-| Al completar la venta del carrito no se verificaba que hubiera stock disponible. | (1) El ítem del carrito guarda el stock conocido del libro y `Carrito` lo valida con `verificarStockDisponible()` tanto en `confirmarCarrito()` como en `completarVentaCarrito()` (regla rota → 422). (2) `VerificadorDeCarrito.actualizarStockItemsCarritoCreado` mantiene sincronizado ese stock en los carritos CREADO cuando cambia el stock del libro (`ActualizarLibro.actualizarStock`) o se completa una venta. (3) Al completar la venta, `CompletarVentaCarrito` llama a `Libro.descontarStock`, que valida contra el stock real y lanza `StockInsuficienteException` (409); como el caso de uso es `@Transactional`, nada se guarda a medias. | `Carrito.java`, `ItemCarrito.java`, `VerificadorDeCarrito.java`, `Libro.java`, `CompletarVentaCarrito.java`, `ActualizarLibro.java`|
+| Al completar la venta del carrito no se verificaba que hubiera stock disponible. | (1) El ítem del carrito guarda el stock conocido del libro y `Carrito` lo valida con `verificarStockDisponible()` tanto en `confirmarCarrito()` como en `completarVentaCarrito()` (regla rota → 422). (2) `VerificadorDeCarrito.actualizarStockItemsCarritoCreado` mantiene sincronizado ese stock en los carritos CREADO cuando cambia el stock del libro (`ActualizarLibro.actualizarStock`) o se completa una venta. (3) Al completar la venta, `CompletarVentaCarrito` llama a `Libro.descontarStock`, que valida contra el stock real y lanza `StockInsuficienteException` (409); como el caso de uso es `@Transactional`, nada se guarda a medias. | `Carrito.java`, `ItemCarrito.java`, `VerificadorDeCarrito.java`, `Libro.java`, `CompletarVentaCarrito.java`, `ActualizarLibro.java`. Pruebas: `CarritoTest`, `CompletarVentaCarritoTest` |
 
-# Pruebas Avanzadas
+## Pruebas avanzadas
 
-Parte 0 · Pruebas del repositorio
+Ejecutamos `./gradlew test` y pasan las 603 pruebas en verde. Todas siguen el patrón AAA (preparar, ejecutar, verificar).
 
-¿Por qué probar el repositorio contra una base de datos de verdad (H2) y no con Mockito?
+### Parte 0 · Pruebas del repositorio
 
-Con Mockito se simula y prueba el llamado al repositorio, ideal para las pruebas aisladas de cada clas, pero no se verifica que funcione como es debido. 
-Al usar el H2 real se verfifca que el SQL, sus columnas y las restricciones que se establecieron, 
-ademas de la consulta paginada funcionen correctamente.
+**¿Por qué probar contra H2 y no con Mockito?** Con Mockito solo comprobábamos que se llamaba al repositorio, no que el SQL, las columnas y las restricciones funcionaran. Con H2 sí vemos que lo que guardamos es lo que recuperamos.
 
+**¿Qué hace `@Transactional` en un test?** Ejecuta la prueba dentro de una transacción y al terminar hace rollback, así que los datos de una prueba no afectan a las otras.
 
-¿Qué hace @Transactional en un test (deshace lo que se guardó al terminar)?
+**¿Qué es el mapper y por qué la prueba también lo comprueba?** Es la clase que convierte la entidad de dominio en entidad JPA y al revés (`Libro` ↔ `LibroEntity`). Al guardar y recuperar, la prueba también verifica que esa conversión no pierda datos.
 
-Lo que hace @Transactional como lo dice su nombre es ejecutar las pruebas en una transacccion, asi que los datos modificados en ese test de la base de datos no afectan otras pruebas. Ademas al finalizar el test todo se revierte automaticamente, lo que se conoce como rollback.
+Las pruebas que hicimos:
+- **Guardar y recuperar:** `LibroRepositoryJpaTest` comprueba que el libro vuelve con su título, ISBN, precio (Value Object con monto y moneda), stock, categoría y estado intactos.
+- **Paginación:** en `LibroRepositoryJpaTest` guardamos 5 libros que coinciden con la búsqueda, uno agotado y otro que no coincide. Pedimos páginas de 2 y comprobamos el total (5), las páginas (3) y el orden por título.
 
+### Parte 1 · Probar un endpoint con seguridad (401, 403 y 200)
 
-¿Qué es el mapper y por qué esta prueba también lo comprueba?
+Elegimos `GET /api/carritos`, que solo puede usar el ADMINISTRADOR. `spring-security-test` nos deja probar rutas protegidas sin hacer login real, y el `jwt()` hace que la petición llegue como si ya trajera un token con el rol y el `uid` que le indiquemos.
 
-El mapper es una clase encargada de convertir las entidades a su version Entity, osea las entidades de dominio a su version de persistencia. Por ejemplo Libro a LibroEntity y devuelta, con sus metodo ToDomain y ToEntity. En esta prueba al guardar y leer tambien es necesario
-validar que se convierte correctamente ya que esta conversion nos permite la insercion y modificacion de los datos guardados en la base de datos.
+En `SeguridadDuenoRecursoTest` hicimos las tres pruebas: sin token responde 401, con token de CLIENTE responde 403 y con token de ADMINISTRADOR responde 200.
 
+Un `@WebMvcTest` solo levanta la capa web y no carga nuestra `SecurityFilterChain`, así que usamos `@SpringBootTest` con `@AutoConfigureMockMvc` para probar la seguridad real. Es más lento, pero así el resultado refleja nuestras reglas.
 
+**Lo que más nos costó:** al agregar la seguridad, los tests de controller empezaron a fallar con 401 y 403 y no entendíamos por qué. Lo resolvimos con `@AutoConfigureMockMvc(addFilters = false)` en los `@WebMvcTest` y dejando la seguridad real para esta clase. También nos tocó escribir las autoridades sin el prefijo `ROLE_`, igual que en nuestro `JwtGrantedAuthoritiesConverter`.
 
-Parte 1 · Probar un endpoint con seguridad (401, 403 y 200)
+### Parte 2 · `@DataJpaTest` contra `@SpringBootTest`
 
-¿Para qué sirve spring-security-test?
+`@DataJpaTest` levanta solo la persistencia (entidades y repositorios JPA), sin controllers, casos de uso ni seguridad. `@SpringBootTest` levanta toda la aplicación. Por eso en `@DataJpaTest` tuvimos que traer nuestras clases con `@Import` (`LibroRepositoryJpa` y `LibroPersistenceMapper`), y en `@SpringBootTest` no hace falta.
 
-Sirve para probar endpoints protegidos sin tener que hacer el login de verdad. Trae herramientas para simular que ya hay un usuario autenticado, y para conectar Spring 
-Security con Mockito. Sin esto, tendríamos que pedir un token real en cada test, y quedarían lentos y enredados.
+Por defecto `@DataJpaTest` reemplaza la base configurada por una H2 en memoria, y `@AutoConfigureTestDatabase` controla ese cambio. Además hace rollback solo, mientras que en `@SpringBootTest` hay que poner `@Transactional`. A cambio, arranca bastante más rápido.
 
-¿Qué hace el jwt() de SecurityMockMvcRequestPostProcessors?
+En Spring Boot 4 el soporte de pruebas se separó en módulos: `@DataJpaTest` ahora está en `org.springframework.boot.data.jpa.test.autoconfigure`. Lo resolvimos agregando en el `build.gradle` los starters `spring-boot-starter-data-jpa-test`, `spring-boot-starter-webmvc-test` y `spring-boot-starter-validation-test`, además de `spring-security-test`.
 
-Hace que la petición llegue como si ya viniera con un usuario autenticado, sin llamar al login ni validar nada. Con esto se puede decidir qué roles o datos trae el token, y así probar los tres casos. 
-Por ejemplo, si POST /libros fuera solo para administradores:
+Nuestras pruebas con `@DataJpaTest` están en `LibroJpaDataRepositoryTest` (búsqueda por texto y paginación solo de disponibles) y `LibroFiltrosRepositoryTest`.
 
-- Sin jwt(), el usuario no está autenticado y debería darnos 401.
-- Con jwt() pero sin el rol de administrador, debería darnos 403.
-- Con jwt() y el rol de administrador, debería funcionar y devolver el éxito, osea un 201 si estamos creando algo.
+**Lo que más nos costó:** con el import viejo no compilaba y tardamos en encontrar el paquete nuevo. Después nos falló el test diciendo que no encontraba el bean del repositorio, y era porque faltaba el `@Import`.
 
+### Parte 3 · Prueba de integración
 
-¿Por qué un @WebMvcTest no carga nuestra SecurityFilterChain y cómo se prueba contra la seguridad real?
+Una prueba de integración recorre el sistema real (controller, caso de uso, repositorio y base de datos) sin simular nada. Una unitaria prueba una sola clase con mocks: es muy rápida, pero solo confirma que se llamó a otras clases, no que funcionen juntas.
 
-Porque solo levanta la capa web como los controladores y deja por fuera las las clases de configuracion, como nuestro SecurityConfig. Entonces se aplica la seguridad por 
-defecto de Spring Boot, y el test puede dar resultados que no tienen que ver con nuestras reglas. Para probar la seguridad real hay dos formas: importar la configuración a mano con @Import(SecurityConfig.class), 
-o usar @SpringBootTest con @AutoConfigureMockMvc, como ya hacemos en nuestra prueba de integración, lo que es mas lento pero mas completo.
+Las de integración son más lentas, pero detectan errores que las unitarias no ven, como un DTO mal mapeado, una consulta que falla o una regla de seguridad mal escrita. Por eso hicimos pocas, para los flujos importantes, y dejamos los casos de borde para las unitarias.
 
+`CarritoLibroIntegracionTest` registra un libro, crea un carrito, agrega el ítem y consulta el carrito comprobando el título, la cantidad y el total. También prueba que un libro eliminado da 404 y que no se puede eliminar un libro que está en un carrito PROCESANDO (422). No usa ningún `@MockitoBean`.
 
-Parte 2 · @DataJpaTest contra @SpringBootTest
+**Lo que más nos costó:** que las pruebas no se estorbaran entre sí. Lo logramos usando `@Transactional` y ISBN e ids únicos en cada una.
 
-¿Qué levanta cada una (@DataJpaTest solo la capa de persistencia, @SpringBootTest la aplicación completa)?
+### Parte 4 · Más casos en el controller
 
-El @DataJpaTest solo levanta la capa de persistenca, esto incluye las entidades y los repositorios JPA, pero no incluye los controllers, servicios ni seguridad. En cambio @SpringBootTest levanta la aplicacion
-por completo.
+**¿Cómo hacemos que un mock lance una excepción?** Con `when(mock.metodo(...)).thenThrow(...)`. Si el método es `void` usamos `doThrow(...).when(mock).metodo(...)`, como en `AutorControllerTest` y `UsuarioControllerTest`.
 
+**¿Cómo convierte el `@RestControllerAdvice` cada excepción en un código HTTP?** Nuestro `GlobalExceptionHandler` tiene un `@ExceptionHandler` por tipo de excepción y arma una respuesta JSON con timestamp, status y mensaje. En un `@WebMvcTest` sí se carga porque es un `@ControllerAdvice`. Los códigos están en la sección "Códigos de error".
 
-¿Qué base de datos usa @DataJpaTest por defecto y cómo cambiarlo (pista: @AutoConfigureTestDatabase)?
+**¿Qué hace `verify(mock, never()).metodo(...)`?** Comprueba que ese método nunca se llamó. Con él demostramos que, cuando algo falla, no se sigue de largo.
 
-@DataJpaTest reemplaza nuestra base y usa la H2. El control de si se realiza ese cambio o no, de acuerdo a la situacion lo realiza @AutoConfigureTestDatabase.
-
-
-¿Qué pasa con @Transactional en cada una?
-
-@DataJpaTest revierte automaticamente por si solo, por lo tanto no es necesario declararlo. En cambio en @SpringBootTest no se hace automaticamente, entonces nosotros debemos ponerlo en cada metodo o en la clase en general.
-
-
-¿Qué cambió en Spring Boot 4 con el paquete de @DataJpaTest y por qué hace falta un starter de pruebas?
-
-En Spring Boot 4 todo el soporte de rpuebas se dividio en diferente modulos. Y como estas clases ya no vienen incluidas en el starter de pruebas nos fue necesario añadir 
-spring-boot-starter-data-jpa-test, spring-boot-starter-validation-test y spring-boot-starter-webmvc-test, ya que sin ellos ni @DataJpaTest o @AutoConfigureMockMvc funcionan correctamente.
-
-
-
-Parte 3 · Pruebas de integración
-
-¿ Qué es una prueba de integración y en qué se diferencia de una unitaria ?
-
-Una prueba integracion recorre varias entidades o incluso toda la aplicacion. Desde el controller, pasa por casos de uso, repositorios hasta la base, ademas no hace uso de Mockito.
-En cambio las pruebas unitarias examinan las entidades o simples unidades de codigo en test aislados usando Mocks, lo cual es mucho mas rapido pero no nos verifica su correcta integracion con 
-las demas clases.
-
-
-¿ Qué ventajas y desventajas tiene (velocidad, qué errores detecta que las otras no) ?
-
-En terminos de velocidad las prubas unitarias ganan, ya que solo examinan clases aisladas, ademas que usan los Mocks, pero solo verifican los llamados a otras clases. Por 
-otro lado las pruebas de integracion son mucho mas lentas, pero verifican las respuestas de los diferentes pasos desde los controllers hasta la base principal y su correcto funcionamiento.
-
-
-¿ Cuándo conviene usar una y cuándo no ?
-
-Lo mejor es usar ambos tipos de pruebas, primero evaluar el comportamiento de las clases de manera aislada, para ver su funcionamiento base. Ya luego de hacr estas pruebas 
-podemos pasar a las pruebas de integracion y verificar su correcta integracion con las demas clases, no solo como llaman o que responden, si no como lo hacen, el proceso que hay detras y si
-realmente se llevan a cabo los procesos esperados y se nos dan las respuestas correctas.
-
-
-
-Parte 4 · Más casos en el controller
-
-
-¿Cómo hacer que un mock lance una excepción?
-
-Con when(mock.metodo.thenThrow(new Excepcion). Así le decimos al mock “cuando te llamen con esto, en vez de devolver algo, lanza este error”. En LibroControllerErroresTest 
-lo hacemos con el caso de uso registrarLibro: lanza una ReglaDominioException y comprobamos cómo responde el controller. Si el método 
-del mock es void, when no sirve y se usa doThrow, que es lo que hacemos en UsuarioControllerTest y AutorControllerTest.
-
-
-¿Cómo convierte nuestro @RestControllerAdvice cada excepción en un código HTTP?
-
-Tenemos un GlobalExceptionHandler donde cada @ExceptionHandler captura un tipo de excepción y arma la respuesta con un código y un mensaje en JSON. Con el @WebMvcTest ese handler sí se 
-carga, porque es un @ControllerAdvice. El mapeo que tenemos es:
-
-- 404: RecursoNoEncontradoException y NoSuchElementException.
-- 400: CasillaVaciaException, IllegalArgumentException, validaciones (MethodArgumentNotValidException), JSON ilegible, UUID mal formado y parámetro faltante.
-- 422: ReglaDominioException (regla de negocio rota).
-- 409: RecursoDuplicadoException, StockInsuficienteException y DataIntegrityViolationException.
-- 401 / 403: errores de autenticación y de permisos.
-- 500: cualquier otra excepción inesperada.
-
-
-¿Qué hace verify(mock, never()).metodo(...)?
-
-Comprueba que ese método del mock nunca se llamó durante el test. Lo usamos para demostrar que cuando algo falla no se sigue de largo. Por ejemplo, en LibroControllerErroresTest, 
-si mandamos un libro con datos inválidos, esperamos un 400 y verificamos que nunca se llamó a registrarLibro ni al mapper. Así nos aseguramos de que el controller frenó la petición 
-antes de llegar al caso de uso.
+En `LibroControllerErroresTest` hicimos la prueba de 404 (el libro no existe) y la de regla de negocio rota, que en nuestro proyecto responde 422 y no 400. En ambas verificamos con `never()` que no se llamó al mapper ni al caso de uso que no correspondía. Que `guardar` nunca se llama cuando algo falla lo comprobamos en los casos de uso, por ejemplo `RegistrarLibroUseCaseTest` y `CompletarVentaCarritoTest`.
