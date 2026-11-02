@@ -126,9 +126,8 @@ class CarritoLibroIntegracionTest {
         mockMvc.perform(put("/api/carritos/{id}/confirmar", idCarrito)
                         .with(cliente("usuario-procesando")))
                 .andExpect(status().isNoContent());
-
         mockMvc.perform(delete("/api/libros/{id}", idLibro).with(admin()))
-                .andExpect(status().isBadRequest());
+                .andExpect(status().is(422));
         mockMvc.perform(get("/api/libros/{id}", idLibro))
                 .andExpect(status().isOk());
     }

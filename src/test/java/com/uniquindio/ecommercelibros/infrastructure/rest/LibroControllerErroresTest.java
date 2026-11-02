@@ -75,14 +75,14 @@ class LibroControllerErroresTest {
     }
 
     @Test
-    void deberiaResponder400CuandoSeRompeUnaReglaDeNegocio() throws Exception {
+    void deberiaResponder422CuandoSeRompeUnaReglaDeNegocio() throws Exception {
         when(registrarLibro.registrarLibro(any()))
                 .thenThrow(new ReglaDominioException("Ya existe un libro registrado con ese ISBN"));
 
         mockMvc.perform(post("/api/libros")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(cuerpoValido()))
-                .andExpect(status().isBadRequest())
+                .andExpect(status().is(422))
                 .andExpect(jsonPath("$.mensaje").value("Ya existe un libro registrado con ese ISBN"));
 
         verify(registrarLibro).registrarLibro(any());

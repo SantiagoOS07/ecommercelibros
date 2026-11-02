@@ -1,5 +1,6 @@
 package com.uniquindio.ecommercelibros.infrastructure.rest;
 
+import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import com.uniquindio.ecommercelibros.aplication.dto.response.venta.VentaResponse;
 import com.uniquindio.ecommercelibros.aplication.usecase.venta.ActualizarEstadoVentaUseCase;
 import com.uniquindio.ecommercelibros.aplication.usecase.venta.CancelarVentaUseCase;
@@ -30,6 +31,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @WebMvcTest(VentaController.class)
+@AutoConfigureMockMvc(addFilters = false)
 class VentaControllerTest {
 
     private static final String BASE = "/api/ventas";
@@ -132,13 +134,13 @@ class VentaControllerTest {
     }
 
     @Test
-    void deberiaRetornar400CuandoElDominioRechazaLaActualizacionDeEstado() throws Exception {
+    void deberiaRetornar422CuandoElDominioRechazaLaActualizacionDeEstado() throws Exception {
         UUID idVenta = UUID.randomUUID();
         doThrow(new ReglaDominioException("Estado no actualizable"))
                 .when(actualizarEstadoVentaUseCase).ejecutar(idVenta);
 
         mockMvc.perform(put(BASE + "/{idVenta}/estado", idVenta))
-                .andExpect(status().isBadRequest())
+                .andExpect(status().is(422))
                 .andExpect(jsonPath("$.mensaje").value("Estado no actualizable"));
     }
 
@@ -163,14 +165,14 @@ class VentaControllerTest {
     }
 
     @Test
-    void deberiaRetornar400CuandoElDominioNoPermiteCancelar() throws Exception {
+    void deberiaRetornar422CuandoElDominioNoPermiteCancelar() throws Exception {
         UUID idVenta = UUID.randomUUID();
         doThrow(new ReglaDominioException("La venta solo puede cancelarse si esta en estado PREPARANDO."))
                 .when(cancelarVentaUseCase).ejecutar(idVenta);
 
         mockMvc.perform(put(BASE + "/{idVenta}/cancelar", idVenta))
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.status").value(400));
+                .andExpect(status().is(422))
+                .andExpect(jsonPath("$.status").value(422));
     }
 
     @Test
@@ -230,7 +232,7 @@ class VentaControllerTest {
     }
 
     @Test
-    void deberiaRetornar400CuandoElDominioRechazaElReembolso() throws Exception {
+    void deberiaRetornar422CuandoElDominioRechazaElReembolso() throws Exception {
         UUID idVenta = UUID.randomUUID();
         doThrow(new ReglaDominioException("La venta no es reembolsable"))
                 .when(solicitarReembolsoVentaUseCase).ejecutar(idVenta, "motivo");
@@ -238,7 +240,7 @@ class VentaControllerTest {
         mockMvc.perform(put(BASE + "/{idVenta}/reembolso", idVenta)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"motivo\": \"motivo\"}"))
-                .andExpect(status().isBadRequest())
+                .andExpect(status().is(422))
                 .andExpect(jsonPath("$.mensaje").value("La venta no es reembolsable"));
     }
 

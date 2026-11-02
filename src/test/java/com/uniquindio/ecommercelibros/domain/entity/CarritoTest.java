@@ -15,6 +15,25 @@ class CarritoTest {
     private static final ISBN ISBN_B = new ISBN("9789587580188");
 
     @Test
+    void noDebePermitirConfirmarSiElStockDelItemEsMenorALaCantidad() {
+        Carrito carrito = crearCarritoConItem();
+        carrito.actualizarItemStock(ISBN_A, new Stock(1));
+
+        assertThrows(ReglaDominioException.class, carrito::confirmarCarrito);
+        assertEquals(EstadoCarrito.CREADO, carrito.getEstado());
+    }
+
+    @Test
+    void noDebePermitirCompletarVentaSiElStockDelItemEsMenorALaCantidad() {
+        ItemCarrito item = ItemCarrito.reconstruir(UUID.randomUUID(), ISBN_A,
+                new Precio(20000, Moneda.COP), new Stock(1), 2, new Precio(40000, Moneda.COP));
+        Carrito carrito = Carrito.reconstruir(UUID.randomUUID(), "user-1", EstadoCarrito.PROCESANDO, List.of(item), false);
+
+        assertThrows(ReglaDominioException.class, carrito::completarVentaCarrito);
+        assertEquals(EstadoCarrito.PROCESANDO, carrito.getEstado());
+    }
+
+    @Test
     void dosCarritosConElMismoUsuarioDebenSerEntidadesDiferentes() {
         Carrito carrito1 = crearCarrito();
         Carrito carrito2 = crearCarrito();

@@ -1,5 +1,7 @@
 package com.uniquindio.ecommercelibros.aplication.usecase.carrito;
 
+import com.uniquindio.ecommercelibros.domain.entity.Libro;
+import com.uniquindio.ecommercelibros.domain.repository.LibroRepository;
 import com.uniquindio.ecommercelibros.domain.exception.RecursoNoEncontradoException;
 import com.uniquindio.ecommercelibros.aplication.usecase.Carrito.ActualizarCantidadItemCarrito;
 import com.uniquindio.ecommercelibros.domain.entity.Carrito;
@@ -20,25 +22,30 @@ import static org.mockito.Mockito.*;
 class ActualizarCantidadItemCarritoTest {
 
     private CarritoRepository carritoRepository;
+    private LibroRepository libroRepository;
     private ActualizarCantidadItemCarrito actualizarCantidad;
 
     @BeforeEach
     void setUp() {
         carritoRepository = mock(CarritoRepository.class);
-        actualizarCantidad =
-                new ActualizarCantidadItemCarrito(carritoRepository);
+        libroRepository = mock(LibroRepository.class);
+        actualizarCantidad = new ActualizarCantidadItemCarrito(carritoRepository, libroRepository);
     }
 
     @Test
     void actualizarCantidadCuandoCarritoExiste() {
         UUID idCarrito = UUID.randomUUID();
+        UUID idLibro = UUID.randomUUID();
         ISBN isbn = new ISBN("9783161484100");
         Carrito carrito = Carrito.crear("usuario-123");
         carrito.agregarItem(isbn, 1, new Precio(20000, Moneda.COP), new Stock(10));
-        when(carritoRepository.buscarPorIdCarrito(idCarrito))
-                .thenReturn(Optional.of(carrito));
+        Libro libro = mock(Libro.class);
+        when(libro.getIsbn()).thenReturn(isbn);
+        when(libro.getStock()).thenReturn(new Stock(10));
+        when(carritoRepository.buscarPorIdCarrito(idCarrito)).thenReturn(Optional.of(carrito));
+        when(libroRepository.buscarPorIdLibro(idLibro)).thenReturn(Optional.of(libro));
 
-        actualizarCantidad.ejecutar(idCarrito, isbn, 3, new Stock(10));
+        actualizarCantidad.ejecutar(idCarrito, idLibro, 3);
 
         assertEquals(3, carrito.getItems().getFirst().getCantidad());
         verify(carritoRepository).guardarCarrito(carrito);
@@ -47,18 +54,23 @@ class ActualizarCantidadItemCarritoTest {
     @Test
     void actualizarCantidadCuandoCarritoNoExiste() {
         UUID idCarrito = UUID.randomUUID();
+        when(carritoRepository.buscarPorIdCarrito(idCarrito)).thenReturn(Optional.empty());
 
-        when(carritoRepository.buscarPorIdCarrito(idCarrito))
-                .thenReturn(Optional.empty());
+        assertThrows(RecursoNoEncontradoException.class,
+                () -> actualizarCantidad.ejecutar(idCarrito, UUID.randomUUID(), 1));
 
-        assertThrows(RecursoNoEncontradoException.class, () ->
-                actualizarCantidad.ejecutar(
-                        idCarrito,
-                        mock(ISBN.class),
-                        1,
-                        mock(Stock.class)
-                )
-        );
+        verify(carritoRepository, never()).guardarCarrito(any());
+    }
+
+    @Test
+    void actualizarCantidadCuandoLibroNoExiste() {
+        UUID idCarrito = UUID.randomUUID();
+        UUID idLibro = UUID.randomUUID();
+        when(carritoRepository.buscarPorIdCarrito(idCarrito)).thenReturn(Optional.of(Carrito.crear("usuario-123")));
+        when(libroRepository.buscarPorIdLibro(idLibro)).thenReturn(Optional.empty());
+
+        assertThrows(RecursoNoEncontradoException.class,
+                () -> actualizarCantidad.ejecutar(idCarrito, idLibro, 1));
 
         verify(carritoRepository, never()).guardarCarrito(any());
     }

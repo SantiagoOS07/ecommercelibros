@@ -197,14 +197,14 @@ class AutorControllerTest {
     }
 
     @Test
-    @DisplayName("DELETE de un autor con libros responde 400")
-    void eliminarAutorConLibros_responde400() throws Exception {
+    @DisplayName("DELETE de un autor con libros responde 422")
+    void eliminarAutorConLibros_responde422() throws Exception {
         doThrow(new ReglaDominioException("No se puede eliminar un autor que tiene libros registrados"))
                 .when(eliminarAutor)
                 .eliminar("autor-1");
 
         mockMvc.perform(delete("/api/autores/{idAutor}", "autor-1"))
-                .andExpect(status().isBadRequest())
+                .andExpect(status().is(422))
                 .andExpect(jsonPath("$.mensaje").value("No se puede eliminar un autor que tiene libros registrados"));
     }
 

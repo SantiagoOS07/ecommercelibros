@@ -191,8 +191,8 @@ class UsuarioControllerTest {
     }
 
     @Test
-    @DisplayName("PUT de la contraseña con la actual incorrecta responde 400")
-    void cambiarContraseniaIncorrecta_responde400() throws Exception {
+    @DisplayName("PUT de la contraseña con la actual incorrecta responde 422")
+    void cambiarContraseniaIncorrecta_responde422() throws Exception {
         doThrow(new ReglaDominioException("La contraseña actual no es correcta."))
                 .when(actualizarUsuario)
                 .cambiarContrasenia("user-1", "OtraClave1", "NuevaClave456");
@@ -202,7 +202,7 @@ class UsuarioControllerTest {
                         .content("""
                                 { "contraseniaActual": "OtraClave1", "nuevaContrasenia": "NuevaClave456" }
                                 """))
-                .andExpect(status().isBadRequest())
+                .andExpect(status().is(422))
                 .andExpect(jsonPath("$.mensaje").value("La contraseña actual no es correcta."));
     }
 

@@ -1,5 +1,7 @@
 package com.uniquindio.ecommercelibros.infrastructure.rest;
 
+import com.uniquindio.ecommercelibros.domain.entity.Venta;
+import com.uniquindio.ecommercelibros.infrastructure.rest.mapper.VentaMapper;
 import com.uniquindio.ecommercelibros.aplication.dto.request.carrito.ActualizarCantidadItemCarritoRequest;
 import com.uniquindio.ecommercelibros.aplication.dto.request.carrito.AgregarItemCarritoRequest;
 import com.uniquindio.ecommercelibros.aplication.dto.response.carrito.CarritoResponse;
@@ -44,6 +46,7 @@ class CarritoControllerTest {
     @Mock private CompletarVentaCarrito completarVentaCarrito;
     @Mock private ConsultarCarritoPorID consultarCarritoPorID;
     @Mock private ObtenerTitulosCarritos obtenerTitulosCarritos;
+    @Mock private VentaMapper ventaMapper;
     @Mock private CarritoMapper mapper;
 
     @InjectMocks
@@ -137,12 +140,17 @@ class CarritoControllerTest {
     }
 
     @Test
-    void completarVenta_debeRetornar204() {
+    void completarVenta_debeRetornar200ConLaVenta() {
         UUID idCarrito = UUID.randomUUID();
+        Venta venta = mock(Venta.class);
+        VentaResponse response = mock(VentaResponse.class);
+        when(completarVentaCarrito.ejecutar(idCarrito)).thenReturn(venta);
+        when(ventaMapper.toResponseVenta(venta)).thenReturn(response);
 
         ResponseEntity<VentaResponse> resultado = controller.completarVenta(idCarrito);
 
-        assertEquals(204, resultado.getStatusCode().value());
+        assertEquals(200, resultado.getStatusCode().value());
+        assertSame(response, resultado.getBody());
         verify(completarVentaCarrito).ejecutar(idCarrito);
     }
 }

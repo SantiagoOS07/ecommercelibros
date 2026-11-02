@@ -56,9 +56,9 @@ class GlobalExceptionHandlerTest {
     }
 
     @Test
-    void reglaDominio_responde400() throws Exception {
+    void reglaDominio_responde422() throws Exception {
         mockMvc.perform(get("/prueba/regla"))
-                .andExpect(status().isBadRequest())
+                .andExpect(status().is(422))
                 .andExpect(jsonPath("$.mensaje").value("Regla rota"));
     }
 
