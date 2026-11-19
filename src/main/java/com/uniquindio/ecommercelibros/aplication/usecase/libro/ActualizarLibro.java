@@ -99,6 +99,20 @@ public class ActualizarLibro {
         libroRepository.guardarLibro(libro);
     }
 
+    @Transactional
+    public void aplicarDescuento(UUID idLibro, Descuento descuento){
+        Libro libro = obtenerLibro(idLibro);
+        libro.aplicarDescuento(descuento);
+        libroRepository.guardarLibro(libro);
+    }
+
+    @Transactional
+    public void quitarDescuento(UUID idLibro){
+        Libro libro = obtenerLibro(idLibro);
+        libro.quitarDescuento();
+        libroRepository.guardarLibro(libro);
+    }
+
     private Libro obtenerLibro(UUID idLibro) {
         return libroRepository.buscarPorIdLibro(idLibro)
                 .orElseThrow(() ->

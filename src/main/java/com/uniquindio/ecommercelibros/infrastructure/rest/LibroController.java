@@ -9,14 +9,7 @@ import com.uniquindio.ecommercelibros.aplication.usecase.libro.*;
 import com.uniquindio.ecommercelibros.domain.entity.Libro;
 import com.uniquindio.ecommercelibros.domain.exception.RecursoNoEncontradoException;
 import com.uniquindio.ecommercelibros.domain.repository.LibroVentas;
-import com.uniquindio.ecommercelibros.domain.valueObject.CategoriaLibro;
-import com.uniquindio.ecommercelibros.domain.valueObject.EstadoLibro;
-import com.uniquindio.ecommercelibros.domain.valueObject.FechaPublicacion;
-import com.uniquindio.ecommercelibros.domain.valueObject.Moneda;
-import com.uniquindio.ecommercelibros.domain.valueObject.NombreLibro;
-import com.uniquindio.ecommercelibros.domain.valueObject.NumeroPaginas;
-import com.uniquindio.ecommercelibros.domain.valueObject.Precio;
-import com.uniquindio.ecommercelibros.domain.valueObject.Stock;
+import com.uniquindio.ecommercelibros.domain.valueObject.*;
 import com.uniquindio.ecommercelibros.infrastructure.rest.mapper.LibroMapper;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -355,6 +348,40 @@ public class LibroController {
     @DeleteMapping("/{idLibro}")
     public ResponseEntity<Void> eliminar(@PathVariable UUID idLibro) {
         eliminarLibro.eliminar(idLibro);
+        return ResponseEntity.noContent().build();
+    }
+
+    @Operation(summary = "Aplicar descuento", description = "Aplicar descuento: se aplica el descuento al libro.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "204", description = "Descuento aplicado"),
+            @ApiResponse(responseCode = "400", description = "Datos invalidos", content = @Content),
+            @ApiResponse(responseCode = "403", description = "Sin permisos", content = @Content),
+            @ApiResponse(responseCode = "404", description = "El libro no existe", content = @Content),
+            @ApiResponse(responseCode = "422", description = "Regla de dominio", content = @Content)
+    })
+    @PutMapping("/{idLibro}/descuento")
+    public ResponseEntity<Void> aplicarDescuento(@PathVariable UUID idLibro,
+                                                 @Valid @RequestBody AplicarDescuentoLibroRequest request) {
+        Descuento descuento = new Descuento(
+                request.porcentaje(),
+                request.motivo(),
+                request.fechaInicio(),
+                request.fechaFin()
+        );
+        actualizarLibro.aplicarDescuento(idLibro, descuento);
+        return ResponseEntity.noContent().build();
+    }
+
+    @Operation(summary = "Quitar descuento", description = "Quitar descuento: se quita el descuento al libro.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "204", description = "Descuento eliminado"),
+            @ApiResponse(responseCode = "403", description = "Sin permisos", content = @Content),
+            @ApiResponse(responseCode = "404", description = "El libro no existe", content = @Content),
+            @ApiResponse(responseCode = "422", description = "Regla de dominio", content = @Content)
+    })
+    @DeleteMapping("/{idLibro}/descuento")
+    public ResponseEntity<Void> quitarDescuento(@PathVariable UUID idLibro) {
+        actualizarLibro.quitarDescuento(idLibro);
         return ResponseEntity.noContent().build();
     }
 }

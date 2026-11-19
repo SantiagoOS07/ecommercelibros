@@ -34,7 +34,7 @@ public class AgregarItemCarrito {
 
         libro.verificarDisponibleParaVenta();
 
-        carrito.agregarItem(libro.getIsbn(), cantidad, libro.getPrecio(), libro.getStock());
+        carrito.agregarItem(libro.getIsbn(), cantidad, libro.precioFinal(), libro.getStock());
 
         carritoRepository.guardarCarrito(carrito);
     }

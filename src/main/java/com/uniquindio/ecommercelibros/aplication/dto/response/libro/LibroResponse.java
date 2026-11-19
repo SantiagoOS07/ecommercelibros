@@ -23,5 +23,11 @@ public record LibroResponse(
         LocalDate fechaPublicacion,
         CategoriaLibro categoria,
         String imagen,
-        EstadoLibro estado
+        EstadoLibro estado,
+        double precioFinal,
+        boolean descuentoVigente ,
+        Double porcentajeDescuento ,
+        String motivoDescuento ,
+        LocalDate fechaInicioDescuento,
+        LocalDate fechaFinDescuento
 ) {}
