@@ -241,10 +241,10 @@ public class Libro {
     public void aplicarDescuento(Descuento nuevoDescuento){
         verificarNoEliminado();
         if (nuevoDescuento == null) {
-            throw new CasillaVaciaException("La descuento no puede ser nulo");
+            throw new CasillaVaciaException("El descuento no puede ser nulo");
         }
-        if(LocalDate.now().isAfter(nuevoDescuento.fechaFin())){
-            throw new ReglaDominioException("La fecha de fin del descuento no puede ser despues de la fecha actual");
+        if (LocalDate.now().isAfter(nuevoDescuento.fechaFin())) {
+            throw new ReglaDominioException("La fecha de fin del descuento ya paso");
         }
         this.descuento = nuevoDescuento;
     }
@@ -252,13 +252,13 @@ public class Libro {
     public void quitarDescuento(){
         verificarNoEliminado();
         if (descuento == null) {
-            throw new ReglaDominioException("La descuento no existe");
+            throw new ReglaDominioException("El libro no tiene un descuento para quitar");
         }
         this.descuento = null;
     }
 
     public boolean tieneDescuentoVigente(){
-        return descuento != null && descuento.esVigente();
+        return descuento != null && descuento.estaVigente(LocalDate.now());
     }
 
     public Precio precioFinal(){

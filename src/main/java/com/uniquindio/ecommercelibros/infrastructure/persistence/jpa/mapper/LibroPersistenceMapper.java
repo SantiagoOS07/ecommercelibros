@@ -39,7 +39,7 @@ public class LibroPersistenceMapper {
         entity.setImagen(libro.getImagen());
         entity.setEstado(libro.getEstado());
         entity.setEliminado(libro.isEliminado());
-        entity.setDescuento(DescuentoEmbeddable.desde(libro.getDescuento()));;
+        entity.setDescuento(libro.getDescuento() == null ? null : DescuentoEmbeddable.desde(libro.getDescuento()));
         return entity;
     }
 

@@ -13,6 +13,7 @@ import java.math.BigDecimal;
 public class LibroMapper {
 
     public LibroResponse toResponse(Libro libro) {
+        Descuento descuento = libro.getDescuento();
         return new LibroResponse(
                 libro.getIdLibro(),
                 libro.getTitulo().nombreLibro(),
@@ -28,7 +29,13 @@ public class LibroMapper {
                 libro.getFechaPublicacion().fecha(),
                 libro.getCategoria(),
                 libro.getImagen(),
-                libro.getEstado()
+                libro.getEstado(),
+                libro.precioFinal().monto(),
+                libro.tieneDescuentoVigente(),
+                descuento == null ? null : descuento.porcentaje(),
+                descuento == null ? null : descuento.motivo(),
+                descuento == null ? null : descuento.fechaInicio(),
+                descuento == null ? null : descuento.fechaFin()
         );
     }
 

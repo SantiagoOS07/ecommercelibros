@@ -45,7 +45,7 @@ public class ActualizarLibro {
     public void actualizarPrecio(UUID idLibro, Precio nuevoPrecio) {
         Libro libro = obtenerLibro(idLibro);
         libro.cambiarPrecio(nuevoPrecio);
-        verificadorDeCarrito.actualizarPrecioItemsCarritoCreado(libro.getIsbn().isbn(), nuevoPrecio);
+        verificadorDeCarrito.actualizarPrecioItemsCarritoCreado(libro.getIsbn().isbn(), libro.precioFinal());
         libroRepository.guardarLibro(libro);
     }
 
@@ -103,6 +103,7 @@ public class ActualizarLibro {
     public void aplicarDescuento(UUID idLibro, Descuento descuento){
         Libro libro = obtenerLibro(idLibro);
         libro.aplicarDescuento(descuento);
+        verificadorDeCarrito.actualizarPrecioItemsCarritoCreado(libro.getIsbn().isbn(), libro.precioFinal());
         libroRepository.guardarLibro(libro);
     }
 
@@ -110,6 +111,7 @@ public class ActualizarLibro {
     public void quitarDescuento(UUID idLibro){
         Libro libro = obtenerLibro(idLibro);
         libro.quitarDescuento();
+        verificadorDeCarrito.actualizarPrecioItemsCarritoCreado(libro.getIsbn().isbn(), libro.precioFinal());
         libroRepository.guardarLibro(libro);
     }
 

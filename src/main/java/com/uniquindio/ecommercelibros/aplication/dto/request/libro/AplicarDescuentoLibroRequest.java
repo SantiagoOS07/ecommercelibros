@@ -8,11 +8,11 @@ import java.time.LocalDate;
 public record AplicarDescuentoLibroRequest (
         @NotNull(message = "El porcentaje esta vacio")
         @Positive(message = "El descuento debe ser positivo")
-        @Max(99)
+        @Max(value = 99, message = "El descuento no puede ser mayor a 99")
         Double porcentaje,
 
         @NotBlank(message = "El motivo no puede ser vacio")
-        @Size(max = 100, message = "El título no puede superar los 150 caracteres")
+        @Size(max = 100, message = "El motivo no puede superar los 100 caracteres")
         String motivo,
 
         @NotNull(message = "La fecha de inicio esta vacia")
