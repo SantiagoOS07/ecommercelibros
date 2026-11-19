@@ -20,5 +20,6 @@ public interface LibroRepository {
         return buscarLibros(FiltroLibros.porTituloYEstado(palabraTitulo, estado), pagina, tamanio);
     }
     Map<String, String> buscarTitulosPorIsbn(Collection<String> isbns);
+    Map<String, UUID> buscarIdsPorIsbn(Collection<String> isbns);
     List<LibroVentas> buscarLibrosMasVendidos(int limite);
 }

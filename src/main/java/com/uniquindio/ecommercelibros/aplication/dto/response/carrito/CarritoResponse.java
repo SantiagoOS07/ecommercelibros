@@ -1,6 +1,7 @@
 package com.uniquindio.ecommercelibros.aplication.dto.response.carrito;
 
 import com.uniquindio.ecommercelibros.domain.valueObject.EstadoCarrito;
+import com.uniquindio.ecommercelibros.domain.valueObject.Moneda;
 import com.uniquindio.ecommercelibros.domain.valueObject.Precio;
 
 import java.math.BigDecimal;
@@ -13,5 +14,6 @@ public record CarritoResponse(
         String idUsuario,
         List<ItemCarritoResponse> items,
         EstadoCarrito estado,
-        double precioTotal
+        double precioTotal,
+        Moneda moneda
 ) {}

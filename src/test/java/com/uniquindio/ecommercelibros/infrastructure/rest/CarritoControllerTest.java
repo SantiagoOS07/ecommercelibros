@@ -11,6 +11,7 @@ import com.uniquindio.ecommercelibros.aplication.usecase.Carrito.AgregarItemCarr
 import com.uniquindio.ecommercelibros.aplication.usecase.Carrito.CompletarVentaCarrito;
 import com.uniquindio.ecommercelibros.aplication.usecase.Carrito.ConsultarCarritoPorID;
 import com.uniquindio.ecommercelibros.aplication.usecase.Carrito.EliminarItemCarrito;
+import com.uniquindio.ecommercelibros.aplication.usecase.Carrito.ObtenerIdsLibrosCarritos;
 import com.uniquindio.ecommercelibros.aplication.usecase.Carrito.ObtenerTitulosCarritos;
 import com.uniquindio.ecommercelibros.aplication.usecase.Carrito.RegistrarCarrito;
 import com.uniquindio.ecommercelibros.domain.entity.Carrito;
@@ -46,6 +47,7 @@ class CarritoControllerTest {
     @Mock private CompletarVentaCarrito completarVentaCarrito;
     @Mock private ConsultarCarritoPorID consultarCarritoPorID;
     @Mock private ObtenerTitulosCarritos obtenerTitulosCarritos;
+    @Mock private ObtenerIdsLibrosCarritos obtenerIdsLibrosCarritos;
     @Mock private VentaMapper ventaMapper;
     @Mock private CarritoMapper mapper;
 
@@ -69,7 +71,7 @@ class CarritoControllerTest {
 
         when(registrarCarrito.ejecutar(uid)).thenReturn(carrito);
         when(carrito.getIdCarrito()).thenReturn(idCarrito);
-        when(mapper.toResponse(carrito, Map.of())).thenReturn(response);
+        when(mapper.toResponse(carrito, Map.of(), Map.of())).thenReturn(response);
 
         ResponseEntity<CarritoResponse> resultado = controller.crear(jwt);
 
@@ -84,10 +86,12 @@ class CarritoControllerTest {
         Carrito carrito = mock(Carrito.class);
         CarritoResponse response = mock(CarritoResponse.class);
         Map<String, String> titulos = Map.of("9783161484100", "Libro A");
+        Map<String, UUID> idsLibros = Map.of("9783161484100", UUID.randomUUID());
 
         when(consultarCarritoPorID.ejecutar(idCarrito)).thenReturn(Optional.of(carrito));
         when(obtenerTitulosCarritos.ejecutar(anyCollection())).thenReturn(titulos);
-        when(mapper.toResponse(carrito, titulos)).thenReturn(response);
+        when(obtenerIdsLibrosCarritos.ejecutar(anyCollection())).thenReturn(idsLibros);
+        when(mapper.toResponse(carrito, titulos, idsLibros)).thenReturn(response);
 
         ResponseEntity<CarritoResponse> resultado = controller.consultarPorId(idCarrito);
 
@@ -101,7 +105,7 @@ class CarritoControllerTest {
         when(consultarCarritoPorID.ejecutar(idCarrito)).thenReturn(Optional.empty());
 
         assertThrows(RecursoNoEncontradoException.class, () -> controller.consultarPorId(idCarrito));
-        verifyNoInteractions(obtenerTitulosCarritos);
+        verifyNoInteractions(obtenerTitulosCarritos, obtenerIdsLibrosCarritos);
     }
 
     @Test

@@ -12,6 +12,12 @@ public record Descuento(double porcentaje, String motivo, LocalDate fechaInicio,
             throw new ReglaDominioException("El porcentaje del descuento debe ser mayor que 0 y menor que 100");
         }
         if (motivo == null || motivo.isBlank()) {
+            throw new CasillaVaciaException("El motivo del descuento es obligatorio");
+        }
+        if (motivo.length() > 100) {
+            throw new ReglaDominioException("El motivo del descuento no puede tener más de 100 caracteres");
+        }
+        if (fechaInicio == null) {
             throw new CasillaVaciaException("La fecha de inicio es obligatoria");
         }
         if (fechaFin == null) {

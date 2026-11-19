@@ -14,6 +14,7 @@ import com.uniquindio.ecommercelibros.aplication.usecase.Carrito.ConsultarCarrit
 import com.uniquindio.ecommercelibros.aplication.usecase.Carrito.EliminarCarrito;
 import com.uniquindio.ecommercelibros.aplication.usecase.Carrito.EliminarItemCarrito;
 import com.uniquindio.ecommercelibros.aplication.usecase.Carrito.ListarCarritos;
+import com.uniquindio.ecommercelibros.aplication.usecase.Carrito.ObtenerIdsLibrosCarritos;
 import com.uniquindio.ecommercelibros.aplication.usecase.Carrito.ObtenerTitulosCarritos;
 import com.uniquindio.ecommercelibros.aplication.usecase.Carrito.RegistrarCarrito;
 import com.uniquindio.ecommercelibros.domain.entity.Carrito;
@@ -59,6 +60,7 @@ public class CarritoController {
     private final ListarCarritos listarCarritos;
     private final EliminarCarrito eliminarCarrito;
     private final ObtenerTitulosCarritos obtenerTitulosCarritos;
+    private final ObtenerIdsLibrosCarritos obtenerIdsLibrosCarritos;
     private final CarritoMapper mapper;
     private final VentaMapper ventaMapper;
 
@@ -81,7 +83,7 @@ public class CarritoController {
                 .toUri();
 
         return ResponseEntity.created(location)
-                .body(mapper.toResponse(carrito, Map.of()));
+                .body(mapper.toResponse(carrito, Map.of(), Map.of()));
     }
 
     @Operation(summary = "Consultar carrito por id",
@@ -99,7 +101,7 @@ public class CarritoController {
                 .orElseThrow(() -> new RecursoNoEncontradoException(
                         "No se encontró el carrito con ID: " + idCarrito));
 
-        return ResponseEntity.ok(mapper.toResponse(carrito, titulosDe(carrito)));
+        return ResponseEntity.ok(mapper.toResponse(carrito, titulosDe(carrito), idsDe(carrito)));
     }
 
     @Operation(summary = "Consultar carrito activo de un usuario",
@@ -117,7 +119,7 @@ public class CarritoController {
                 .orElseThrow(() -> new RecursoNoEncontradoException(
                         "El usuario " + idUsuario + " no tiene un carrito activo"));
 
-        return ResponseEntity.ok(mapper.toResponse(carrito, titulosDe(carrito)));
+        return ResponseEntity.ok(mapper.toResponse(carrito, titulosDe(carrito), idsDe(carrito)));
     }
 
     @Operation(summary = "Listar todos los carritos", description = "Solo ADMINISTRADOR.")
@@ -131,9 +133,10 @@ public class CarritoController {
 
         var carritos = listarCarritos.ejecutar();
         Map<String, String> titulos = obtenerTitulosCarritos.ejecutar(carritos); // 1 sola consulta
+        Map<String, UUID> idsLibros = obtenerIdsLibrosCarritos.ejecutar(carritos);
 
         return ResponseEntity.ok(
-                carritos.stream().map(c -> mapper.toResponse(c, titulos)).toList());
+                carritos.stream().map(c -> mapper.toResponse(c, titulos, idsLibros)).toList());
     }
 
     @Operation(summary = "Agregar un libro al carrito",
@@ -250,5 +253,9 @@ public class CarritoController {
 
     private Map<String, String> titulosDe(Carrito carrito) {
         return obtenerTitulosCarritos.ejecutar(List.of(carrito));
+    }
+
+    private Map<String, UUID> idsDe(Carrito carrito) {
+        return obtenerIdsLibrosCarritos.ejecutar(List.of(carrito));
     }
 }

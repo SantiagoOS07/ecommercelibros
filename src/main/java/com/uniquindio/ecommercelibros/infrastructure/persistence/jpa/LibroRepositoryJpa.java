@@ -123,6 +123,19 @@ public class LibroRepositoryJpa implements LibroRepository {
     }
 
     @Override
+    @Transactional(readOnly = true)
+    public Map<String, UUID> buscarIdsPorIsbn(Collection<String> isbns) {
+        if (isbns == null || isbns.isEmpty()) {
+            return Map.of();
+        }
+        return dataRepository.findByIsbnInAndEliminadoFalse(isbns).stream()
+                .collect(Collectors.toMap(
+                        LibroEntity::getIsbn,
+                        entity -> UUID.fromString(entity.getIdLibro()),
+                        (a, b) -> a));
+    }
+
+    @Override
     public List<LibroVentas> buscarLibrosMasVendidos(int limite) {
         return dataRepository.buscarLibrosMasVendidos(EstadoPedido.ENTREGADO, PageRequest.of(0, limite));
     }
