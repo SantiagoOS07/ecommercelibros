@@ -144,3 +144,18 @@ VALUES
      'ca000000-0000-0000-0000-000000000001',
      '9789580010035',
      18.50, 'USD', 18.50, 'USD', 20, 1);
+
+-- descuento_libro: se aplica el descuento modificando el precio final
+UPDATE libros SET
+                  descuento_porcentaje = 20,
+                  descuento_motivo = 'Temporada navideña',
+                  descuento_fecha_inicio = '2026-11-01',
+                  descuento_fecha_fin = '2026-12-31'
+WHERE id_libro = 'b0000000-0000-0000-0000-000000000002';
+
+UPDATE libros SET
+                  descuento_porcentaje = 15,
+                  descuento_motivo = 'Mes del libro',
+                  descuento_fecha_inicio = '2026-11-01',
+                  descuento_fecha_fin = '2026-12-31'
+WHERE id_libro = 'b0000000-0000-0000-0000-000000000005';
