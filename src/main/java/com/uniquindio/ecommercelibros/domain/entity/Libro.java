@@ -6,6 +6,7 @@ import com.uniquindio.ecommercelibros.domain.exception.StockInsuficienteExceptio
 import com.uniquindio.ecommercelibros.domain.valueObject.*;
 import lombok.Getter;
 
+import java.time.LocalDate;
 import java.util.Objects;
 import java.util.UUID;
 
@@ -28,8 +29,9 @@ public class Libro {
     private String imagen;
     private EstadoLibro estado;
     private boolean eliminado;
+    private Descuento descuento;
 
-    private Libro(UUID idLibro, NombreLibro titulo, String idAutor, ISBN isbn, String descripcion, NumeroPaginas numeroPaginas, Precio precio, Stock stock, String edicion, UUID idEditorial, FechaPublicacion fechaPublicacion, CategoriaLibro categoria, String imagen, EstadoLibro estado,  boolean eliminado) {
+    private Libro(UUID idLibro, NombreLibro titulo, String idAutor, ISBN isbn, String descripcion, NumeroPaginas numeroPaginas, Precio precio, Stock stock, String edicion, UUID idEditorial, FechaPublicacion fechaPublicacion, CategoriaLibro categoria, String imagen, EstadoLibro estado,  boolean eliminado, Descuento descuento) {
         this.idLibro = idLibro;
         this.titulo = titulo;
         this.idAutor = idAutor;
@@ -45,15 +47,20 @@ public class Libro {
         this.imagen = imagen;
         this.estado = estado;
         this.eliminado = eliminado;
+        this.descuento = descuento;
     }
 
     public static Libro crear(NombreLibro titulo, String idAutor, ISBN isbn, String descripcion, NumeroPaginas numeroPaginas, Precio precio, Stock stock, String edicion, UUID idEditorial, FechaPublicacion fechaPublicacion, CategoriaLibro categoria, String imagen, EstadoLibro estado) {
         validar(titulo, idAutor, isbn, numeroPaginas, precio, stock,edicion, idEditorial, fechaPublicacion, categoria, estado);
-        return new Libro(UUID.randomUUID(), titulo, idAutor, isbn, descripcion, numeroPaginas, precio, stock, edicion, idEditorial, fechaPublicacion, categoria, imagen, estado, false);
+        return new Libro(UUID.randomUUID(), titulo, idAutor, isbn, descripcion, numeroPaginas, precio, stock, edicion, idEditorial, fechaPublicacion, categoria, imagen, estado, false, null);
     }
 
     public static Libro reconstruir(UUID idLibro, NombreLibro titulo, String idAutor, ISBN isbn, String descripcion, NumeroPaginas numeroPaginas, Precio precio, Stock stock, String edicion, UUID idEditorial, FechaPublicacion fechaPublicacion, CategoriaLibro categoria, String imagen, EstadoLibro estado, boolean eliminado) {
-        return new Libro(idLibro, titulo, idAutor, isbn, descripcion, numeroPaginas, precio, stock, edicion, idEditorial, fechaPublicacion, categoria, imagen, estado, eliminado);
+        return reconstruir(idLibro, titulo, idAutor, isbn, descripcion, numeroPaginas, precio, stock, edicion, idEditorial, fechaPublicacion, categoria, imagen, estado, eliminado, null);
+    }
+
+    public static Libro reconstruir(UUID idLibro, NombreLibro titulo, String idAutor, ISBN isbn, String descripcion, NumeroPaginas numeroPaginas, Precio precio, Stock stock, String edicion, UUID idEditorial, FechaPublicacion fechaPublicacion, CategoriaLibro categoria, String imagen, EstadoLibro estado, boolean eliminado, Descuento descuento) {
+        return new Libro(idLibro, titulo, idAutor, isbn, descripcion, numeroPaginas, precio, stock, edicion, idEditorial, fechaPublicacion, categoria, imagen, estado, eliminado, descuento);
     }
 
     private static void validar(NombreLibro titulo, String idAutor, ISBN isbn, NumeroPaginas numeroPaginas, Precio precio, Stock stock, String edicion, UUID idEditorial, FechaPublicacion fechaPublicacion, CategoriaLibro categoria, EstadoLibro estado) {
@@ -229,6 +236,33 @@ public class Libro {
         if (this.estado != EstadoLibro.DISPONIBLE) {
             throw new ReglaDominioException("El libro no está disponible para la venta (estado: " + estado + ").");
         }
+    }
+
+    public void aplicarDescuento(Descuento nuevoDescuento){
+        verificarNoEliminado();
+        if (nuevoDescuento == null) {
+            throw new CasillaVaciaException("La descuento no puede ser nulo");
+        }
+        if(LocalDate.now().isAfter(nuevoDescuento.fechaFin())){
+            throw new ReglaDominioException("La fecha de fin del descuento no puede ser despues de la fecha actual");
+        }
+        this.descuento = nuevoDescuento;
+    }
+
+    public void quitarDescuento(){
+        verificarNoEliminado();
+        if (descuento == null) {
+            throw new ReglaDominioException("La descuento no existe");
+        }
+        this.descuento = null;
+    }
+
+    public boolean tieneDescuentoVigente(){
+        return descuento != null && descuento.esVigente();
+    }
+
+    public Precio precioFinal(){
+        return tieneDescuentoVigente() ? precio.aplicarDescuento(descuento.porcentaje()) : precio;
     }
 
     @Override
