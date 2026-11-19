@@ -36,11 +36,25 @@ class AgregarItemCarritoTest {
     private Libro libroMock(UUID idLibro) {
         Libro libro = mock(Libro.class);
         when(libro.getIsbn()).thenReturn(new ISBN("9783161484100"));
-        when(libro.getPrecio()).thenReturn(new Precio(20000, Moneda.COP));
+        when(libro.precioFinal()).thenReturn(new Precio(20000, Moneda.COP));
         when(libro.getStock()).thenReturn(new Stock(10));
         when(libroRepository.buscarPorIdLibro(idLibro)).thenReturn(Optional.of(libro));
         return libro;
     }
+
+    @Test
+    void agregaElItemConElPrecioConDescuento() {
+        UUID idCarrito = UUID.randomUUID();
+        UUID idLibro = UUID.randomUUID();
+        Carrito carrito = Carrito.crear("usuario-123");
+        when(carritoRepository.buscarPorIdCarrito(idCarrito)).thenReturn(Optional.of(carrito));
+        Libro libro = libroMock(idLibro);
+        when(libro.precioFinal()).thenReturn(new Precio(16000, Moneda.COP));
+                agregarItemCarrito.ejecutar(idCarrito, idLibro, 2);
+                assertEquals(16000, carrito.getItems().getFirst().getPrecioUnitario().monto());
+        assertEquals(32000, carrito.getItems().getFirst().getPrecioTotal().monto());
+        verify(carritoRepository).guardarCarrito(carrito);
+        }
 
     @Test
     void agregaElItemCargandoElLibroPorId() {

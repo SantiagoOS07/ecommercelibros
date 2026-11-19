@@ -2,6 +2,7 @@ package com.uniquindio.ecommercelibros.aplication.usecase.libro;
 
 import com.uniquindio.ecommercelibros.domain.entity.Libro;
 import com.uniquindio.ecommercelibros.domain.exception.RecursoNoEncontradoException;
+import com.uniquindio.ecommercelibros.domain.exception.ReglaDominioException;
 import com.uniquindio.ecommercelibros.domain.repository.LibroRepository;
 import com.uniquindio.ecommercelibros.domain.service.VerificadorDeCarrito;
 import com.uniquindio.ecommercelibros.domain.valueObject.*;
@@ -22,9 +23,12 @@ import static org.mockito.Mockito.*;
 @ExtendWith(MockitoExtension.class)
 class ActualizarLibroTest {
 
-    @Mock private LibroRepository libroRepository;
-    @Mock private VerificadorDeCarrito verificadorDeCarrito;
-    @InjectMocks private ActualizarLibro actualizarLibro;
+    @Mock
+    private LibroRepository libroRepository;
+    @Mock
+    private VerificadorDeCarrito verificadorDeCarrito;
+    @InjectMocks
+    private ActualizarLibro actualizarLibro;
 
     @Test
     void actualizarPrecio_cambiaElPrecioLoPropagaALosCarritosCreadoYGuarda() {
@@ -62,6 +66,95 @@ class ActualizarLibroTest {
 
         verifyNoInteractions(verificadorDeCarrito);
         verify(libroRepository, never()).guardarLibro(any());
+    }
+
+    @Test
+    void aplicarDescuento_aplicaElDescuentoActualizaLosCarritosCreadoYGuarda() {
+        Libro libro = libro();
+        when(libroRepository.buscarPorIdLibro(libro.getIdLibro())).thenReturn(Optional.of(libro));
+        Descuento descuento = descuentoVigente(20);
+
+        actualizarLibro.aplicarDescuento(libro.getIdLibro(), descuento);
+
+        assertEquals(descuento, libro.getDescuento());
+        verify(verificadorDeCarrito).actualizarPrecioItemsCarritoCreado("9783161484100", new Precio(20000, Moneda.COP));
+        verify(libroRepository).guardarLibro(libro);
+    }
+
+    @Test
+    void aplicarDescuento_libroInexistente_lanzaNotFoundYNoPropaga() {
+        UUID id = UUID.randomUUID();
+        when(libroRepository.buscarPorIdLibro(id)).thenReturn(Optional.empty());
+
+        assertThrows(RecursoNoEncontradoException.class,
+                () -> actualizarLibro.aplicarDescuento(id, descuentoVigente(20)));
+
+        verifyNoInteractions(verificadorDeCarrito);
+        verify(libroRepository, never()).guardarLibro(any());
+    }
+
+    @Test
+    void aplicarDescuento_vencido_lanzaReglaDominioYNoGuarda() {
+        Libro libro = libro();
+        when(libroRepository.buscarPorIdLibro(libro.getIdLibro())).thenReturn(Optional.of(libro));
+        Descuento vencido = new Descuento(20, "Vencido",
+                LocalDate.now().minusDays(10), LocalDate.now().minusDays(1));
+
+        assertThrows(ReglaDominioException.class,
+                () -> actualizarLibro.aplicarDescuento(libro.getIdLibro(), vencido));
+
+        verifyNoInteractions(verificadorDeCarrito);
+        verify(libroRepository, never()).guardarLibro(any());
+    }
+
+    @Test
+    void quitarDescuento_quitaElDescuentoRestauraElPrecioEnLosCarritosYGuarda() {
+        Libro libro = libro();
+        libro.aplicarDescuento(descuentoVigente(20));
+        when(libroRepository.buscarPorIdLibro(libro.getIdLibro())).thenReturn(Optional.of(libro));
+
+        actualizarLibro.quitarDescuento(libro.getIdLibro());
+
+        assertNull(libro.getDescuento());
+        verify(verificadorDeCarrito).actualizarPrecioItemsCarritoCreado("9783161484100", new Precio(25000, Moneda.COP));
+        verify(libroRepository).guardarLibro(libro);
+    }
+
+    @Test
+    void quitarDescuento_sinDescuento_lanzaReglaDominioYNoGuarda() {
+        Libro libro = libro();
+        when(libroRepository.buscarPorIdLibro(libro.getIdLibro())).thenReturn(Optional.of(libro));
+
+        assertThrows(ReglaDominioException.class,
+                () -> actualizarLibro.quitarDescuento(libro.getIdLibro()));
+
+        verifyNoInteractions(verificadorDeCarrito);
+        verify(libroRepository, never()).guardarLibro(any());
+    }
+
+    @Test
+    void quitarDescuento_libroInexistente_lanzaNotFound() {
+        UUID id = UUID.randomUUID();
+        when(libroRepository.buscarPorIdLibro(id)).thenReturn(Optional.empty());
+
+        assertThrows(RecursoNoEncontradoException.class, () -> actualizarLibro.quitarDescuento(id));
+
+        verify(libroRepository, never()).guardarLibro(any());
+    }
+
+    @Test
+    void actualizarPrecio_conDescuentoVigente_propagaElPrecioFinalALosCarritos() {
+        Libro libro = libro();
+        libro.aplicarDescuento(descuentoVigente(20));
+        when(libroRepository.buscarPorIdLibro(libro.getIdLibro())).thenReturn(Optional.of(libro));
+        actualizarLibro.actualizarPrecio(libro.getIdLibro(), new Precio(30000, Moneda.COP));
+        verify(verificadorDeCarrito).actualizarPrecioItemsCarritoCreado("9783161484100", new Precio(24000, Moneda.COP));
+        verify(libroRepository).guardarLibro(libro);
+    }
+
+
+    private static Descuento descuentoVigente(double porcentaje) {
+        return new Descuento(porcentaje, "Temporada", LocalDate.now().minusDays(1), LocalDate.now().plusDays(10));
     }
 
     private static Libro libro() {

@@ -240,6 +240,147 @@ class LibroTest {
     }
 
     private Libro crearLibro() {
-        return Libro.crear(new NombreLibro("El Principito"), "autor-123", new ISBN("9783161484100"), "Una historia clásica", new NumeroPaginas(120), new Precio(25000, Moneda.COP), new Stock(10), "Primera edición", UUID.randomUUID(), new FechaPublicacion(LocalDate.of(1943, 4, 6)), CategoriaLibro.NOVELA, "imagen.jpg", EstadoLibro.DISPONIBLE);
+        return Libro.crear(new NombreLibro("El Principito"), "autor-123", new ISBN("9783161484100"), "Una historia clásica", new NumeroPaginas(120), new Precio(25000, Moneda.COP), new Stock(10), "Primera edición", UUID.randomUUID(), new FechaPublicacion(LocalDate.of(1943, 4, 6)),
+                CategoriaLibro.NOVELA, "imagen.jpg", EstadoLibro.DISPONIBLE);
+    }
+
+    @Test
+    void crear_dejaElDescuentoEnNull() {
+        Libro libro = libro(5, EstadoLibro.DISPONIBLE);
+
+        assertNull(libro.getDescuento());
+        assertFalse(libro.tieneDescuentoVigente());
+    }
+
+    @Test
+    void aplicarDescuento_guardaElDescuento() {
+        Libro libro = libro(5, EstadoLibro.DISPONIBLE);
+        Descuento descuento = descuentoVigente(20);
+
+        libro.aplicarDescuento(descuento);
+
+        assertEquals(descuento, libro.getDescuento());
+        assertTrue(libro.tieneDescuentoVigente());
+    }
+
+    @Test
+    void aplicarDescuento_nuloLanzaCasillaVacia() {
+        Libro libro = libro(5, EstadoLibro.DISPONIBLE);
+
+        assertThrows(CasillaVaciaException.class, () -> libro.aplicarDescuento(null));
+        assertNull(libro.getDescuento());
+    }
+
+    @Test
+    void aplicarDescuento_vencidoLanzaReglaDominio() {
+        Libro libro = libro(5, EstadoLibro.DISPONIBLE);
+        Descuento vencido = new Descuento(20, "Vencido",
+                LocalDate.now().minusDays(10), LocalDate.now().minusDays(1));
+
+        assertThrows(ReglaDominioException.class, () -> libro.aplicarDescuento(vencido));
+        assertNull(libro.getDescuento());
+    }
+
+    @Test
+    void aplicarDescuento_enLibroEliminadoLanzaReglaDominio() {
+        Libro libro = libro(5, EstadoLibro.DISPONIBLE);
+        libro.eliminarLogicamente();
+
+        assertThrows(ReglaDominioException.class, () -> libro.aplicarDescuento(descuentoVigente(20)));
+    }
+
+    @Test
+    void aplicarDescuento_futuroSeGuardaPeroNoEstaVigente() {
+        Libro libro = libro(5, EstadoLibro.DISPONIBLE);
+        Descuento futuro = new Descuento(20, "Futuro",
+                LocalDate.now().plusDays(5), LocalDate.now().plusDays(10));
+
+        libro.aplicarDescuento(futuro);
+
+        assertEquals(futuro, libro.getDescuento());
+        assertFalse(libro.tieneDescuentoVigente());
+    }
+
+    @Test
+    void quitarDescuento_dejaElDescuentoEnNull() {
+        Libro libro = libro(5, EstadoLibro.DISPONIBLE);
+        libro.aplicarDescuento(descuentoVigente(20));
+
+        libro.quitarDescuento();
+
+        assertNull(libro.getDescuento());
+        assertFalse(libro.tieneDescuentoVigente());
+    }
+
+    @Test
+    void quitarDescuento_sinDescuentoLanzaReglaDominio() {
+        Libro libro = libro(5, EstadoLibro.DISPONIBLE);
+
+        assertThrows(ReglaDominioException.class, libro::quitarDescuento);
+    }
+
+    @Test
+    void quitarDescuento_enLibroEliminadoLanzaReglaDominio() {
+        Libro libro = libro(5, EstadoLibro.DISPONIBLE);
+        libro.aplicarDescuento(descuentoVigente(20));
+        libro.eliminarLogicamente();
+
+        assertThrows(ReglaDominioException.class, libro::quitarDescuento);
+    }
+
+    @Test
+    void precioFinal_sinDescuentoEsElPrecioNormal() {
+        Libro libro = libro(5, EstadoLibro.DISPONIBLE);
+
+        assertEquals(libro.getPrecio(), libro.precioFinal());
+    }
+
+    @Test
+    void precioFinal_conDescuentoVigenteAplicaElPorcentaje() {
+        Libro libro = libro(5, EstadoLibro.DISPONIBLE);
+        libro.aplicarDescuento(descuentoVigente(20));
+
+        assertEquals(20000, libro.precioFinal().monto(), 0.001);
+        assertEquals(Moneda.COP, libro.precioFinal().moneda());
+        assertEquals(25000, libro.getPrecio().monto());
+    }
+
+    @Test
+    void precioFinal_conDescuentoQueAunNoEmpiezaEsElPrecioNormal() {
+        Libro libro = libro(5, EstadoLibro.DISPONIBLE);
+        libro.aplicarDescuento(new Descuento(20, "Futuro",
+                LocalDate.now().plusDays(5), LocalDate.now().plusDays(10)));
+
+        assertEquals(libro.getPrecio(), libro.precioFinal());
+    }
+
+    @Test
+    void precioFinal_conDescuentoVencidoReconstruidoEsElPrecioNormal() {
+        Descuento vencido = new Descuento(20, "Vencido",
+                LocalDate.now().minusDays(10), LocalDate.now().minusDays(1));
+        Libro libro = Libro.reconstruir(UUID.randomUUID(), new NombreLibro("El Principito"), "autor-123",
+                new ISBN("9783161484100"), "Una historia clásica", new NumeroPaginas(120),
+                new Precio(25000, Moneda.COP), new Stock(5), "Primera edición", UUID.randomUUID(),
+                new FechaPublicacion(LocalDate.of(1943, 4, 6)), CategoriaLibro.NOVELA, "imagen.jpg",
+                EstadoLibro.DISPONIBLE, false, vencido);
+
+        assertFalse(libro.tieneDescuentoVigente());
+        assertEquals(libro.getPrecio(), libro.precioFinal());
+    }
+
+    @Test
+    void reconstruir_sinDescuentoLoDejaEnNull() {
+        Libro libro = Libro.reconstruir(UUID.randomUUID(), new NombreLibro("El Principito"), "autor-123",
+                new ISBN("9783161484100"), "Una historia clásica", new NumeroPaginas(120),
+                new Precio(25000, Moneda.COP), new Stock(5), "Primera edición", UUID.randomUUID(),
+                new FechaPublicacion(LocalDate.of(1943, 4, 6)), CategoriaLibro.NOVELA, "imagen.jpg",
+                EstadoLibro.DISPONIBLE, false);
+
+        assertNull(libro.getDescuento());
+    }
+
+    private Descuento descuentoVigente(double porcentaje) {
+        return new Descuento(porcentaje, "Temporada",
+                LocalDate.now().minusDays(1), LocalDate.now().plusDays(10));
     }
 }
