@@ -65,6 +65,9 @@
         @Column(nullable = false)
         private boolean eliminado;
 
+        @Embedded
+        private DescuentoEmbeddable descuento;
+
         @Version
         private Long version;
 

@@ -7,6 +7,7 @@ import com.uniquindio.ecommercelibros.domain.valueObject.NombreLibro;
 import com.uniquindio.ecommercelibros.domain.valueObject.NumeroPaginas;
 import com.uniquindio.ecommercelibros.domain.valueObject.Precio;
 import com.uniquindio.ecommercelibros.domain.valueObject.Stock;
+import com.uniquindio.ecommercelibros.infrastructure.persistence.jpa.entity.DescuentoEmbeddable;
 import com.uniquindio.ecommercelibros.infrastructure.persistence.jpa.entity.LibroEntity;
 import com.uniquindio.ecommercelibros.infrastructure.persistence.jpa.entity.PrecioEmbeddable;
 
@@ -38,6 +39,7 @@ public class LibroPersistenceMapper {
         entity.setImagen(libro.getImagen());
         entity.setEstado(libro.getEstado());
         entity.setEliminado(libro.isEliminado());
+        entity.setDescuento(DescuentoEmbeddable.desde(libro.getDescuento()));;
         return entity;
     }
 
@@ -58,7 +60,8 @@ public class LibroPersistenceMapper {
                 entity.getCategoria(),
                 entity.getImagen(),
                 entity.getEstado(),
-                entity.isEliminado()
+                entity.isEliminado(),
+                entity.getDescuento() == null ? null : entity.getDescuento().aDominio()
         );
     }
 }
